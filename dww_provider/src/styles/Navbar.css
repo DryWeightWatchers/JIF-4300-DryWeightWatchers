@@ -1,0 +1,24 @@
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #d5c9ff;
+    color: rgb(0, 0, 0);
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .navbar-links Link {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+  }
+  
+  .navbar-links Link:hover {
+    text-decoration: underline;
+  }
