@@ -6,7 +6,7 @@ import MainLayout from './components/MainLayout';
 import Home from './pages/Home'; 
 import Profile from './pages/Profile'; 
 import Settings from './pages/Settings'; 
-import './styles/App.css'
+import './styles/App.module.css'
 
 const App = () => {
 

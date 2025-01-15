@@ -1,24 +1,27 @@
 
 .navbar {
     display: flex;
+    height: 60px; 
+    flex-shrink: 0; 
+
     justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
+    justify-content: flex-end;
+    padding: 0;
     background-color: #d5c9ff;
     color: rgb(0, 0, 0);
   }
   
-  .navbar-links {
+  .navbarLinks {
     list-style: none;
     display: flex;
     gap: 1rem;
   }
   
-  .navbar-links Link {
+  .navbarLinks Link {
     color: rgb(0, 0, 0);
     text-decoration: none;
   }
   
-  .navbar-links Link:hover {
+  .navbarLinks Link:hover {
     text-decoration: underline;
   }
