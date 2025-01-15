@@ -1,5 +1,8 @@
+
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styles from '../styles/Login.module.css';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -36,7 +39,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className={styles.loginContainer}>
       <h1>Provider Login</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
@@ -59,10 +62,10 @@ const Login: React.FC = () => {
           required
         />
 
-        {error && <p className="error-text">{error}</p>}
+        {error && <p className={styles.errorText}>{error}</p>}
 
         <button type="submit">Login</button>
-        <button type="button" id="new-account-btn" onClick={handleRegisterClick}>Register New Account</button>
+        <button type="button" id={styles.newAccountBtn} onClick={handleRegisterClick}>Register New Account</button>
       </form>
     </div>
   );
