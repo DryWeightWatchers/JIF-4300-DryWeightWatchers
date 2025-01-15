@@ -9,12 +9,12 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className={styles.navbar}>
-      <ul className={styles.navbarLinks}>
+      <ul className={styles.navbarList}>
         <li><Link to='/'>Home</Link></li>
         <li><Link to='/profile'>Profile</Link></li>
         <li><Link to='/settings'>Settings</Link></li>
+        <li className={styles.signout}><Link to='#'>Sign Out</Link></li>
       </ul>
-      <p className={styles.signout}>Sign Out</p>
     </nav>
   )
 }
