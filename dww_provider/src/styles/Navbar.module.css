@@ -2,13 +2,14 @@
 .navbar {
     display: flex;
     height: 60px; 
+    width: 100%;
+    margin: 0px 40px;
     flex-shrink: 0; 
 
     justify-content: space-between;
     justify-content: flex-end;
-    padding: 0;
+
     background-color: #d5c9ff;
-    color: rgb(0, 0, 0);
   }
   
   .navbarLinks {
@@ -16,12 +17,22 @@
     display: flex;
     gap: 1rem;
   }
-  
-  .navbarLinks Link {
-    color: rgb(0, 0, 0);
-    text-decoration: none;
+
+  .navbarLinks li {
+    padding: 0px 15px;
   }
   
-  .navbarLinks Link:hover {
+  .navbarLinks a {
+    color: rgb(0, 0, 0);
+    text-decoration: none; 
+  }
+  
+  .navbarLinks a:hover {
     text-decoration: underline;
+  }
+
+  .signout {
+    padding: 0px 40px;
+    color: black; 
+    text-decoration: underline; 
   }

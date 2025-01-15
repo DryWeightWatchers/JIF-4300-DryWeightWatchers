@@ -14,6 +14,7 @@ const Navbar: React.FC = () => {
         <li><Link to='/profile'>Profile</Link></li>
         <li><Link to='/settings'>Settings</Link></li>
       </ul>
+      <p className={styles.signout}>Sign Out</p>
     </nav>
   )
 }
