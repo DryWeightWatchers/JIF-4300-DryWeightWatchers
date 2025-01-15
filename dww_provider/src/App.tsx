@@ -12,10 +12,6 @@ import Navbar from './components/Navbar';
 export default function App() {
   return (
     <Router>
-      <header className="header">
-        <Navbar />
-      </header>
-      <main className="main">
         <Routes>
           <Route path='/' element={<MainLayout><Home /></MainLayout>} />
           <Route path='/profile' element={<MainLayout><Profile /></MainLayout>} />
@@ -23,7 +19,6 @@ export default function App() {
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
           <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
         </Routes>
-      </main>
     </Router>
   );
 }

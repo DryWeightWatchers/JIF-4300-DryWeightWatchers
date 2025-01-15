@@ -1,6 +1,8 @@
-import React from 'react';
-// import Navbar from './Navbar';
-import '../styles/App.css'
+
+
+import React from 'react'; 
+import Navbar from './Navbar'; 
+import styles from '../styles/MainLayout.module.css'; 
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -8,11 +10,12 @@ type MainLayoutProps = {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div>
-      {/* <header className="header">
-        <Navbar />
-      </header> */}
-      <main className="main">{children}</main>
+    <div className={styles.container}>
+      <Navbar /> 
+      <main>{children}</main>
+      <footer>
+        <p className={styles.footerText}>Footer Text</p>
+      </footer>
     </div>
   )
 }
