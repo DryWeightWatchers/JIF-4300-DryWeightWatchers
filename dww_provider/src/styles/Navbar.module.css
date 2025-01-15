@@ -7,8 +7,15 @@
     background-color: #d5c9ff;
 
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+  }
+
+  .navbar .brand {
+    margin: 0px 20px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: black;
   }
   
   .navbarList {

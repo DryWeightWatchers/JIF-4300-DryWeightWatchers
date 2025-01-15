@@ -4,10 +4,8 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import './styles/App.css'
-import './styles/Login.css'
 import MainLayout from './components/MainLayout';
-import Navbar from './components/Navbar';
+import styles from './styles/App.module.css'; 
 
 export default function App() {
   return (

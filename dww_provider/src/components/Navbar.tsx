@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className={styles.navbar}>
-      <div className="brand"><Link to='/'>Dry Weight Watchers</Link></div>
+      <div className={styles.brand}><Link to='/'>Dry Weight Watchers</Link></div>
       <ul className={styles.navbarList}>
         <li><Link to='/'>Home</Link></li>
         <li><Link to='/profile'>Profile</Link></li>

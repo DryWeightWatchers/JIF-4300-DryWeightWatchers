@@ -1,4 +1,4 @@
-.login-container {
+.loginContainer {
     width: 400px;
     background-color: #fafafa;
     border: 1px solid #ddd;
@@ -8,13 +8,13 @@
     text-align: center;
 }
 
-.login-container h1 {
+.loginContainer h1 {
     margin-bottom: 1.5rem;
     font-size: 35px;
     color: black;
 }
 
-.login-container label {
+.loginContainer label {
     text-align: left;
     display: block;
     font-weight: 500;
@@ -22,7 +22,7 @@
     color: black;
 }
 
-.login-container input {
+.loginContainer input {
     width: 100%;
     padding: 0.6rem;
     margin-top: 0.25rem;
@@ -32,7 +32,7 @@
     border-radius: 4px;
 }
 
-.login-container button {
+.loginContainer button {
     width: 100%;
     padding: 0.75rem;
     background-color: #7B5CB8;
@@ -43,17 +43,17 @@
     margin-top: 1.5rem;
 }
 
-.login-container button:hover {
+.loginContainer button:hover {
     opacity: 0.9;
 }
 
-.error-text {
+.errorText {
     color: red;
     font-weight: 500;
     margin-top: 1rem;
 }
 
-#new-account-btn {
+#newAccountBtn {
     background-color: white;
     border: #7B5CB8;
     border-color: #7B5CB8;
