@@ -3,8 +3,8 @@ import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
 import Navbar from './components/Navbar';
 import './styles/App.css'
 import './styles/Login.css'

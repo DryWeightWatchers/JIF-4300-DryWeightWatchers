@@ -3,7 +3,7 @@ import React from 'react';
 
 const RegisterPage: React.FC = () => {
   return (
-    <div style={{ padding: '1rem', color: "black"}}>
+    <div style={{ padding: '1rem'}}>
       <h2>Register (Create Account)</h2>
       <p>Coming soon...</p>
     </div>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
     return new Promise<string>((resolve, reject) => {
@@ -27,6 +29,10 @@ const LoginPage: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Login failed');
     }
+  };
+
+  const handleRegisterClick = () => {
+    navigate('/register');
   };
 
   return (
@@ -56,6 +62,7 @@ const LoginPage: React.FC = () => {
         {error && <p className="error-text">{error}</p>}
 
         <button type="submit">Login</button>
+        <button type="button" id="new-account-btn" onClick={handleRegisterClick}>Register New Account</button>
       </form>
     </div>
   );
