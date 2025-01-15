@@ -3,10 +3,11 @@ import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import './styles/App.css'
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Navbar from './components/Navbar';
+import './styles/App.css'
+import './styles/Login.css'
 
 export default function App() {
   return (
