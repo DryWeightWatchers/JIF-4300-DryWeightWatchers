@@ -1,17 +1,19 @@
-
-
 import React from 'react';
-import '../styles/Navbar.css'; 
+// import Navbar from './Navbar';
+import '../styles/App.css'
 
 type MainLayoutProps = {
-  children: React.ReactNode; 
-}; 
+  children: React.ReactNode;
+};
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <>
-      <main>{children}</main>
-    </>
+    <div>
+      {/* <header className="header">
+        <Navbar />
+      </header> */}
+      <main className="main">{children}</main>
+    </div>
   )
 }
 
