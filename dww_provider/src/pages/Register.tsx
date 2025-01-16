@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from '../styles/auth-forms.module.css'; 
 
-const CreateAccount: React.FC = () => {
+const Register: React.FC = () => {
 
   const [formData, setFormData] = useState({
     firstname: '',
@@ -93,4 +93,4 @@ const CreateAccount: React.FC = () => {
   );
 };
 
-export default CreateAccount;
+export default Register;
