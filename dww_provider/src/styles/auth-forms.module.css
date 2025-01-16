@@ -1,20 +1,21 @@
-.loginContainer {
+.authFormContainer {
     width: 400px;
     background-color: #fafafa;
-    border: 1px solid #ddd;
+    border: 1px solid #bbb;
     border-radius: 8px;
     padding: 2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 8vh auto;
+    box-shadow: 2px 10px 10px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
-.loginContainer h1 {
+.authFormContainer h1 {
     margin-bottom: 1.5rem;
     font-size: 35px;
     color: black;
 }
 
-.loginContainer label {
+.authFormContainer label {
     text-align: left;
     display: block;
     font-weight: 500;
@@ -22,17 +23,25 @@
     color: black;
 }
 
-.loginContainer input {
+.requiredInput::after {
+    content: "*"; 
+    color: red; 
+    font-weight: bold; 
+    margin-left: 2px;
+}
+
+.authFormContainer input {
     width: 100%;
     padding: 0.6rem;
     margin-top: 0.25rem;
     border: 1px solid #bbb;
+    box-sizing: border-box;
     background-color: white;
     color: #000;
     border-radius: 4px;
 }
 
-.loginContainer button {
+.authFormContainer button {
     width: 100%;
     padding: 0.75rem;
     background-color: #7B5CB8;
@@ -43,7 +52,7 @@
     margin-top: 1.5rem;
 }
 
-.loginContainer button:hover {
+.authFormContainer button:hover {
     opacity: 0.9;
 }
 
