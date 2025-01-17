@@ -1,7 +1,5 @@
 
 
-
-  /* Profile container styling */
   .profileContainer {
     width: 80%;
     max-width: 600px;
@@ -12,7 +10,6 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  /* Header styling */
   .profileContainer h1 {
     text-align: center;
     font-size: 1.8rem;
@@ -36,7 +33,6 @@
     color: #444;
   }
   
-  /* Link styling */
   .profileContainer a {
     color: #007bff;
     text-decoration: none;
@@ -48,7 +44,6 @@
     text-decoration: underline;
   }
   
-  /* Input checkbox styling */
   .profileContainer input[type="checkbox"] {
     margin-right: 0.5rem;
     accent-color: #007bff;
@@ -59,8 +54,11 @@
     margin-top: 0.2rem;
   }
   
-  /* Styling individual sections */
-  .profileContainer  > div {
-    margin-bottom: 1.5rem;
+  .profileContainer > div {
+    margin-bottom: 2rem; 
   }
   
+  .profileContainer > div > div {
+    display: flex; 
+    justify-content: space-between;
+  }
