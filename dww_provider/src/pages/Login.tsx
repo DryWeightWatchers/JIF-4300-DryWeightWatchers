@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../styles/Login.module.css';
+import styles from '../styles/auth-forms.module.css';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.authFormContainer}>
       <h1>Provider Login</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
