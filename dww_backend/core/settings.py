@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -76,11 +77,11 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        #'NAME': insert .venv environment variables eventually,          
-        #'USER': ,         
-        #'PASSWORD': ,     
-        #'HOST': ,                   
-        #'PORT': ,  
+        #'NAME': '',          
+        #'USER': '',         
+        #'PASSWORD': '',     
+        #'HOST': '',                   
+        #'PORT': '',  
     }
 }
 
@@ -102,6 +103,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTH_USER_MODEL = 'api.User'
 
 
 # Internationalization
