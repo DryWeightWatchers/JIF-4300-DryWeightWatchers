@@ -12,8 +12,8 @@ const Navbar: React.FC = () => {
       <div className={styles.brand}><Link to='/'>Dry Weight Watchers</Link></div>
       <ul className={styles.navbarList}>
         <li><Link to='/'>Home</Link></li>
+        <li><Link to='/dashboard'>Dashboard</Link></li>
         <li><Link to='/profile'>Profile</Link></li>
-        <li><Link to='/settings'>Settings</Link></li>
         <li><Link to='/login'>Login / Register</Link></li>
         <li className={styles.signout}><Link to='#'>Sign Out</Link></li>
       </ul>
