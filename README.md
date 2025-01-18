@@ -27,6 +27,8 @@ Always follow these practices whenever you are installing/uninstalling Python de
 
 Open MySQL Workbench, which was included in MySQL Server. In the top menu bar, select *Database > Connect to Database*. Enter the appropriate credentials and click OK. In the new tab, go to the Navigator pane on the left and double-click the *dry_weight_watchers* database to select it (it will turn bold). In the Query pane in the center, you can run SQL commands on the database. Try using `select * from <TableName>` to see some data. 
 
+When you first run the development server, you'll need to enter your database credentials into an `.env` file to ensure Django can access the database without exposing sensitive info to the repo. Follow the instructions in the `.env_template` file. 
+
 ### Running the application: 
 
 To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`. It will start a local development server and output a QR code. Scan the code with your phone to open the app in Expo Go, or go to `http://localhost:8081` to open the app in a browser. Your phone must be connected to the same wifi network as your development machine for Expo Go to work. 
