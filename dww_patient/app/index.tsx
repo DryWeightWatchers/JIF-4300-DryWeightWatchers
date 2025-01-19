@@ -26,15 +26,13 @@ function HomeTabNavigator() {
 // Stack Navigator for authentication and main screens
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen
-          name="HomeTabs"
-          component={HomeTabNavigator}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen
+        name="HomeTabs"
+        component={HomeTabNavigator}
+      />
+    </Stack.Navigator>
   );
 }
