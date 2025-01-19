@@ -6,6 +6,10 @@ import { RootStackParamList } from '../../types';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
+type Props = {
+  navigation: LoginScreenNavigationProp;
+};
+
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [email, setEmail] = useState('');
@@ -17,7 +21,8 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.appTitle}>Dry Weight Watchers</Text>
+      <Text style={styles.title}>Welcome back!</Text>
 
       <TextInput
         style={styles.input}
@@ -70,8 +75,17 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     color: '#333333',
   },
+  appTitle: {
+    position: 'absolute',
+    top: 50,
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333333',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
   input: {
-    width: '100%',
+    width: '95%',
     height: 50,
     backgroundColor: '#F2F2F7',
     borderRadius: 10,
@@ -81,7 +95,7 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   button: {
-    width: '100%',
+    width: '95%',
     height: 50,
     backgroundColor: '#007AFF',
     borderRadius: 10,
