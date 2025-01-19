@@ -1,0 +1,64 @@
+
+
+  .profileContainer {
+    width: 80%;
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profileContainer h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #444;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.5rem;
+  }
+  
+  .profileContainer label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #444;
+  }
+  
+  .profileContainer p {
+    display: inline;
+    margin: 0;
+    font-size: 1rem;
+    color: #444;
+  }
+  
+  .profileContainer a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+  }
+  
+  .profileContainer a:hover {
+    text-decoration: underline;
+  }
+  
+  .profileContainer input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: #007bff;
+  }
+  
+  .profileContainer label input {
+    display: inline-block;
+    margin-top: 0.2rem;
+  }
+  
+  .profileContainer > div {
+    margin-bottom: 2rem; 
+  }
+  
+  .profileContainer > div > div {
+    display: flex; 
+    justify-content: space-between;
+  }

@@ -1,0 +1,71 @@
+.authFormContainer {
+    width: 400px;
+    background-color: #fafafa;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 8vh auto;
+    box-shadow: 2px 10px 10px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.authFormContainer h1 {
+    margin-bottom: 1.5rem;
+    font-size: 35px;
+    color: black;
+}
+
+.authFormContainer label {
+    text-align: left;
+    display: block;
+    font-weight: 500;
+    margin-top: 1rem;
+    color: black;
+}
+
+.requiredInput::after {
+    content: "*"; 
+    color: red; 
+    font-weight: bold; 
+    margin-left: 2px;
+}
+
+.authFormContainer input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.25rem;
+    border: 1px solid #bbb;
+    box-sizing: border-box;
+    background-color: white;
+    color: #000;
+    border-radius: 4px;
+}
+
+.authFormContainer button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #7B5CB8;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+
+.authFormContainer button:hover {
+    opacity: 0.9;
+}
+
+.errorText {
+    color: red;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+#newAccountBtn {
+    background-color: white;
+    border: #7B5CB8;
+    border-color: #7B5CB8;
+    color: #7B5CB8;
+    border-style: solid;
+}
