@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types';
@@ -15,13 +15,32 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-//   const handleLogin = () => { //TODO: BACKEND LOGIC AUTUHORIZATION
-//     navigation.navigate("Main");
-//   };
-
-    const handleLogin = () => {
-        console.log("Logging in with ", email, password);
-    };
+  const handleLogin = async () => {
+    try {
+      console.log("Trying to establish connection")
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email, 
+          password: password,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        Alert.alert('Success', data.message);
+        navigation.navigate('HomeScreen')
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message);
+      }
+  } catch (error) {
+    Alert.alert('Error', 'Something went wrong. Please try again')
+    console.error('Login Error:', error || 'Invalid email or password')
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
