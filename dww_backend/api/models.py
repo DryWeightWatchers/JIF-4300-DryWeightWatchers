@@ -37,7 +37,8 @@ class User(AbstractUser):
     ]
     first_name = models.CharField(max_length=50) 
     last_name = models.CharField(max_length=50) 
-    phone = PhoneNumberField(blank=True, null=True)
+    # phone field is flexible with formatting but rejects invalid numbers (e.g. nonexisting area code) 
+    phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
