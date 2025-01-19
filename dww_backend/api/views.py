@@ -1,6 +1,7 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
+from api.models import User
 from .forms import *
 import json
 
@@ -29,16 +30,28 @@ def login(request):
         return #wrong request type
 
 
-def test_register(request): 
+def register_provider(request): 
     if request.method != 'POST': 
-        return HttpResponse("error: wrong request type") 
+        return JsonResponse({"error": "invalid request"}, status=400)
     try:
         data = json.loads(request.body)  # Parse JSON body
     except json.JSONDecodeError:
-        return HttpResponse("error: invalid JSON")
+        return JsonResponse({"error": "invalid request"}, status=400)
     
-    form = RegisterForm(data) 
+    form = RegisterProviderForm(data) 
     if form.is_valid(): 
-        return HttpResponse("registered successfully!") 
+        try: 
+            user = User.objects.create_user(
+                first_name = form.cleaned_data.get('firstname'), 
+                last_name = form.cleaned_data.get('lastname'), 
+                email = form.cleaned_data.get('email'), 
+                phone = form.cleaned_data.get('phone'), 
+                password = form.cleaned_data.get('password'), 
+                role = User.PROVIDER
+            )
+            user.save()
+        except Exception as e: 
+            return JsonResponse({'error': f'Registration failed: {str(e)}'}, status=400)
+        return JsonResponse({"message": "registered successfully!"}, status=201)
     else: 
-        return HttpResponse("registration unsuccessful :(")
+        return JsonResponse({"message": "registration unsuccessful", "errors": form.errors}, status=400)

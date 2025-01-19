@@ -10,11 +10,11 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'role']
 
 
-class RegisterForm (forms.Form): 
+class RegisterProviderForm (forms.Form): 
     firstname = forms.CharField(max_length=50) 
     lastname = forms.CharField(max_length=50) 
     email = forms.EmailField() 
-    phone = forms.IntegerField(required=False)  # TODO: better phone number validation using a library 
+    phone = forms.CharField(max_length=15, required=False)  # TODO: better phone number validation using a library 
     password = forms.CharField(max_length=100) 
     confirmPassword = forms.CharField(max_length=100) 
 
