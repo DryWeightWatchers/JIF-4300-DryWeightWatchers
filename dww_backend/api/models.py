@@ -30,15 +30,19 @@ class User(AbstractUser):
     PROVIDER = 'provider'
     ROLE_CHOICES = [
         (PATIENT, 'Patient'),
-        (PROVIDER, 'Doctor'),
+        (PROVIDER, 'Provider'),
     ]
 
+    first_name = models.CharField(max_length=50) 
+    last_name = models.CharField(max_length=50) 
+    phone = models.CharField(max_length=15, blank=True, null=True) 
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     email = models.EmailField(unique=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [] 
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-
     objects = UserManager()
 
     def __str__(self):
