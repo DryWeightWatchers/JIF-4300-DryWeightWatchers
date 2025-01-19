@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from phonenumber_field.formfields import PhoneNumberField
 from .models import User
 
 class CustomUserCreationForm(UserCreationForm):
@@ -14,7 +15,9 @@ class RegisterProviderForm (forms.Form):
     firstname = forms.CharField(max_length=50) 
     lastname = forms.CharField(max_length=50) 
     email = forms.EmailField() 
-    phone = forms.CharField(max_length=15, required=False)  # TODO: better phone number validation using a library 
+    # note: phone field is flexible with formatting but will reject numbers with invalid numbers 
+    # (e.g. nonexisting area code) 
+    phone = PhoneNumberField(region='US', required=False) 
     password = forms.CharField(max_length=100) 
     confirmPassword = forms.CharField(max_length=100) 
 
