@@ -1,27 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types';
-
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
-
-type Props = {
-  navigation: LoginScreenNavigationProp;
-};
 
 const LoginScreen = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-//   const handleLogin = () => { //TODO: BACKEND LOGIC AUTUHORIZATION
-//     navigation.navigate("Main");
-//   };
-
-    const handleLogin = () => {
-        console.log("Logging in with ", email, password);
-    };
+  const handleLogin = () => { //TODO: BACKEND LOGIC AUTUHORIZATION
+    navigation.navigate("HomeTabs");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
