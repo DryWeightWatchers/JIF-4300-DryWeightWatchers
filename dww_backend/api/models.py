@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
+from phonenumber_field.modelfields import PhoneNumberField
 import random 
 import string 
 
@@ -34,10 +35,10 @@ class User(AbstractUser):
         (PATIENT, 'Patient'),
         (PROVIDER, 'Provider'),
     ]
-
     first_name = models.CharField(max_length=50) 
     last_name = models.CharField(max_length=50) 
-    phone = models.CharField(max_length=15, blank=True, null=True) 
+    # phone field is flexible with formatting but rejects invalid numbers (e.g. nonexisting area code) 
+    phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
@@ -60,7 +61,6 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.email}, ({self.role})"
     
-
 
 # Other tables/fields with many-to-one relations to a patient profile.
 

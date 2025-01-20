@@ -1,0 +1,43 @@
+
+/* Container for the error message */
+.errorDisplay {
+    margin: 1rem;
+    border: 1px solid #e74c3c;
+    background-color: #fbeaea;
+    color: #000000;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 100%;
+    word-wrap: break-word;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* General error message styling */
+.errorMessage {
+    margin: 0 0 12px 0;
+}
+
+/* Styling for the list of error details */
+.errorDetails {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Field name styling */
+.errorField {
+    text-transform: capitalize;
+    font-weight: bold;
+}
+
+/* Nested list for field-specific errors */
+.errorFieldList {
+    list-style-type: none;
+    margin: 4px 0 8px 20px;
+    padding: 0;
+}
+
+/* Individual error message styling */
+.errorDetail {
+    margin: 2px 0;
+}

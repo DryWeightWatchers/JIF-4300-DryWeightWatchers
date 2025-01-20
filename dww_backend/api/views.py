@@ -8,6 +8,14 @@ import json
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
 
+
+def error_response(message, details=None, status=400):
+    response = {"error": {"message": message}}
+    if details:
+        response["error"]["details"] = details
+    return JsonResponse(response, status=status)
+
+  
 def register(request):
     if request.method == 'POST':
         try:
@@ -33,26 +41,24 @@ def login(request):
 
 def register_provider(request): 
     if request.method != 'POST': 
-        return JsonResponse({"error": "invalid request"}, status=400)
+        return error_response('invalid request') 
     try:
         data = json.loads(request.body)  # Parse JSON body
     except json.JSONDecodeError:
-        return JsonResponse({"error": "invalid request"}, status=400)
+        return error_response('invalid request') 
     
+    print(f'data: {data}')
     form = RegisterProviderForm(data) 
     if form.is_valid(): 
         try: 
-            user = User.objects.create_user(
-                first_name = form.cleaned_data.get('firstname'), 
-                last_name = form.cleaned_data.get('lastname'), 
-                email = form.cleaned_data.get('email'), 
-                phone = form.cleaned_data.get('phone'), 
-                password = form.cleaned_data.get('password'), 
-                role = User.PROVIDER
-            )
+            user = form.save(commit=False) 
+            user.role = User.PROVIDER 
+            user.set_password(form.cleaned_data['password'])
             user.save()
+
         except Exception as e: 
-            return JsonResponse({'error': f'Registration failed: {str(e)}'}, status=400)
-        return JsonResponse({"message": "registered successfully!"}, status=201)
+            print(f'error: {e}')
+            return error_response('An unexpected error occurred', status=500) 
+        return JsonResponse({}, status=201)
     else: 
-        return JsonResponse({"message": "registration unsuccessful", "errors": form.errors}, status=400)
+        return error_response('Registration unsuccessful.', details=form.errors) 
