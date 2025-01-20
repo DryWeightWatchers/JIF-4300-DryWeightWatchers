@@ -8,6 +8,7 @@ const SignupScreen = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState<'Provider' | 'Patient'>('Patient');
@@ -19,6 +20,7 @@ const SignupScreen = () => {
       first_name: firstName,
       last_name: lastName,
       email: email,
+      phone: phone,
       password1: password,
       password2: confirmPassword,
       role: userType.toLowerCase()
@@ -30,7 +32,7 @@ const SignupScreen = () => {
       console.log('Signup successful:', response.data);
       navigation.navigate('Login');
     } catch (error: any) {
-      if (error.response?.data?.errors) {
+      if (error.response?.data?.errors) { 
         console.error('Signup form error:', error.response.data);
         alert(Object.values(error.response.data.errors).flat().join('\n'))
       } else {
@@ -72,6 +74,16 @@ const SignupScreen = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         autoCorrect={false}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        placeholderTextColor="#A9A9A9"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
+        maxLength={15}
       />
 
       <View style={styles.passwordContainer}>

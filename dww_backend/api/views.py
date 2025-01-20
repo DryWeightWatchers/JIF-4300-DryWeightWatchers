@@ -20,7 +20,7 @@ def register(request):
                 print(form.errors)
                 return JsonResponse({'errors': form.errors}, status=400)
         except:
-            return JsonResponse({'errors': "failed to read json data"}, status=400)
+            return JsonResponse({'error': "failed to read json data"}, status=400)
     else:
         return JsonResponse({'error': "wrong request type"}, status=405)
 
