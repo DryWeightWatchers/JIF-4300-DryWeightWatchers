@@ -13,15 +13,39 @@ const Register: React.FC = () => {
     confirmPassword: '',
   });
 
+  const [response, setResponse] = useState<string|null>(null); 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Replace the below console.log with actual form submission logic
     console.log('Form submitted:', formData);
+
+    try {
+      const res = await fetch('http://localhost:8000/register-provider', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json' 
+        }, 
+        body: JSON.stringify(formData)
+      }); 
+
+      if (!res.ok) { 
+        const errorData = await res.json(); // Parse JSON error response
+        throw new Error(errorData.error || `Error: ${res.statusText}`);
+      } 
+
+      const data = await res.json(); 
+      setResponse(data.message || 'Success'); 
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setResponse(`Error: ${error.message}`); 
+      }
+    }
   };
 
   return (
@@ -89,6 +113,13 @@ const Register: React.FC = () => {
 
         <button type="submit">Create Account</button>
       </form>
+
+      {response && (
+        <div>
+          <p>Server Response:</p>
+          <p>{response}</p>
+        </div>
+      )}
     </div>
   );
 };

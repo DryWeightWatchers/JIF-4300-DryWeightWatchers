@@ -41,20 +41,33 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "api",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware", 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",  # will need to deal with this later 
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173'  # Provider frontend local dev server (Vite) 
+]
+
+CORS_ALLOW_ALL_ORIGINS = True # Added for login functionality
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173' 
+]
 
 TEMPLATES = [
     {
