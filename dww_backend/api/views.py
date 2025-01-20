@@ -1,7 +1,7 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm
@@ -12,22 +12,24 @@ from rest_framework.response import Response
 from rest_framework import status
 import json
 
-
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
 
-
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return # login success signal?
+        try:
+            data = json.loads(request.body)
+            form = CustomUserCreationForm(data)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'message': "User registered successfully"}, status=201)
+            else:
+                print(form.errors)
+                return JsonResponse({'errors': form.errors}, status=400)
+        except:
+            return JsonResponse({'error': "failed to read json data"}, status=400)
     else:
-        form = CustomUserCreationForm()
-    return # login failure signal
-
+        return JsonResponse({'error': "wrong request type"}, status=405)
 
 def register_provider(request): 
     if request.method != 'POST': 
@@ -55,18 +57,22 @@ def register_provider(request):
     else: 
         return JsonResponse({"message": "registration unsuccessful", "errors": form.errors}, status=400)
 
-@api_view(['POST'])
+# @api_view(['POST'])
 def login(request):
-    email = request.POST.get('email')
-    password = request.POST.get('password')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            email = data.get('email')
+            password = data.get('password')
 
-    user = authenticate(request, email=email, password=password)
-    if user is not None:
-        login(request, user)
-        return Response({"message": "Successful login"}, status=status.HTTP_200_OK)
+            user = authenticate(request, username=email, password=password)
+
+            if user is not None:
+                django_login(request, user)
+                return JsonResponse({'message': 'Login successful'}, status=200)
+            else:
+                return JsonResponse({'message': 'Invalid credentials'}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
     else:
-        return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST) 
-
-@login_required
-def protected_view(request):
-    return JsonResponse({"message": "You are logged in and can access this endpoint."})
+        return JsonResponse({'error': 'Wrong request type'}, status=405)

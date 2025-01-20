@@ -1,73 +1,69 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
-  const [name, setName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState<'Doctor' | 'Patient'>('Patient');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userType, setUserType] = useState<'Provider' | 'Patient'>('Patient');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   const handleSignup = async () => {
     const data = {
-      name,
-      email,
-      password,
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone,
+      password1: password,
+      password2: confirmPassword,
+      role: userType.toLowerCase()
     }
 
     try {
-      const response = await axios.post('http://192.168.0.9:8000/api/patients/', data);
+      const response = await axios.post('http://128.61.4.21:8000/register/', data);
 
-      if (response.status === 201) {
-        console.log('Signup successful:', response.data);
-        navigation.navigate('Login');
+      console.log('Signup successful:', response.data);
+      navigation.navigate('Login');
+    } catch (error: any) {
+      if (error.response?.data?.errors) { 
+        console.error('Signup form error:', error.response.data);
+        alert(Object.values(error.response.data.errors).flat().join('\n'))
       } else {
-        console.error('Signup failed:', response.data);
-        alert('Signup failed. Please try again.');
+        console.error('Unknown error during signup:', error);
+        alert('Something went wrong. Please try again.');
       }
-    } catch (error) {
-      console.error('Error during signup:', error);
-      alert('Something went wrong. Please try again.');
     }
-  };
-
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfBirth;
-    setShowDatePicker(false);
-    setDateOfBirth(currentDate);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        placeholderTextColor="#A9A9A9"
-        value={name}
-        onChangeText={setName}
-      />
-
-      <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
-        <Text style={{ color: dateOfBirth ? '#333333' : '#A9A9A9' }}>
-          {dateOfBirth ? dateOfBirth.toDateString() : 'Date of Birth'}
-        </Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          value={dateOfBirth}
-          mode="date"
-          display="default"
-          onChange={onDateChange}
+      <View style={styles.nameContainer}>
+        <TextInput
+          style={styles.nameInput}
+          placeholder="First Name"
+          placeholderTextColor="#A9A9A9"
+          value={firstName}
+          onChangeText={setFirstName}
+          autoCorrect={false}
         />
-      )}
+        <TextInput
+          style={styles.nameInput}
+          placeholder="Last Name"
+          placeholderTextColor="#A9A9A9"
+          value={lastName}
+          onChangeText={setLastName}
+          autoCorrect={false}
+        />
+      </View>
 
       <TextInput
         style={styles.input}
@@ -77,6 +73,17 @@ const SignupScreen = () => {
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
+        autoCorrect={false}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        placeholderTextColor="#A9A9A9"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
+        maxLength={15}
       />
 
       <View style={styles.passwordContainer}>
@@ -87,9 +94,24 @@ const SignupScreen = () => {
           secureTextEntry={!passwordVisible}
           value={password}
           onChangeText={setPassword}
+          autoCorrect={false}
         />
         <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
           <Text style={styles.eyeIcon}>{passwordVisible ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Confirm Password"
+          placeholderTextColor="#A9A9A9"
+          secureTextEntry={!confirmPasswordVisible}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          autoCorrect={false}
+        />
+        <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
+          <Text style={styles.eyeIcon}>{confirmPasswordVisible ? '🙈' : '👁️'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -97,12 +119,12 @@ const SignupScreen = () => {
         <TouchableOpacity
           style={[
             styles.userTypeButton,
-            userType === 'Doctor' && styles.userTypeSelected,
+            userType === 'Provider' && styles.userTypeSelected,
           ]}
-          onPress={() => setUserType('Doctor')}
+          onPress={() => setUserType('Provider')}
         >
-          <Text style={userType === 'Doctor' ? styles.userTypeTextSelected : styles.userTypeText}>
-            Doctor
+          <Text style={userType === 'Provider' ? styles.userTypeTextSelected : styles.userTypeText}>
+            Provider
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -147,7 +169,7 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   input: {
-    width: '100%',
+    width: '95%',
     height: 50,
     backgroundColor: '#F2F2F7',
     borderRadius: 10,
@@ -155,10 +177,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     justifyContent: 'center',
   },
+  nameContainer: {
+    flexDirection: 'row',
+    width: '95%',
+  },
+  nameInput: {
+    flex: 1,
+    height: 50,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    marginLeft: 3,
+    marginRight: 3,
+  },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    width: '95%',
     height: 50,
     backgroundColor: '#F2F2F7',
     borderRadius: 10,
@@ -176,7 +212,7 @@ const styles = StyleSheet.create({
   },
   userTypeContainer: {
     flexDirection: 'row',
-    width: '100%',
+    width: '95%',
     justifyContent: 'center',
     marginVertical: 16,
   },
@@ -202,7 +238,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    width: '100%',
+    width: '95%',
     height: 50,
     backgroundColor: '#007AFF',
     borderRadius: 10,

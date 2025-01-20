@@ -9,7 +9,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:8000/login/', {
+      const response = await fetch('http://128.61.4.21:8000/login/', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -19,12 +19,13 @@ const LoginScreen = () => {
               password: password,
           }),
       });
-      const text = await response.text();
-      console.log('Raw Response:', text);
-      const data = JSON.parse(text); // Attempt to parse as JSON
-      console.log('Parsed Data:', data);
+      // const text = await response.text();
+      // console.log('Raw Response:', text);
+      // const data = JSON.parse(text); // Attempt to parse as JSON
+      // console.log('Parsed Data:', data);
 
       if (response.ok) {
+        console.log("response ok")
         const data = await response.json();
         Alert.alert('Success', data.message);
       } else {
