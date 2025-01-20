@@ -16,6 +16,7 @@ def register(request):
                 form.save()
                 return JsonResponse({'message': "User registered successfully"}, status=201)
             else:
+                print(form.errors)
                 return JsonResponse({'errors': form.errors}, status=400)
         except:
             return JsonResponse({'errors': "failed to read json data"}, status=400)

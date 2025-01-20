@@ -10,7 +10,7 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [userType, setUserType] = useState<'Doctor' | 'Patient'>('Patient');
+  const [userType, setUserType] = useState<'Provider' | 'Patient'>('Patient');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
@@ -21,22 +21,22 @@ const SignupScreen = () => {
       email: email,
       password1: password,
       password2: confirmPassword,
-      role: userType === 'Doctor' ? 'provider' : 'patient',
+      role: userType.toLowerCase()
     }
 
     try {
       const response = await axios.post('http://192.168.0.9:8000/register/', data);
 
-      if (response.status === 201) {
-        console.log('Signup successful:', response.data);
-        navigation.navigate('Login');
+      console.log('Signup successful:', response.data);
+      navigation.navigate('Login');
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        console.error('Signup form error:', error.response.data);
+        alert(Object.values(error.response.data.errors).flat().join('\n'))
       } else {
-        console.error('Signup failed:', response.data);
-        alert('Signup failed. Please try again.');
+        console.error('Unknown error during signup:', error);
+        alert('Something went wrong. Please try again.');
       }
-    } catch (error) {
-      console.error('Error during signup:', error);
-      alert('Something went wrong. Please try again.');
     }
   };
 
@@ -107,12 +107,12 @@ const SignupScreen = () => {
         <TouchableOpacity
           style={[
             styles.userTypeButton,
-            userType === 'Doctor' && styles.userTypeSelected,
+            userType === 'Provider' && styles.userTypeSelected,
           ]}
-          onPress={() => setUserType('Doctor')}
+          onPress={() => setUserType('Provider')}
         >
-          <Text style={userType === 'Doctor' ? styles.userTypeTextSelected : styles.userTypeText}>
-            Doctor
+          <Text style={userType === 'Provider' ? styles.userTypeTextSelected : styles.userTypeText}>
+            Provider
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
