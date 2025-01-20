@@ -1,11 +1,9 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from api.models import User
 from .forms import *
 import json
-
 
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
@@ -17,17 +15,28 @@ def error_response(message, details=None, status=400):
         response["error"]["details"] = details
     return JsonResponse(response, status=status)
 
-
+  
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return # login success signal?
+        try:
+            data = json.loads(request.body)
+            form = CustomUserCreationForm(data)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'message': "User registered successfully"}, status=201)
+            else:
+                print(form.errors)
+                return JsonResponse({'errors': form.errors}, status=400)
+        except:
+            return JsonResponse({'error': "failed to read json data"}, status=400)
     else:
-        form = CustomUserCreationForm()
-    return # login failure signal
+        return JsonResponse({'error': "wrong request type"}, status=405)
+
+def login(request):
+    if request.method == 'POST':
+        return # login logic. check for user from authenticate() and then use login(), and hopefully that works if I did everything correctly
+    else:
+        return #wrong request type
 
 
 def register_provider(request): 
