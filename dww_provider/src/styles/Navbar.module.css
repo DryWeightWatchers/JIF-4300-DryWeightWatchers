@@ -1,6 +1,6 @@
 
 .navbar {
-
+    flex-shrink: 0;
     height: 60px; 
     width: 100%;
 

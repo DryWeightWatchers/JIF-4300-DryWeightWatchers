@@ -35,8 +35,11 @@ const SignupScreen = () => {
       if (error.response?.data?.errors) { 
         console.error('Signup form error:', error.response.data);
         alert(Object.values(error.response.data.errors).flat().join('\n'))
+      } else if (error.response?.data?.error) {
+        console.error('Unknown error during signup:', error.response.data.error);
+        alert('Signup error: ' + error.response.data.error);
       } else {
-        console.error('Unknown error during signup:', error);
+        console.error('error is not defined in Django. This is really bad.');
         alert('Something went wrong. Please try again.');
       }
     }
