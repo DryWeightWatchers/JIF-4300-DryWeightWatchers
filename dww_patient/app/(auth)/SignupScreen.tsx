@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } fro
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
+
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
@@ -27,7 +28,7 @@ const SignupScreen = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.0.9:8000/register/', data);
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
 
       console.log('Signup successful:', response.data);
       navigation.navigate('Login');
