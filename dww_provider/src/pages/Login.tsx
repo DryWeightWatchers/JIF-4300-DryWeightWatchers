@@ -1,37 +1,51 @@
-
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/auth-forms.module.css';
+import { useAuth } from '../components/AuthContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
-  const login = async (email: string, password: string) => {
-    return new Promise<string>((resolve, reject) => {
-      setTimeout(() => {
-        if (email === 'provider@example.com' && password === 'secret123') {
-          resolve('fake-jwt-token');
-        } else {
-          reject(new Error('Invalid credentials'));
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${serverUrl}/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        if (data.role !== 'provider') {
+          alert('Access restricted to providers only');
+          return;
         }
-      }, 500);
-    });
+        localStorage.setItem('authToken', data.access_token);
+        login();
+        navigate('/dashboard');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
+  
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    try {
-      const token = await login(email, password);
-      console.log('Login successful, token:', token);
-      localStorage.setItem('authToken', token);
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
-    }
+    handleLogin(email, password);
   };
 
   const handleRegisterClick = () => {
@@ -65,10 +79,14 @@ const Login: React.FC = () => {
         {error && <p className={styles.errorText}>{error}</p>}
 
         <button type="submit">Login</button>
-        <button type="button" id={styles.newAccountBtn} onClick={handleRegisterClick}>Register New Account</button>
+        <button type="button" id={styles.newAccountBtn} onClick={handleRegisterClick}>
+          Register New Account
+        </button>
       </form>
     </div>
   );
 };
 
 export default Login;
+
+
