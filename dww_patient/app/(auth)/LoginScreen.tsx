@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
@@ -7,9 +7,36 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => { //TODO: BACKEND LOGIC AUTUHORIZATION
-    navigation.navigate("HomeTabs");
-  };
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email: email,
+              password: password,
+          }),
+      });
+      // const text = await response.text();
+      // console.log('Raw Response:', text);
+      // const data = JSON.parse(text); // Attempt to parse as JSON
+      // console.log('Parsed Data:', data);
+
+      if (response.ok) {
+        console.log("response ok")
+        const data = await response.json();
+        Alert.alert('Success', data.message);
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message);
+      }
+  } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again later.');
+      console.log("Login error:", error)
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

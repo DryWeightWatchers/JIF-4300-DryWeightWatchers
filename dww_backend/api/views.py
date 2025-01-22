@@ -1,8 +1,15 @@
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.contrib.auth import authenticate, login
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login as django_login
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .forms import CustomUserCreationForm
 from api.models import User
 from .forms import *
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 import json
 
 def test(request: HttpRequest): 
@@ -32,13 +39,6 @@ def register(request):
     else:
         return JsonResponse({'error': "wrong request type"}, status=405)
 
-def login(request):
-    if request.method == 'POST':
-        return # login logic. check for user from authenticate() and then use login(), and hopefully that works if I did everything correctly
-    else:
-        return #wrong request type
-
-
 def register_provider(request): 
     if request.method != 'POST': 
         return error_response('invalid request') 
@@ -62,3 +62,23 @@ def register_provider(request):
         return JsonResponse({}, status=201)
     else: 
         return error_response('Registration unsuccessful.', details=form.errors) 
+
+
+def login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            email = data.get('email')
+            password = data.get('password')
+
+            user = authenticate(request, username=email, password=password)
+
+            if user is not None:
+                django_login(request, user)
+                return JsonResponse({'message': 'Login successful'}, status=200)
+            else:
+                return JsonResponse({'message': 'Invalid credentials'}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
+    else:
+        return JsonResponse({'error': 'Wrong request type'}, status=405)

@@ -31,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "api",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -61,6 +61,8 @@ ROOT_URLCONF = "core.urls"
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173'  # Provider frontend local dev server (Vite) 
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True # Added for login functionality
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173' 
