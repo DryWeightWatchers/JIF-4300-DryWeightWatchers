@@ -9,6 +9,8 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
+      console.log('Server URL:', process.env.EXPO_PUBLIC_DEV_SERVER_URL);
+
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
           method: 'POST',
           headers: {
@@ -19,15 +21,11 @@ const LoginScreen = () => {
               password: password,
           }),
       });
-      // const text = await response.text();
-      // console.log('Raw Response:', text);
-      // const data = JSON.parse(text); // Attempt to parse as JSON
-      // console.log('Parsed Data:', data);
 
       if (response.ok) {
-        console.log("response ok")
         const data = await response.json();
         Alert.alert('Success', data.message);
+        navigation.navigate('HomeTabs');
       } else {
         const errorData = await response.json();
         Alert.alert('Error', errorData.message);
