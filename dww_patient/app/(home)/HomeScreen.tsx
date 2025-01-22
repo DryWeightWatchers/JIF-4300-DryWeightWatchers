@@ -2,18 +2,29 @@ import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 const HomeScreen = ({ navigation }) => {
+  const handleLogout = async () => {
+    try {
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-   
       <View style={styles.topSection}>
         <Text style={styles.userName}>John Doe</Text>
         <Text style={styles.subtitle}>You didn't record your weight today!</Text>
         <Text style={styles.additionalText}>
           Keeping track of your weight helps your doctor monitor changes in real-time.
         </Text>
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* button container */}
+      {/* Button Container */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.cardButton}
@@ -53,7 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0E315F',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 200, 
+    paddingBottom: 200,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
@@ -81,14 +92,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    marginTop: -100, 
+    marginTop: -100,
     paddingHorizontal: 10,
-    paddingBottom: 30, 
+    paddingBottom: 30,
   },
   cardButton: {
     backgroundColor: '#FFFFFF',
     width: '45%',
-    height: 190, 
+    height: 190,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 10,
@@ -103,6 +114,19 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: '#0E315F',
+  },
+  logoutButton: {
+    marginTop: 20,
+    alignSelf: 'flex-end',
+    backgroundColor: '#FF4D4D',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  logoutText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
