@@ -9,7 +9,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://128.61.4.21:8000/login/', {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
