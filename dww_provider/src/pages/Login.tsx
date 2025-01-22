@@ -22,17 +22,25 @@ const Login: React.FC = () => {
   
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('authToken', data.token);
-        login(); 
+        if (data.role !== 'provider') {
+          alert('Access restricted to providers only');
+          return;
+        }
+        localStorage.setItem('authToken', data.access_token);
+        login();
         navigate('/dashboard');
       } else {
-        alert('Invalid credentials');
+        const errorData = await response.json();
+        alert(errorData.message || 'Invalid credentials');
       }
     } catch (error) {
       console.error('Login error:', error);
     }
   };
   
+
+
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +49,7 @@ const Login: React.FC = () => {
   };
 
   const handleRegisterClick = () => {
-    navigate('/register'); 
+    navigate('/register');
   };
 
   return (
@@ -80,3 +88,5 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+
