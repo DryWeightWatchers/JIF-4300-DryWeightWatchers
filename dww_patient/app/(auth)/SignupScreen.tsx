@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } fro
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
+
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
@@ -27,7 +28,7 @@ const SignupScreen = () => {
     }
 
     try {
-      const response = await axios.post('http://128.61.4.21:8000/register/', data);
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
 
       console.log('Signup successful:', response.data);
       navigation.navigate('Login');
@@ -35,8 +36,11 @@ const SignupScreen = () => {
       if (error.response?.data?.errors) { 
         console.error('Signup form error:', error.response.data);
         alert(Object.values(error.response.data.errors).flat().join('\n'))
+      } else if (error.response?.data?.error) {
+        console.error('Unknown error during signup:', error.response.data.error);
+        alert('Signup error: ' + error.response.data.error);
       } else {
-        console.error('Unknown error during signup:', error);
+        console.error('error is not defined in Django. This is really bad.');
         alert('Something went wrong. Please try again.');
       }
     }

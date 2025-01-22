@@ -1,19 +1,21 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
+import FormErrorDisplay, { ErrorObject } from '../components/FormErrorDisplay'; 
 import styles from '../styles/auth-forms.module.css'; 
 
 const Register: React.FC = () => {
 
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
   });
-
-  const [response, setResponse] = useState<string|null>(null); 
+  const [response, setResponse] = useState<ErrorObject|null>(null); 
+  const navigate = useNavigate(); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,15 +37,15 @@ const Register: React.FC = () => {
 
       if (!res.ok) { 
         const errorData = await res.json(); // Parse JSON error response
-        throw new Error(errorData.error || `Error: ${res.statusText}`);
-      } 
-
-      const data = await res.json(); 
-      setResponse(data.message || 'Success'); 
+        setResponse(errorData.error); 
+      } else {
+        setResponse(null); 
+        navigate('/'); 
+      }
 
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setResponse(`Error: ${error.message}`); 
+        setResponse({ message: error.message }); 
       }
     }
   };
@@ -52,22 +54,22 @@ const Register: React.FC = () => {
     <div className={styles.authFormContainer}>
       <h1>Create Account</h1>
       <form onSubmit={handleSubmit}>
-          <label htmlFor="firstname" className={styles.requiredInput}>First Name:</label>
+          <label htmlFor="first_name" className={styles.requiredInput}>First Name:</label>
           <input
             type="text"
-            id="firstname"
-            name="firstname"
-            value={formData.firstname}
+            id="first_name"
+            name="first_name" 
+            value={formData.first_name}
             onChange={handleChange}
             required
           />
 
-          <label htmlFor="lastname" className={styles.requiredInput}>Last Name:</label>
+          <label htmlFor="last_name" className={styles.requiredInput}>Last Name:</label>
           <input
             type="text"
-            id="lastname"
-            name="lastname"
-            value={formData.lastname}
+            id="last_name"
+            name="last_name"
+            value={formData.last_name}
             onChange={handleChange}
             required
           />
@@ -84,9 +86,10 @@ const Register: React.FC = () => {
 
           <label htmlFor="phone">Phone:</label>
           <input
-            type="phone"
+            type="tel"
             id="phone"
             name="phone"
+            placeholder="(123) 456-7890"
             value={formData.phone}
             onChange={handleChange}
           />
@@ -113,13 +116,7 @@ const Register: React.FC = () => {
 
         <button type="submit">Create Account</button>
       </form>
-
-      {response && (
-        <div>
-          <p>Server Response:</p>
-          <p>{response}</p>
-        </div>
-      )}
+      <FormErrorDisplay error={response} />
     </div>
   );
 };
