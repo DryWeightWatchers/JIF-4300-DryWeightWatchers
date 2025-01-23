@@ -36,7 +36,7 @@ To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`.
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
 
 # Release Notes
-## v0.1.0: Initial Release
+## Version 0.1.0: Initial Setup
 ### Features 
 #### For patients: 
 - Patient can log in to their account
