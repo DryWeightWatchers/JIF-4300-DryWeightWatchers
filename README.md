@@ -1,4 +1,4 @@
-# Overview 
+# Dry Weight Watchers - Overview 
 
 Dry Weight Watchers is a cross-platform application to help healthcare providers monitor the weights of patients with congestive heart failure (CHF). The heart's inability to pump blood effectively often leads to fluid buildup in the tissues of CHF patients. A sudden spike in weight can indicate worsening symptoms and require medical attention. By monitoring their weight everyday with our app, patients can rest assured that their doctor will be automatically notified of any anomalies, helping them to provide timely care and potentially prevent life-threatening complications. 
 
@@ -34,3 +34,19 @@ When you first run the development server, you'll need to enter your database cr
 To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`. It will start a local development server and output a QR code. Scan the code with your phone to open the app in Expo Go, or go to `http://localhost:8081` to open the app in a browser. Your phone must be connected to the same wifi network as your development machine for Expo Go to work. 
 
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
+
+# Release Notes
+## v0.1.0: Initial Release
+### Features 
+- Patient can log in to their account
+- After login in, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
+- Patient can log out of their account
+- Patient can register their provider
+
+- Providers can log in to their account
+- After login in, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
+- Provider can log out of their account
+
+### Bug Fixes
+
+### Known Issues
