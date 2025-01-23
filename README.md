@@ -38,11 +38,12 @@ To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It w
 # Release Notes
 ## v0.1.0: Initial Release
 ### Features 
+#### For patients: 
 - Patient can log in to their account
 - After login in, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
 - Patient can log out of their account
 - Patient can register their provider
-
+#### For providers: 
 - Providers can log in to their account
 - After login in, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
 - Provider can log out of their account
