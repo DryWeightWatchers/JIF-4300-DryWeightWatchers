@@ -8,6 +8,7 @@ import SignupScreen from './(auth)/SignupScreen';
 import HomeScreen from './(home)/HomeScreen';
 import EnterDataScreen from './(home)/EnterDataScreen';
 import DashboardScreen from './(home)/DashboardScreen';
+import AccountScreen from './(home)/Account';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,6 +20,7 @@ function HomeTabNavigator() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Enter Data" component={EnterDataScreen} />
       <Tab.Screen name="Data" component={DashboardScreen} />
+      <Tab.Screen name="Account" component={AccountScreen} />
     </Tab.Navigator>
   );
 }
