@@ -5,11 +5,8 @@ from django.contrib.auth import authenticate, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm
-from api.models import User
+from api.models import User, TreatmentRelationship
 from .forms import *
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 import json
 
 def test(request: HttpRequest): 
@@ -82,3 +79,30 @@ def login(request):
             return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
     else:
         return JsonResponse({'error': 'Wrong request type'}, status=405)
+
+
+def add_relationship(request): 
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            shareable_id = data.get('shareable_id')
+
+            if not shareable_id:
+                return JsonResponse({"error": "Provider shareable ID is required"}, status=400)
+            
+            try:
+                provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Invalid ID'}, status=404)
+
+            patient = request.user
+            
+            if TreatmentRelationship.objects.filter(patient=patient, provider=provider).exists():
+                return JsonResponse({'error': 'Relationship already exists'}, status=400)
+
+            relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
+
+            return JsonResponse({"message": "Relationship created successfully"}, status=201)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
