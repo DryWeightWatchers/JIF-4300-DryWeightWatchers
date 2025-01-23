@@ -72,7 +72,7 @@ def login(request):
 
             if user is not None:
                 django_login(request, user)
-                return JsonResponse({'message': 'Login successful'}, status=200)
+                return JsonResponse({'message': 'Login successful', 'role': user.role}, status=200)
             else:
                 return JsonResponse({'message': 'Invalid credentials'}, status=400)
         except json.JSONDecodeError:
