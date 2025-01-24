@@ -1,7 +1,7 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as django_login
+from django.contrib.auth import authenticate, logout, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm
@@ -106,3 +106,11 @@ def add_relationship(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request) 
+        return JsonResponse({'message': 'Logout successful'}, status=200)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)

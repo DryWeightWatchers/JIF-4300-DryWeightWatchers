@@ -2,14 +2,6 @@ import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 const HomeScreen = ({ navigation }) => {
-  const handleLogout = async () => {
-    try {
-      navigation.navigate('Login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.topSection}>
@@ -18,10 +10,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.additionalText}>
           Keeping track of your weight helps your doctor monitor changes in real-time.
         </Text>
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+
       </View>
 
       {/* Button Container */}
@@ -115,19 +104,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0E315F',
   },
-  logoutButton: {
-    marginTop: 20,
-    alignSelf: 'flex-end',
-    backgroundColor: '#FF4D4D',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  logoutText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
 });
 
 export default HomeScreen;
