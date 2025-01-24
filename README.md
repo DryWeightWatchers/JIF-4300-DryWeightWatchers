@@ -2,6 +2,27 @@
 
 Dry Weight Watchers is a cross-platform application to help healthcare providers monitor the weights of patients with congestive heart failure (CHF). The heart's inability to pump blood effectively often leads to fluid buildup in the tissues of CHF patients. A sudden spike in weight can indicate worsening symptoms and require medical attention. By monitoring their weight everyday with our app, patients can rest assured that their doctor will be automatically notified of any anomalies, helping them to provide timely care and potentially prevent life-threatening complications. 
 
+
+# Release Notes
+## Version 0.1.0: Initial Setup
+### Features 
+#### For patients: 
+- Patient can create an account and login 
+- After login, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
+- Patient can log out of their account
+- Patient can register their provider
+#### For providers: 
+- Providers can create an account and login 
+- After login, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
+- Provider can log out of their account
+
+### Bug Fixes
+- (N/A)
+
+### Known Issues
+- (none) 
+
+
 # Developer Setup 
 
 ### Prerequisites: 
@@ -35,19 +56,3 @@ To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`.
 
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
 
-# Release Notes
-## Version 0.1.0: Initial Setup
-### Features 
-#### For patients: 
-- Patient can log in to their account
-- After login in, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
-- Patient can log out of their account
-- Patient can register their provider
-#### For providers: 
-- Providers can log in to their account
-- After login in, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
-- Provider can log out of their account
-
-### Bug Fixes
-
-### Known Issues
