@@ -9,17 +9,15 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      console.log('Server URL:', process.env.EXPO_PUBLIC_DEV_SERVER_URL);
-
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              email: email,
-              password: password,
-          }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password,
+        }),
       });
 
       if (response.ok) {
