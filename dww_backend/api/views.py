@@ -128,5 +128,5 @@ def profile_data(request):
         'lastname': user.last_name, 
         'shareable_id': user.shareable_id, 
         'email': user.email, 
-        'phone': user.phone
+        'phone': str(user.phone)
     })
