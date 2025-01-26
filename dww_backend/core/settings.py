@@ -62,7 +62,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173'  # Provider frontend local dev server (Vite) 
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True # Added for login functionality
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False
+
+SESSION_COOKIE_SAMESITE = 'Lax'  # Required for cross-origin
+SESSION_COOKIE_SECURE = False   # Set to True in production with HTTPS
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173' 
