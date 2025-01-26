@@ -1,8 +1,52 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css'; 
 
+type ProfileData = {
+  firstname: string, 
+  lastname: string, 
+  shareable_id: string, 
+  email: string, 
+  phone: string
+}
+
 const Profile = () => {
+
+  const [profileData, setProfileData] = useState<ProfileData|null>(null); 
+  const [isLoading, setIsLoading] = useState<boolean>(true); 
+  const [error, setError] = useState<string|null>(null); 
+
+  const fetchProfileData = async () => {
+    try {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', 
+      }); 
+      if (!res.ok) {
+        setError(`HTTP error: ${res.status}`); 
+      } 
+      const data = await res.json(); 
+      setProfileData(data); 
+    } catch (err: any) {
+      setError(err.message); 
+    } finally {
+      setIsLoading(false); 
+    }
+  } 
+
+  useEffect(() => {
+    fetchProfileData(); 
+  }, []); 
+
+  if (isLoading) {
+    return <p>Loading...</p>
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>
+  }
 
   return (
     <div className={styles.profileContainer}>
@@ -10,21 +54,21 @@ const Profile = () => {
       <div>
         <label>Full Name:</label>
         <div>
-          <p>Alice Smith</p>
+          <p>{profileData?.firstname} {profileData?.lastname}</p>
         </div>
       </div>
 
       <div>
         <label>Provider ID:</label>
         <div>
-          <p>WQM-U6A</p>
+          <p>{profileData?.shareable_id}</p>
         </div>
       </div>
 
       <div>
         <label>Email:</label>
         <div>
-          <p>alice@example.com</p>
+          <p>{profileData?.email}</p>
           <a href='#'>Change email</a>
         </div>
       </div>
@@ -32,7 +76,7 @@ const Profile = () => {
       <div>
         <label>Phone:</label>
         <div>
-          <p>(123) 456-7890</p>
+          <p>{profileData?.phone}</p>
           <a href='#'>Change phone</a>
         </div>
       </div>

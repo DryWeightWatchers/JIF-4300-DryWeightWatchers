@@ -114,3 +114,19 @@ def logout_view(request):
         return JsonResponse({'message': 'Logout successful'}, status=200)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def profile_data(request): 
+    if not request.user.is_authenticated: 
+        print(f"profile_data: unauthorized access: {request}")
+        return error_response("Unauthorized") 
+    
+    user = request.user 
+    print(f"profile_data: access from {request.user}")
+    return JsonResponse({
+        'firstname': user.first_name, 
+        'lastname': user.last_name, 
+        'shareable_id': user.shareable_id, 
+        'email': user.email, 
+        'phone': str(user.phone)
+    })
