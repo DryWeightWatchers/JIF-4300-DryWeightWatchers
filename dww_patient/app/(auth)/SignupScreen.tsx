@@ -22,7 +22,6 @@ const SignupScreen = () => {
       phone: phone,
       password1: password,
       password2: confirmPassword,
-      role: "patient",
     };
 
     try {

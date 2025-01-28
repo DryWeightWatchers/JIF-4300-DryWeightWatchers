@@ -9,7 +9,6 @@ import HomeScreen from './(home)/HomeScreen';
 import EnterDataScreen from './(home)/EnterDataScreen';
 import DashboardScreen from './(home)/DashboardScreen';
 import AccountScreen from './(home)/Account';
-import { AuthProvider } from './(auth)/AuthContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,15 +28,13 @@ function HomeTabNavigator() {
 // Stack Navigator for authentication and main screens
 export default function App() {
   return (
-    <AuthProvider>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen
-          name="HomeTabs"
-          component={HomeTabNavigator}
-        />
-      </Stack.Navigator>
-    </AuthProvider>
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen
+        name="HomeTabs"
+        component={HomeTabNavigator}
+      />
+    </Stack.Navigator>
   );
 }
