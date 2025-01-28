@@ -5,12 +5,11 @@ from .models import User
 # Django's built-in UserCreationForm handles first_name, last_name, email, password1 + 2, and also validates, such as password match, unique emails, valid emails, etc.
 # one annoying thing is that it doesnt allow 'password' to be a password because its too simple. Annoying.
 class CustomUserCreationForm(UserCreationForm):
-    role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True)
     phone = forms.CharField(max_length=15, required=False) 
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone', 'password1', 'password2', 'role']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'password1', 'password2', "role"]
 
 
 class RegisterProviderForm (forms.ModelForm): 

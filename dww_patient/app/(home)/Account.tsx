@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../(auth)/AuthContext';
+
 const AccountScreen = () => {
   const navigation = useNavigation();
   const [provider_id, setProviderID] = useState('');
+  const inputRefs = useRef([]);
+  const [code, setCode] = useState(new Array(8).fill(''));
+  const { authToken, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -11,10 +16,13 @@ const AccountScreen = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": `Token ${authToken}`,
         },
       });
 
+      const data = await response.json();
       if (response.ok) {
+        logout();
         navigation.navigate('Login');
       } else {
         const errorData = await response.json();
@@ -26,28 +34,63 @@ const AccountScreen = () => {
     }
   };
 
-
   const handleAddRelationship = async () => {
+    if (code.includes('')) {
+      Alert.alert('Error', 'Please enter a valid Provider ID in the format XXXX-XXXX');
+      return;
+    }
+    const providerID = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-relationship/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          shareable_id: provider_id,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-relationship/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Token ${authToken}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            shareable_id: providerID,
+          }),
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
+      console.log();
       if (response.ok) {
-        Alert.alert('Success', data.message);
+        if (data.message.includes("already exists")) {
+          Alert.alert('Notice', 'This relationship already exists.');
+        } else {
+          Alert.alert('Success', data.message);
+        }
       } else {
-        Alert.alert('Error', data.error || "Failed to add relationship")
+        Alert.alert('Error', data.error || 'Failed to add relationship');
       }
     } catch (error) {
       Alert.alert('Error', 'Something went wrong');
       console.error(error);
+    }
+  };
+
+  const handleInputChange = (text, index) => {
+    const newCode = [...code];
+    if (/^[a-zA-Z0-9]$/.test(text)) {
+      newCode[index] = text.toUpperCase();
+      setCode(newCode);
+
+      if (index < 7) {
+        inputRefs.current[index + 1].focus();
+      }
+    } else if (text === '') {
+      newCode[index] = '';
+      setCode(newCode);
+    }
+  };
+
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
     }
   };
 
@@ -58,13 +101,24 @@ const AccountScreen = () => {
           <Text style={styles.title}>Add Provider</Text>
         </View>
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Provider ID"
-            keyboardType="default"
-            value={provider_id}
-            onChangeText={setProviderID}
-          />
+          <View style={styles.inputGroup}>
+            {code.map((char, index) => (
+              <React.Fragment key={index}>
+                <TextInput
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  style={styles.input}
+                  value={char}
+                  onChangeText={(text) => handleInputChange(text, index)}
+                  onKeyPress={(e) => handleKeyPress(e, index)}
+                  maxLength={1}
+                  keyboardType="default"
+                  autoCapitalize="characters"
+                  returnKeyType="next"
+                />
+                {index === 3 && <Text style={styles.hyphen}>-</Text>}
+              </React.Fragment>
+            ))}
+          </View>
           <TouchableOpacity style={styles.reportButton} onPress={handleAddRelationship}>
             <Text style={styles.reportButtonText}>Submit</Text>
           </TouchableOpacity>
@@ -106,14 +160,29 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 60,
-    width: '90%',
+    width: 50,
     borderColor: '#0E315F',
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 8,
     padding: 10,
     backgroundColor: '#fff',
-    marginBottom: 20,
-    marginTop: 20,
+    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    marginHorizontal: 5,
+    marginBottom: 15,
+  },
+  inputGroup: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hyphen: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginHorizontal: 5,
+    color: '#0E315F',
   },
   reportButton: {
     backgroundColor: '#0E315F',

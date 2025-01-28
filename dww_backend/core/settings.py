@@ -29,6 +29,8 @@ SECRET_KEY = "django-insecure-7w54b_@yz53s8$ca52iz84q#lx*vdbgws_96r79+8&lc!_e5!!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SESSION_COOKIE_DOMAIN = None
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 # Application definition
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "api",
     "rest_framework",
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -56,20 +59,33 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 ROOT_URLCONF = "core.urls"
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173'  # Provider frontend local dev server (Vite) 
+    'http://localhost:5173',
+    'http://localhost:8081',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
-SESSION_COOKIE_SAMESITE = 'Lax'  # Required for cross-origin
-SESSION_COOKIE_SECURE = False   # Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173' 
+    'http://localhost:5173',
+    'http://localhost:8081',
 ]
 
 TEMPLATES = [
