@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from './AuthContext';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login, authToken } = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -22,7 +24,7 @@ const LoginScreen = () => {
 
       if (response.ok) {
         const data = await response.json();
-        Alert.alert('Success', data.message);
+        login(data.token);
         navigation.navigate('HomeTabs');
       } else {
         const errorData = await response.json();
