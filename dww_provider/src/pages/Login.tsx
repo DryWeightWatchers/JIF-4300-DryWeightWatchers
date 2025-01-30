@@ -27,7 +27,7 @@ const Login: React.FC = () => {
           alert('Access restricted to providers only');
           return;
         }
-        localStorage.setItem('authToken', data.access_token);
+        localStorage.setItem('authToken', data.token);
         login();
         navigate('/dashboard');
       } else {

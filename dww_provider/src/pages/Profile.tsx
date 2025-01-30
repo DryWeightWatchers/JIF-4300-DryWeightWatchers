@@ -15,12 +15,13 @@ const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData|null>(null); 
   const [isLoading, setIsLoading] = useState<boolean>(true); 
   const [error, setError] = useState<string|null>(null); 
-
+  const authToken = localStorage.getItem('authToken')
   const fetchProfileData = async () => {
     try {
       const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile`, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          "Authorization": `Token ${authToken}`,
         },
         credentials: 'include', 
       }); 
