@@ -16,6 +16,9 @@ from rest_framework.response import Response
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
 
+def health_check(request):
+    if request.method == 'GET':
+        return JsonResponse({'message': "health check passed"}, status=200)
 
 def error_response(message, details=None, status=400):
     response = {"error": {"message": message}}
