@@ -1,20 +1,19 @@
-
-import React, { useState, useEffect } from 'react';
-import styles from '../styles/Profile.module.css'; 
+import { useState, useEffect } from 'react';
+import styles from '../styles/Profile.module.css';
 
 type ProfileData = {
-  firstname: string, 
-  lastname: string, 
-  shareable_id: string, 
-  email: string, 
+  firstname: string,
+  lastname: string,
+  shareable_id: string,
+  email: string,
   phone: string
 }
 
 const Profile = () => {
 
-  const [profileData, setProfileData] = useState<ProfileData|null>(null); 
-  const [isLoading, setIsLoading] = useState<boolean>(true); 
-  const [error, setError] = useState<string|null>(null); 
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const authToken = localStorage.getItem('authToken')
   const fetchProfileData = async () => {
     try {
@@ -23,23 +22,23 @@ const Profile = () => {
           'Content-Type': 'application/json',
           "Authorization": `Token ${authToken}`,
         },
-        credentials: 'include', 
-      }); 
+        credentials: 'include',
+      });
       if (!res.ok) {
-        setError(`HTTP error: ${res.status}`); 
-      } 
-      const data = await res.json(); 
-      setProfileData(data); 
+        setError(`HTTP error: ${res.status}`);
+      }
+      const data = await res.json();
+      setProfileData(data);
     } catch (err: any) {
-      setError(err.message); 
+      setError(err.message);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
-  } 
+  }
 
   useEffect(() => {
-    fetchProfileData(); 
-  }, []); 
+    fetchProfileData();
+  }, []);
 
   if (isLoading) {
     return <p>Loading...</p>

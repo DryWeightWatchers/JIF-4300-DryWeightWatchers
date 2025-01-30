@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
           <li><Link to="/login">Login / Register</Link></li>
         ) : (
           <li className={styles.signout}>
-            <Link onClick={handleLogout}>Sign Out</Link>
+            <Link to="#" onClick={handleLogout}>Sign Out</Link>
           </li>
         )}
       </ul>
