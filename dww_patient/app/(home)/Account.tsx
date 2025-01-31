@@ -90,9 +90,13 @@ const AccountScreen = () => {
 
   const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
+      const newCode = [...code];
+      newCode[index - 1] = '';
+      setCode(newCode);
       inputRefs.current[index - 1].focus();
     }
   };
+  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -160,14 +164,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 60,
-    width: 50,
+    width: "9%",
     borderColor: '#0E315F',
     borderWidth: 2,
     borderRadius: 8,
     padding: 10,
     backgroundColor: '#fff',
     textAlign: 'center',
-    fontSize: 24,
+    fontSize: 15,
     fontWeight: 'bold',
     fontFamily: 'monospace',
     marginHorizontal: 5,
