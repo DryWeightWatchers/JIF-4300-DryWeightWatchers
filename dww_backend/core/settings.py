@@ -74,7 +74,7 @@ ROOT_URLCONF = "core.urls"
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:8081',
-    "http://drjjq6d8n0byw.cloudfront.net/",
+    "http://d13ezaiebkeiy0.cloudfront.net",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
