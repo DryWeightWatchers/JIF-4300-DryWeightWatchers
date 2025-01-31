@@ -31,7 +31,7 @@ DEBUG = True
 
 SESSION_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ["django-eb-env.eba-evjwdsyd.us-west-2.elasticbeanstalk.com", "localhost", "172.31.42.62"]
+ALLOWED_HOSTS = ["django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com", "localhost", "172.31.42.62"]
 
 # Application definition
 
