@@ -32,7 +32,9 @@ const Navbar: React.FC = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.brand}>
-        <Link to="/">Dry Weight Watchers</Link>
+        <Link to="/">
+          <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />
+        </Link>
       </div>
       <ul className={styles.navbarList}>
         <li><Link to="/">Home</Link></li>
