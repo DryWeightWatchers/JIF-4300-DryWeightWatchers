@@ -28,7 +28,6 @@ const Navbar: React.FC = () => {
       console.error('Logout error:', error);
     }
   };
-
   return (
     <nav className={styles.navbar}>
       <div className={styles.brand}>
