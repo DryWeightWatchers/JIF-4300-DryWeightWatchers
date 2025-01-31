@@ -2,4 +2,6 @@ venv/
 __pycache__/
 migrations/
 .env
+.env.dev
+.env.prod
 node_modules/

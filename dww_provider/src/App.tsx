@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import MainLayout from './components/MainLayout';
 import { AuthProvider } from './components/AuthContext';
-import styles from './styles/App.module.css';
 
 export default function App() {
   return (
@@ -24,3 +23,4 @@ export default function App() {
 
   );
 }
+

@@ -24,10 +24,11 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7w54b_@yz53s8$ca52iz84q#lx*vdbgws_96r79+8&lc!_e5!!"
+SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DJANGO_ENV = os.getenv('DJANGO_ENV', "development")
+DEBUG = DJANGO_ENV == "development"
 
 SESSION_COOKIE_DOMAIN = None
 
@@ -74,18 +75,18 @@ ROOT_URLCONF = "core.urls"
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:8081',
+    "http://d13ezaiebkeiy0.cloudfront.net",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:8081',
+    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    'http://localhost:8081'
 ]
 
 TEMPLATES = [
@@ -164,3 +165,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+if DJANGO_ENV == "production":
+    SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

@@ -33,6 +33,8 @@ You'll need to install MySQL Server from [here](https://dev.mysql.com/downloads/
 
 You'll also need to install the Expo Go app on your phone to run the development build of the mobile front-end. 
 
+To deploy the application to AWS you will need to install the AWS CLI from [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). (You'll also need aws credentials which will be shared privately.)
+
 ### Installing project dependencies: 
 
 After cloning the repo, go to the root directory: 
@@ -56,3 +58,15 @@ To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`.
 
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
 
+### Deploying the application to AWS: 
+#### Deploying django server
+- First, make sure you have the AWS CLI installed and configured with your credentials by running `aws configure`. 
+    - If you don't have an Access keys, you can create one by going to the top right of the AWS Console in *Account > Security credentials > Access Key*. You will need the Access Key ID and Secret Access Key to configure your aws account in the cli. 
+- To deploy the django server to elastic beanstalk, navigate to `dww_backend` and run `eb deploy --staged`. 
+    - Other useful commands
+        -  `eb status` to check the status of the environment
+        - `eb logs` to check the logs of the environment
+
+#### Deploying providers web app
+- To deploy the provider web app there is a bash file called `deploy.sh` in the `dww_provider`. That will take care of the deployment for you. 
+ 
