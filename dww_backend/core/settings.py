@@ -87,8 +87,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
-    'http://localhost:8081',
-    "http://localhost:5173"
+    'http://localhost:8081'
 ]
 
 TEMPLATES = [
