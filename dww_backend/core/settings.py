@@ -31,7 +31,8 @@ DEBUG = True
 
 SESSION_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ["django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com", "localhost", "172.31.42.62"]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", ",").split(",")
+ALLOWED_HOSTS += ["django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com"]
 
 # Application definition
 
@@ -87,6 +88,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:8081',
+    "http://localhost:5173"
 ]
 
 TEMPLATES = [
