@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } fro
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
-
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
@@ -12,7 +11,6 @@ const SignupScreen = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [userType, setUserType] = useState<'Provider' | 'Patient'>('Patient');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
@@ -24,8 +22,8 @@ const SignupScreen = () => {
       phone: phone,
       password1: password,
       password2: confirmPassword,
-      role: userType.toLowerCase()
-    }
+      role: "patient",
+    };
 
     try {
       const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
@@ -82,7 +80,7 @@ const SignupScreen = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Phone Number"
+        placeholder="Phone Number (Optional)"
         placeholderTextColor="#A9A9A9"
         keyboardType="phone-pad"
         value={phone}
@@ -116,31 +114,6 @@ const SignupScreen = () => {
         />
         <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
           <Text style={styles.eyeIcon}>{confirmPasswordVisible ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.userTypeContainer}>
-        <TouchableOpacity
-          style={[
-            styles.userTypeButton,
-            userType === 'Provider' && styles.userTypeSelected,
-          ]}
-          onPress={() => setUserType('Provider')}
-        >
-          <Text style={userType === 'Provider' ? styles.userTypeTextSelected : styles.userTypeText}>
-            Provider
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.userTypeButton,
-            userType === 'Patient' && styles.userTypeSelected,
-          ]}
-          onPress={() => setUserType('Patient')}
-        >
-          <Text style={userType === 'Patient' ? styles.userTypeTextSelected : styles.userTypeText}>
-            Patient
-          </Text>
         </TouchableOpacity>
       </View>
 
@@ -213,33 +186,6 @@ const styles = StyleSheet.create({
   eyeIcon: {
     fontSize: 18,
     color: '#A9A9A9',
-  },
-  userTypeContainer: {
-    flexDirection: 'row',
-    width: '95%',
-    justifyContent: 'center',
-    marginVertical: 16,
-  },
-  userTypeButton: {
-    flex: 1,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#A9A9A9',
-    borderRadius: 10,
-    marginHorizontal: 4,
-  },
-  userTypeSelected: {
-    backgroundColor: '#007AFF',
-  },
-  userTypeText: {
-    color: '#A9A9A9',
-    fontSize: 16,
-  },
-  userTypeTextSelected: {
-    color: '#FFFFFF',
-    fontSize: 16,
   },
   button: {
     width: '95%',
