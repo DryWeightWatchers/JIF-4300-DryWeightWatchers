@@ -1,6 +1,27 @@
-# Overview 
+# Dry Weight Watchers - Overview 
 
 Dry Weight Watchers is a cross-platform application to help healthcare providers monitor the weights of patients with congestive heart failure (CHF). The heart's inability to pump blood effectively often leads to fluid buildup in the tissues of CHF patients. A sudden spike in weight can indicate worsening symptoms and require medical attention. By monitoring their weight everyday with our app, patients can rest assured that their doctor will be automatically notified of any anomalies, helping them to provide timely care and potentially prevent life-threatening complications. 
+
+
+# Release Notes
+## Version 0.1.0: Initial Setup
+### Features 
+#### For patients: 
+- Patient can create an account and login 
+- After login, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
+- Patient can log out of their account
+- Patient can register their provider
+#### For providers: 
+- Providers can create an account and login 
+- After login, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
+- Provider can log out of their account
+
+### Bug Fixes
+- (N/A)
+
+### Known Issues
+- (none) 
+
 
 # Developer Setup 
 
@@ -11,6 +32,8 @@ You'll need Node.js and Python installed. You can verify if you have them by ope
 You'll need to install MySQL Server from [here](https://dev.mysql.com/downloads/installer/) to access the database. (You'll also need credentials which will be shared privately.) 
 
 You'll also need to install the Expo Go app on your phone to run the development build of the mobile front-end. 
+
+To deploy the application to AWS you will need to install the AWS CLI from [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). (You'll also need aws credentials which will be shared privately.)
 
 ### Installing project dependencies: 
 
@@ -34,3 +57,16 @@ When you first run the development server, you'll need to enter your database cr
 To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`. It will start a local development server and output a QR code. Scan the code with your phone to open the app in Expo Go, or go to `http://localhost:8081` to open the app in a browser. Your phone must be connected to the same wifi network as your development machine for Expo Go to work. 
 
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
+
+### Deploying the application to AWS: 
+#### Deploying django server
+- First, make sure you have the AWS CLI installed and configured with your credentials by running `aws configure`. 
+    - If you don't have an Access keys, you can create one by going to the top right of the AWS Console in *Account > Security credentials > Access Key*. You will need the Access Key ID and Secret Access Key to configure your aws account in the cli. 
+- To deploy the django server to elastic beanstalk, navigate to `dww_backend` and run `eb deploy --staged`. 
+    - Other useful commands
+        -  `eb status` to check the status of the environment
+        - `eb logs` to check the logs of the environment
+
+#### Deploying providers web app
+- To deploy the provider web app there is a bash file called `deploy.sh` in the `dww_provider`. That will take care of the deployment for you. 
+ 

@@ -11,22 +11,25 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
-
-  const handleLogin = async () => {
+  
+  const handleLogin = async (email: string, password: string) => {
     try {
+      console.log("Server URL:", serverUrl);
+
       const response = await fetch(`${serverUrl}/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include'
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         if (data.role !== 'provider') {
           alert('Access restricted to providers only');
           return;
         }
-        localStorage.setItem('authToken', data.access_token);
+        localStorage.setItem('authToken', data.token);
         login();
         navigate('/dashboard');
       } else {
@@ -37,7 +40,7 @@ const Login: React.FC = () => {
       console.error('Login error:', error);
     }
   };
-  
+
 
 
 

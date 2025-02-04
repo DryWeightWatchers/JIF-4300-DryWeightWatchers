@@ -1,11 +1,33 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../components/AuthContext';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+
+        logout();
+
+        navigate('/login');
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   return (
     <nav className={styles.navbar}>
       <div className={styles.brand}>
@@ -14,12 +36,12 @@ const Navbar: React.FC = () => {
       <ul className={styles.navbarList}>
         <li><Link to="/">Home</Link></li>
         <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/profile">Profile</Link></li>
+        {isAuthenticated ? (<li><Link to="/profile">Profile</Link></li>) : null}
         {!isAuthenticated ? (
           <li><Link to="/login">Login / Register</Link></li>
         ) : (
           <li className={styles.signout}>
-            <Link onClick={logout}>Sign Out</Link>
+            <Link to="#" onClick={handleLogout}>Sign Out</Link>
           </li>
         )}
       </ul>
