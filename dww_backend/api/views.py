@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .forms import CustomUserCreationForm
 from api.models import *
 from .forms import *
+from .serializers import WeightRecordSerializer
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -150,10 +151,15 @@ def record_weight(request):
 
         user = request.user
         weight = request.data.get('weight')
+
+        serializer = WeightRecordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'error': serializer.errors}, status=400)
+
         if not weight:
             return JsonResponse({'error': 'Weight field is required'}, status=400)
-        
-        WeightRecord.objects.create(patient=user, weight=weight)
+        WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
+
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
