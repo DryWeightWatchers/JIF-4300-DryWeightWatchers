@@ -15,12 +15,11 @@ const EnterDataScreen = () => {
       return;
     }
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/enter_weight/`, 
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
         { 'weight': parseFloat(weight) }, 
         {
           headers: {
             'Authorization': `Token ${authToken}`,
-            'Content-Type': 'applications/json'
           }
         }
       );
