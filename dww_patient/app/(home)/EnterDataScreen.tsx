@@ -1,18 +1,36 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { useAuth } from '../(auth)/AuthContext';
 
 const EnterDataScreen = () => {
   const navigation = useNavigation();
   const [weight, setWeight] = useState('');
+  const { authToken } = useAuth();
 
-  const handleReportData = () => {
-    if (!weight || isNaN(weight)) {
+  const handleReportData = async () => {
+    if (!weight) {
       alert('Please enter a valid weight.');
       return;
     }
-    alert(`Weight reported: ${weight}kg`);
-    setWeight(''); 
+    try {
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/enter_weight/`, 
+        { 'weight': parseFloat(weight) }, 
+        {
+          headers: {
+            'Authorization': `Token ${authToken}`,
+            'Content-Type': 'applications/json'
+          }
+        }
+      );
+      console.log('weight input successful:', response.data);
+      alert(`Weight reported: ${weight}kg`);
+      setWeight(''); 
+    } catch (error: any) {
+      console.log('weight input error:', error.response?.data || error.message)
+      alert('Failed to report weight. Please try again.')
+    }
   };
 
   return (
