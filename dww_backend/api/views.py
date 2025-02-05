@@ -16,6 +16,9 @@ from rest_framework.response import Response
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
 
+def health_check(request):
+    if request.method == 'GET':
+        return JsonResponse({'message': "health check passed"}, status=200)
 
 def error_response(message, details=None, status=400):
     response = {"error": {"message": message}}
@@ -126,18 +129,16 @@ def logout_view(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-def profile_data(request): 
-    if not request.user.is_authenticated: 
-        print(f"profile_data: unauthorized access: {request}")
-        return error_response("Unauthorized") 
-    
-    user = request.user 
-    print(f"profile_data: access from {request.user}")
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def profile_data(request):
+    user = request.user
     return JsonResponse({
-        'firstname': user.first_name, 
-        'lastname': user.last_name, 
-        'shareable_id': user.shareable_id, 
-        'email': user.email, 
+        'firstname': user.first_name,
+        'lastname': user.last_name,
+        'shareable_id': user.shareable_id,
+        'email': user.email,
         'phone': str(user.phone)
     })
 

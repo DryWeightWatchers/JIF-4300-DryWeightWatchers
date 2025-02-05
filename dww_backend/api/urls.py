@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'), 
     path('profile/', views.profile_data, name='profile'),
     path('record_weight/', views.record_weight, name='record weight'), 
+    path('health-check/', views.health_check, name="health_check")
 ]
