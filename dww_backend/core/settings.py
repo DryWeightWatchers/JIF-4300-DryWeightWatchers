@@ -73,9 +73,9 @@ REST_FRAMEWORK = {
 ROOT_URLCONF = "core.urls"
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
     'http://localhost:8081',
     "http://d13ezaiebkeiy0.cloudfront.net",
+    os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
 ]
 
 CORS_ALLOW_CREDENTIALS = True
