@@ -7,7 +7,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, authToken } = useAuth();
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -24,7 +24,7 @@ const LoginScreen = () => {
 
       if (response.ok) {
         const data = await response.json();
-        login(data.token);
+        login(data.access, data.refresh);
         navigation.navigate('HomeTabs');
       } else {
         const errorData = await response.json();

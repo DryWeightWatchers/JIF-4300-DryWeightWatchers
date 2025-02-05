@@ -3,7 +3,6 @@ from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBad
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.http import JsonResponse
-from .forms import CustomUserCreationForm
 from api.models import User, TreatmentRelationship
 from .forms import *
 import json
@@ -12,6 +11,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
@@ -30,7 +31,7 @@ def register(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            form = CustomUserCreationForm(data)
+            form = RegisterUserForm(data)
             if form.is_valid():
                 form.save()
                 return JsonResponse({'message': "User registered successfully"}, status=201)
@@ -68,24 +69,59 @@ def register_provider(request):
 
 
 def login(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            email = data.get('email')
-            password = data.get('password')
-
-            user = authenticate(request, username=email, password=password)
-            token, created = Token.objects.get_or_create(user=user)
-
-            if user is not None:
-                django_login(request, user)
-                return JsonResponse({'message': 'Login successful', 'role': user.role, 'token': token.key}, status=200)
-            else:
-                return JsonResponse({'message': 'Invalid credentials'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
-    else:
+    if request.method != 'POST': 
         return JsonResponse({'error': 'Wrong request type'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        email = data.get('email')
+        password = data.get('password')
+        user = authenticate(request, username=email, password=password)
+        if user is None: 
+            return JsonResponse({'message': 'Invalid credentials'}, status=400) 
+        
+        # use JWT for patients 
+        if user.role == User.PATIENT: 
+            refresh = RefreshToken.for_user(user) 
+            return JsonResponse({
+                'message': 'Login successful', 
+                'role': user.role, 
+                'access_token': str(refresh.access_token), 
+                'refresh_token': str(refresh)
+            }, status=200)
+        
+        # use Django's built-in session-based auth for providers 
+        elif user.role == User.PROVIDER: 
+            django_login(request, user) 
+            return JsonResponse({
+                'message': 'Login successful', 
+                'role': user.role 
+            }, status=200)
+        
+        else: 
+            return JsonResponse({'error': 'Invalid role'}, status=403)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
+
+
+def refresh_access_token(request): 
+    if request.method != 'POST': 
+        return JsonResponse({'error': 'Wrong request type'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        refresh_token = data.get("refresh")
+        if not refresh_token:
+            return JsonResponse({'error': 'Refresh token is required'}, status=400)
+
+        try:
+            refresh = RefreshToken(refresh_token) 
+            access_token = str(refresh.access_token) 
+            return JsonResponse({'access_token': access_token}, status=200)
+        
+        except TokenError:
+            return JsonResponse({'error': 'Invalid or expired refresh token'}, status=401)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
 
 
 @api_view(['POST'])
