@@ -9,5 +9,6 @@ urlpatterns = [
     path('add-relationship/', views.add_relationship, name='add_relationship'),
     path('logout/', views.logout_view, name='logout'), 
     path('profile/', views.profile_data, name='profile'),
-    path('health-check/', views.health_check, name="health_check")
+    path('health-check/', views.health_check, name="health_check"),
+    path('delete-patient/', views.delete_account, name='delete_account')
 ]

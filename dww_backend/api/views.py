@@ -142,3 +142,20 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
+def delete_account(request):
+    if request.method == "DELETE":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get("user_id")
+
+            user = User.objects.filter(id=user_id).first()
+            if user:
+                user.delete()
+                return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+            else:
+                return JsonResponse({'message': 'User not found'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+        
+    return JsonResponse({"error": "Invalid request"}, status=400)

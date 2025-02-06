@@ -9,6 +9,7 @@ import HomeScreen from './(home)/HomeScreen';
 import EnterDataScreen from './(home)/EnterDataScreen';
 import DashboardScreen from './(home)/DashboardScreen';
 import AccountScreen from './(home)/Account';
+import DeleteAccountScreen from './(home)/DeleteAccountScreen';
 import { AuthProvider } from './(auth)/AuthContext';
 
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ export default function App() {
           name="HomeTabs"
           component={HomeTabNavigator}
         />
+        <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
       </Stack.Navigator>
     </AuthProvider>
   );

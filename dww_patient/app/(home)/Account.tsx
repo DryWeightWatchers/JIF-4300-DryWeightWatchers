@@ -136,6 +136,9 @@ const AccountScreen = () => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => navigation.navigate('DeleteAccount')}>
+          <Text style={styles.logoutText}>Delete Account</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -221,6 +224,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  deleteButton: {
+    marginTop: 20,
+    alignSelf: 'center',
+    backgroundColor: '#FF4D4D',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
 });
 
