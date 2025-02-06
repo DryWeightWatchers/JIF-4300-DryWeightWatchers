@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../auth/AuthProvider';
+import axios from 'axios';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
@@ -96,6 +97,42 @@ const AccountScreen = () => {
       inputRefs.current[index - 1].focus();
     }
   };
+
+  const handleDeleteAccount = async () => {
+    if (!authToken) {
+      Alert.alert('Error', 'You are not authenticated');
+      return;
+    }
+
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive", 
+          onPress: async () => {
+            try{
+              const response = await axios.delete(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-patient/`, {
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Token ${authToken}`,
+                },
+              });
+              
+              if (response.status == 200) {
+                Alert.alert("Success", "Your account has been deleted.", [
+                  { text: "OK", onPress: () => navigation.navigate("Signup") },
+                ]);
+              }
+            } catch (error) {
+              Alert.alert("Error", error.response?.data?.error || "Failed to delete account");
+            }
+          },
+        },
+      ]); 
+    };
   
 
   return (
@@ -135,6 +172,9 @@ const AccountScreen = () => {
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+          <Text style={styles.logoutText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
@@ -221,6 +261,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  deleteButton: {
+    marginTop: 20,
+    alignSelf: 'center',
+    backgroundColor: '#FF4D4D',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
 });
 
