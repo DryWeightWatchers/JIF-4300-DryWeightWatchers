@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
-import { router } from "expo-router";
+
 
 interface AuthContextType {
+  isLoading: boolean; 
   isAuthenticated: boolean;
   accessToken: string | null; 
+  refreshToken: string | null; 
   login: (accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<void> 
@@ -12,21 +14,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+
   const [accessToken, setAccessToken] = useState<string | null>(null); 
   const [refreshToken, setRefreshToken] = useState<string | null>(null); 
-
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
+    console.log("AuthProvider: useEffect")
+    // note: since loadTokens is async, the component renders before it completes 
     const loadTokens = async () => {
       const storedAccessToken = await SecureStore.getItemAsync("accessToken");
       const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
-      if (storedAccessToken) setAccessToken(storedAccessToken);
-      if (storedRefreshToken) setRefreshToken(storedRefreshToken);
+      if (storedAccessToken && storedRefreshToken) {
+        setAccessToken(storedAccessToken);
+        setRefreshToken(storedRefreshToken);
+      }
+      setIsLoading(false);
     };
     loadTokens();
-  }, []);
-
+}, []);
 
   const login = async (newAccessToken: string, newRefreshToken: string) => {
     await SecureStore.setItemAsync("accessToken", newAccessToken);
@@ -35,15 +43,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setRefreshToken(newRefreshToken);
   };
 
-
   const logout = async () => {
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
     setAccessToken(null);
     setRefreshToken(null);
-    router.replace('/LoginScreen'); 
   };
-
 
   const refreshAccessToken = async () => {
     if (!refreshToken) return;
@@ -59,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         await SecureStore.setItemAsync("accessToken", data.access);
         setAccessToken(data.access);
       } else {
-        logout(); // Log out if refresh token fails
+        logout(); 
       }
 
     } catch (error) {
@@ -68,9 +73,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!accessToken, accessToken, login, logout, refreshAccessToken }}>
+    <AuthContext.Provider value={{ 
+        isLoading, 
+        isAuthenticated: !!accessToken, 
+        accessToken, 
+        refreshToken, 
+        login, 
+        logout, 
+        refreshAccessToken 
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -78,7 +90,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
 export default AuthProvider;
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

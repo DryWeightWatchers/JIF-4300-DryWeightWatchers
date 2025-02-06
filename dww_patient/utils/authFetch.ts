@@ -8,7 +8,7 @@ it logs out.
 Use this instead of `fetch` for endpoints where the user is required to be authenticated. 
 */
 
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../app/auth/AuthProvider";
 
 
 export const authFetch = async (url: string, options: RequestInit = {}) => {

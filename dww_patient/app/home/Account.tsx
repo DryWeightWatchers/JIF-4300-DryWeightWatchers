@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../(auth)/AuthContext';
+import { useAuth } from '../auth/AuthProvider';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
