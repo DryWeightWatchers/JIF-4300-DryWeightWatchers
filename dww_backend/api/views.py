@@ -1,6 +1,8 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.contrib.auth import authenticate, logout, login as django_login
+from django.contrib.auth import authenticate,logout, login as django_login
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm
 from api.models import *
@@ -166,19 +168,12 @@ def record_weight(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@csrf_exempt
+@login_required
 def delete_account(request):
     if request.method == "DELETE":
-        try:
-            data = json.loads(request.body)
-            user_id = data.get("user_id")
-
-            user = User.objects.filter(id=user_id).first()
-            if user:
-                user.delete()
-                return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-            else:
-                return JsonResponse({'message': 'User not found'}, status=404)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
-        
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        user = request.user
+        user.delete()
+        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
