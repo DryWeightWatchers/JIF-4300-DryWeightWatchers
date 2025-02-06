@@ -1,11 +1,11 @@
 
-from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm
-from api.models import User, TreatmentRelationship
+from api.models import *
 from .forms import *
+from .serializers import WeightRecordSerializer
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -100,7 +100,7 @@ def add_relationship(request):
         shareable_id = data.get('shareable_id')
 
         if not shareable_id:
-            return Response({"error": "Provider shareable ID is required"}, status=400)
+            return Response({'error': "Provider shareable ID is required"}, status=400)
 
         try:
             provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
@@ -129,7 +129,6 @@ def logout_view(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -142,6 +141,30 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def record_weight(request):
+    try:
+        print('Authenticated User:', request.user)
+        print('Received Token:', request.headers.get('Authorization'))
+
+        user = request.user
+        weight = request.data.get('weight')
+
+        serializer = WeightRecordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'error': serializer.errors}, status=400)
+
+        if not weight:
+            return JsonResponse({'error': 'Weight field is required'}, status=400)
+        WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
+
+        return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 def delete_account(request):
     if request.method == "DELETE":
