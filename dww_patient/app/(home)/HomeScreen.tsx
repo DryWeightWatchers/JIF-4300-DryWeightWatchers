@@ -1,7 +1,11 @@
 import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { HomeTabScreenProps } from '../types/navigation';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
+  const navigation = useNavigation<HomeTabScreenProps<'Home'>['navigation']>();
+  
   return (
     <View style={styles.container}>
       <View style={styles.topSection}>
@@ -23,7 +27,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.cardButton}
-          onPress={() => navigation.navigate('Login')}
+          //onPress={() => navigation.navigate('')} navigate to future FAQ page in settings
         >
           <Text style={styles.cardText}>FAQ</Text>
         </TouchableOpacity>
@@ -35,7 +39,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.cardButton}
-          onPress={() => navigation.navigate('Setting')}
+          //onPress={() => navigation.navigate('Settings')} navigate to settings screen in near future
         >
           <Text style={styles.cardText}>Alerts</Text>
         </TouchableOpacity>

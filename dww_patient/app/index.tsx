@@ -1,6 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import LoginScreen from './(auth)/LoginScreen';
@@ -8,21 +7,35 @@ import SignupScreen from './(auth)/SignupScreen';
 import HomeScreen from './(home)/HomeScreen';
 import EnterDataScreen from './(home)/EnterDataScreen';
 import DashboardScreen from './(home)/DashboardScreen';
-import AccountScreen from './(home)/Account';
+import AccountScreen from './(home)/(settings)/Account';
+import SettingsScreen from './(home)/(settings)/SettingsScreen';
+import RemindersScreen from './(home)/(settings)/ReminderScreen';
 import { AuthProvider } from './(auth)/AuthContext';
+import { HomeTabParamList, RootStackParamList, SettingStackParamList } from './types/navigation';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const SettingStack = createNativeStackNavigator<SettingStackParamList>();
+const HomeTabs = createBottomTabNavigator<HomeTabParamList>();
 
 // Tab Navigator for screens in (home), anything in this section should be require-login
 function HomeTabNavigator() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Enter Data" component={EnterDataScreen} />
-      <Tab.Screen name="Data" component={DashboardScreen} />
-      <Tab.Screen name="Account" component={AccountScreen} />
-    </Tab.Navigator>
+    <HomeTabs.Navigator>
+      <HomeTabs.Screen name="Home" component={HomeScreen} />
+      <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
+      <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
+      <HomeTabs.Screen name="Settings" component={SettingsStack} />
+    </HomeTabs.Navigator>
+  );
+}
+
+function SettingsStack() {
+  return (
+    <SettingStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingStack.Screen name="Settings" component={SettingsScreen} />
+      <SettingStack.Screen name="Account" component={AccountScreen} />
+      <SettingStack.Screen name="Reminders" component={RemindersScreen} />
+    </SettingStack.Navigator>
   );
 }
 
@@ -30,14 +43,14 @@ function HomeTabNavigator() {
 export default function App() {
   return (
     <AuthProvider>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen
+      <RootStack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Login" component={LoginScreen} />
+        <RootStack.Screen name="Signup" component={SignupScreen} />
+        <RootStack.Screen
           name="HomeTabs"
           component={HomeTabNavigator}
         />
-      </Stack.Navigator>
+      </RootStack.Navigator>
     </AuthProvider>
   );
 }

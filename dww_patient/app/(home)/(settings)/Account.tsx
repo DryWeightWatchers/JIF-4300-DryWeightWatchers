@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../(auth)/AuthContext';
+import { useAuth } from '../../(auth)/AuthContext';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
-  const [provider_id, setProviderID] = useState('');
   const inputRefs = useRef([]);
   const [code, setCode] = useState(new Array(8).fill(''));
   const { authToken, logout } = useAuth();
@@ -73,14 +72,14 @@ const AccountScreen = () => {
     }
   };
 
-  const handleInputChange = (text, index) => {
+  const handleInputChange = (text, index) => { //should be strictly typed
     const newCode = [...code];
     if (/^[a-zA-Z0-9]$/.test(text)) {
       newCode[index] = text.toUpperCase();
       setCode(newCode);
 
       if (index < 7) {
-        inputRefs.current[index + 1].focus();
+        inputRefs.current[index + 1].focus(); //inputRefs should be strictly typed
       }
     } else if (text === '') {
       newCode[index] = '';
@@ -88,12 +87,12 @@ const AccountScreen = () => {
     }
   };
 
-  const handleKeyPress = (e, index) => {
+  const handleKeyPress = (e, index) => { //should be strictly typed
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
       const newCode = [...code];
       newCode[index - 1] = '';
       setCode(newCode);
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1].focus(); //inputRefs should be strictly typed
     }
   };
   
@@ -109,7 +108,7 @@ const AccountScreen = () => {
             {code.map((char, index) => (
               <React.Fragment key={index}>
                 <TextInput
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={(el) => (inputRefs.current[index] = el)} //inputRefs should be strictly typed
                   style={styles.input}
                   value={char}
                   onChangeText={(text) => handleInputChange(text, index)}

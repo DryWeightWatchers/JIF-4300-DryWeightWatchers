@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { useAuth } from '../(auth)/AuthContext';
 
 const EnterDataScreen = () => {
-  const navigation = useNavigation();
   const [weight, setWeight] = useState('');
   const { authToken } = useAuth();
 
