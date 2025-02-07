@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F9FF',
   },
   topSection: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#4f3582',
     paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 200,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#0E315F',
+    color: '#7B5CB8',
   },
 
 });

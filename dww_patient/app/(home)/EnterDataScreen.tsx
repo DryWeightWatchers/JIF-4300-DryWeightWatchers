@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   subtitle: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',

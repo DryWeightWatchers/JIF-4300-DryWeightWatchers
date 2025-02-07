@@ -24,7 +24,7 @@ function HomeTabNavigator() {
     <HomeTabs.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName: any;
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
@@ -36,7 +36,6 @@ function HomeTabNavigator() {
             iconName = focused ? 'settings' : 'settings-outline';
           }
 
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#7B5CB8',

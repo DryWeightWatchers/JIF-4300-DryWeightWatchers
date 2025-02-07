@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   inputContainer: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     color: '#0E315F',
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',
