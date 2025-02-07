@@ -110,7 +110,7 @@ def refresh_access_token(request):
         return JsonResponse({'error': 'Wrong request type'}, status=405)
     try:
         data = json.loads(request.body.decode('utf-8'))
-        refresh_token = data.get("refresh")
+        refresh_token = data.get("refresh_token")
         if not refresh_token:
             return JsonResponse({'error': 'Refresh token is required'}, status=400)
 
@@ -181,7 +181,7 @@ def profile_data(request):
     })
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def record_weight(request):
     try:

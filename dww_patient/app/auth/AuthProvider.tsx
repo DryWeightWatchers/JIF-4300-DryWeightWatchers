@@ -52,23 +52,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshAccessToken = async () => {
     if (!refreshToken) return;
+    console.log("AuthProvider: refreshAccessToken: ", refreshToken); 
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
+        body: JSON.stringify({ refresh_token: refreshToken }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        await SecureStore.setItemAsync("accessToken", data.access);
-        setAccessToken(data.access);
+        await SecureStore.setItemAsync("accessToken", data.access_token);
+        setAccessToken(data.access_token);
       } else {
         logout(); 
       }
 
     } catch (error) {
-      console.error("Error refreshing token:", error);
+      console.log("Error refreshing token:", error);
       logout();
     }
   };

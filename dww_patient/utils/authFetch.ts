@@ -8,36 +8,48 @@ it logs out.
 Use this instead of `fetch` for endpoints where the user is required to be authenticated. 
 */
 
-import { useAuth } from "../app/auth/AuthProvider";
+import * as SecureStore from "expo-secure-store";
 
 
-export const authFetch = async (url: string, options: RequestInit = {}) => {
-  const { accessToken, refreshAccessToken, logout } = useAuth();
+export const authFetch = async (
+    url: string, 
+    accessToken: string | null, 
+    refreshAccessToken: () => Promise<void>, 
+    logout: () => Promise<void>, 
+    options: RequestInit = {}, 
+) => {
 
-  const fetchWithToken = async () => {
-    const headers = {
-      ...options.headers,
-      Authorization: `Bearer ${accessToken}`,
+    const fetchWithToken = async () => {
+
+        // if no access token, logout
+        if (!accessToken) {
+            await logout(); 
+            alert("No access token available. Please log in again."); 
+        }
+
+        const headers = {
+            ...options.headers,
+            Authorization: `Bearer ${accessToken}`,
+        };
+        let response = await fetch(url, { ...options, headers });
+
+        if (response.status === 401) {
+            console.log("authFetch: fetchWithToken: access token expired, attempting refresh..."); 
+            await refreshAccessToken();
+            const newAccessToken = await SecureStore.getItemAsync("accessToken");
+            console.log("authFetch: token =", newAccessToken);
+
+            if (!newAccessToken) {
+                await logout(); // If refresh fails, log out
+                alert("Session expired. Please log in again.");
+            }
+
+            // Retry the request with new token
+            headers.Authorization = `Bearer ${newAccessToken}`;
+            response = await fetch(url, { ...options, headers });
+        }
+        return response;
     };
 
-    const response = await fetch(url, { ...options, headers });
-
-    if (response.status === 401) {
-      await refreshAccessToken();
-      const newAccessToken = useAuth().accessToken; 
-
-      if (!newAccessToken) {
-        logout(); // If refresh fails, log out
-        throw new Error("Session expired. Please log in again.");
-      }
-
-      // Retry the request with new token
-      headers.Authorization = `Bearer ${newAccessToken}`;
-      return fetch(url, { ...options, headers });
-    }
-
-    return response;
-  };
-
-  return fetchWithToken();
+    return fetchWithToken();
 };
