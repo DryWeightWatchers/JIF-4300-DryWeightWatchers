@@ -9,12 +9,12 @@ import EnterDataScreen from './(home)/EnterDataScreen';
 import DashboardScreen from './(home)/DashboardScreen';
 import AccountScreen from './(home)/(settings)/Account';
 import SettingsScreen from './(home)/(settings)/SettingsScreen';
-import RemindersScreen from './(home)/(settings)/ReminderScreen';
+import RemindersScreen from './(home)/(settings)/RemindersScreen';
 import { AuthProvider } from './(auth)/AuthContext';
-import { HomeTabParamList, RootStackParamList, SettingStackParamList } from './types/navigation';
+import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-const SettingStack = createNativeStackNavigator<SettingStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 const HomeTabs = createBottomTabNavigator<HomeTabParamList>();
 
 // Tab Navigator for screens in (home), anything in this section should be require-login
@@ -24,18 +24,18 @@ function HomeTabNavigator() {
       <HomeTabs.Screen name="Home" component={HomeScreen} />
       <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
       <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
-      <HomeTabs.Screen name="Settings" component={SettingsStack} />
+      <HomeTabs.Screen name="Settings" component={SettingsScreensStack} />
     </HomeTabs.Navigator>
   );
 }
 
-function SettingsStack() {
+function SettingsScreensStack() {
   return (
-    <SettingStack.Navigator screenOptions={{ headerShown: false }}>
-      <SettingStack.Screen name="Settings" component={SettingsScreen} />
-      <SettingStack.Screen name="Account" component={AccountScreen} />
-      <SettingStack.Screen name="Reminders" component={RemindersScreen} />
-    </SettingStack.Navigator>
+    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingsStack.Screen name="Settings" component={SettingsScreen} />
+      <SettingsStack.Screen name="Account" component={AccountScreen} />
+      <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
+    </SettingsStack.Navigator>
   );
 }
 

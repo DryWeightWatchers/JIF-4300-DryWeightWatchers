@@ -74,14 +74,14 @@ const AccountScreen = () => {
     }
   };
 
-  const handleInputChange = (text, index) => { //should be strictly typed
+  const handleInputChange = (text, index) => {
     const newCode = [...code];
     if (/^[a-zA-Z0-9]$/.test(text)) {
       newCode[index] = text.toUpperCase();
       setCode(newCode);
 
       if (index < 7) {
-        inputRefs.current[index + 1].focus(); //inputRefs should be strictly typed
+        inputRefs.current[index + 1].focus();
       }
     } else if (text === '') {
       newCode[index] = '';
@@ -89,12 +89,12 @@ const AccountScreen = () => {
     }
   };
 
-  const handleKeyPress = (e, index) => { //should be strictly typed
+  const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
       const newCode = [...code];
       newCode[index - 1] = '';
       setCode(newCode);
-      inputRefs.current[index - 1].focus(); //inputRefs should be strictly typed
+      inputRefs.current[index - 1].focus();
     }
   };
 
@@ -146,7 +146,7 @@ const AccountScreen = () => {
             {code.map((char, index) => (
               <React.Fragment key={index}>
                 <TextInput
-                  ref={(el) => (inputRefs.current[index] = el)} //inputRefs should be strictly typed
+                  ref={(el) => (inputRefs.current[index] = el)}
                   style={styles.input}
                   value={char}
                   onChangeText={(text) => handleInputChange(text, index)}

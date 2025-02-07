@@ -14,10 +14,10 @@ export type HomeTabParamList = {
   Home: undefined;
   EnterData: undefined;
   Dashboard: undefined;
-  Settings: NavigatorScreenParams<SettingStackParamList> | undefined;
+  Settings: NavigatorScreenParams<SettingsStackParamList> | undefined;
 };
 
-export type SettingStackParamList = {
+export type SettingsStackParamList = {
   Settings: undefined;
   Account: undefined;
   Reminders: undefined;
@@ -35,5 +35,5 @@ export type RootStackScreenProps<T extends keyof RootStackParamList> =
 export type HomeTabScreenProps<T extends keyof HomeTabParamList> = 
   BottomTabScreenProps<HomeTabParamList, T>;
   
-export type SettingStackScreenProps<T extends keyof SettingStackParamList> = 
-  NativeStackScreenProps<SettingStackParamList, T>;
+export type SettingsStackScreenProps<T extends keyof SettingsStackParamList> = 
+  NativeStackScreenProps<SettingsStackParamList, T>;
