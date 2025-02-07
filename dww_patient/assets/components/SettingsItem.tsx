@@ -16,7 +16,7 @@ export const SettingsItem = ({ title, icon, onPress }: SettingsItemProps) => (
       {icon}
       <Text style={styles.itemTitle}>{title}</Text>
     </View>
-    <Ionicons name="chevron-forward" size={20} color='gray'/>
+    <Ionicons name="chevron-forward" color='gray'/>
   </TouchableOpacity>
 );
 

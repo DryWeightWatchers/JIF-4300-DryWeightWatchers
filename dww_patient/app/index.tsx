@@ -12,6 +12,7 @@ import SettingsScreen from './(home)/(settings)/SettingsScreen';
 import RemindersScreen from './(home)/(settings)/RemindersScreen';
 import { AuthProvider } from './(auth)/AuthContext';
 import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
@@ -20,7 +21,28 @@ const HomeTabs = createBottomTabNavigator<HomeTabParamList>();
 // Tab Navigator for screens in (home), anything in this section should be require-login
 function HomeTabNavigator() {
   return (
-    <HomeTabs.Navigator>
+    <HomeTabs.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'EnterData') {
+            iconName = focused ? 'scale' : 'scale-outline';
+          } else if (route.name === 'Dashboard') {
+            iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          }
+
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#7B5CB8',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
       <HomeTabs.Screen name="Home" component={HomeScreen} />
       <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
       <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
