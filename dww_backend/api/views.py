@@ -1,6 +1,6 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.contrib.auth import authenticate,logout, login as django_login
+from django.contrib.auth import authenticate, logout, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -10,11 +10,18 @@ from .serializers import WeightRecordSerializer
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
+
+
+'''
+Note: All patient-facing APIs should use rest_framework's JWT authentication, and all 
+provider-facing APIs should use Django's built-in (session-based) authentication 
+'''
+
 
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
@@ -28,6 +35,7 @@ def error_response(message, details=None, status=400):
     if details:
         response["error"]["details"] = details
     return JsonResponse(response, status=status)
+
 
 def register(request):
     if request.method == 'POST':
@@ -44,6 +52,7 @@ def register(request):
             return JsonResponse({'error': "failed to read json data"}, status=400)
     else:
         return JsonResponse({'error': "wrong request type"}, status=405)
+
 
 def register_provider(request): 
     if request.method != 'POST': 
@@ -83,6 +92,7 @@ def login(request):
         
         # use JWT for patients 
         if user.role == User.PATIENT: 
+            print('views.py: login: patient')
             refresh = RefreshToken.for_user(user) 
             return JsonResponse({
                 'message': 'Login successful', 
@@ -93,6 +103,7 @@ def login(request):
         
         # use Django's built-in session-based auth for providers 
         elif user.role == User.PROVIDER: 
+            print('views.py: login: provider'); 
             django_login(request, user) 
             return JsonResponse({
                 'message': 'Login successful', 
@@ -125,9 +136,8 @@ def refresh_access_token(request):
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
 
-
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def add_relationship(request): 
     try:
@@ -167,8 +177,9 @@ def logout_view(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
+@authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile_data(request):
     user = request.user
@@ -179,6 +190,7 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])

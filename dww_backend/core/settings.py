@@ -31,6 +31,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
 DJANGO_ENV = os.getenv('DJANGO_ENV', "development")
 DEBUG = DJANGO_ENV == "development"
 
+# the domain that the browser will send the cookie back to. Will also send to subdomains of this domain. 
+# defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
@@ -65,7 +67,6 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -95,7 +96,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
-SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
