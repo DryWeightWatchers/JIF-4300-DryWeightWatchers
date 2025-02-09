@@ -1,27 +1,69 @@
 import React, { useEffect } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View } from "react-native";
+import Ionicons from '@expo/vector-icons/Ionicons'; 
 
 import LoginScreen from './auth/LoginScreen';
 import SignupScreen from './auth/SignupScreen';
 import HomeScreen from './home/HomeScreen';
 import EnterDataScreen from './home/EnterDataScreen';
 import DashboardScreen from './home/DashboardScreen';
-import AccountScreen from './home/Account';
+import AccountScreen from './home/settings/Account';
+import SettingsScreen from './home/settings/SettingsScreen'; 
+import RemindersScreen from './home/settings/RemindersScreen'; 
+
+import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation'; 
 import { useAuth } from './auth/AuthProvider';
 
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
-const TabNavigator = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="Home" component={HomeScreen} />
-    <Tab.Screen name="Enter Data" component={EnterDataScreen} />
-    <Tab.Screen name="Data" component={DashboardScreen} />
-    <Tab.Screen name="Account" component={AccountScreen} />
-  </Tab.Navigator>
-);
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
+const HomeTabs = createBottomTabNavigator<HomeTabParamList>();
+
+
+// Tab Navigator for screens in (home), anything in this section should be require-login
+function HomeTabNavigator() {
+  return (
+    <HomeTabs.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: any;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'EnterData') {
+            iconName = focused ? 'scale' : 'scale-outline';
+          } else if (route.name === 'Dashboard') {
+            iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#7B5CB8',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <HomeTabs.Screen name="Home" component={HomeScreen} />
+      <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
+      <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
+      <HomeTabs.Screen name="Settings" component={SettingsScreensStack} />
+    </HomeTabs.Navigator>
+  );
+}
+
+
+function SettingsScreensStack() {
+  return (
+    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingsStack.Screen name="Settings" component={SettingsScreen} />
+      <SettingsStack.Screen name="Account" component={AccountScreen} />
+      <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
+    </SettingsStack.Navigator>
+  );
+}
 
 
 const RootNavigator = () => {
@@ -40,16 +82,16 @@ const RootNavigator = () => {
   } 
   
   return (
-    <Stack.Navigator>
+    <RootStack.Navigator>
       {isAuthenticated ? (
-        <Stack.Screen name="Main" component={TabNavigator} />
+        <RootStack.Screen name="HomeTabs" component={HomeTabNavigator} />
       ) : (
         <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
+          <RootStack.Screen name="Login" component={LoginScreen} />
+          <RootStack.Screen name="Signup" component={SignupScreen} />
         </>
       )}
-    </Stack.Navigator>
+    </RootStack.Navigator>
   )
 }
 

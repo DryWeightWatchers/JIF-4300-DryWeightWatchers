@@ -18,10 +18,7 @@ const EnterDataScreen = () => {
     try {
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
-        accessToken, 
-        refreshAccessToken, 
-        logout, 
-        {
+        accessToken, refreshAccessToken, logout, {
           method: 'POST', 
           headers: {
             'Content-Type': 'application/json', 
@@ -35,6 +32,7 @@ const EnterDataScreen = () => {
         console.log('weight input successful:', data);
         alert(`Weight reported: ${weight}kg`);
         setWeight(''); 
+
       } else {
         const errorData = await response.json();
         console.error('Weight input error:', errorData);
@@ -91,7 +89,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   subtitle: {
@@ -115,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',

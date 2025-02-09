@@ -1,27 +1,29 @@
 import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../auth/AuthProvider';
+import { useAuth } from '../../auth/AuthProvider';
+import { authFetch } from '../../../utils/authFetch'; 
 import axios from 'axios';
+
 
 const AccountScreen = () => {
   const navigation = useNavigation();
-  const [provider_id, setProviderID] = useState('');
   const inputRefs = useRef([]);
   const [code, setCode] = useState(new Array(8).fill(''));
-  const { authToken, logout } = useAuth();
+  const { accessToken, refreshAccessToken, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/logout/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Token ${authToken}`,
-        },
-      });
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/logout/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      const data = await response.json();
       if (response.ok) {
         logout();
         navigation.navigate('Login');
@@ -42,18 +44,15 @@ const AccountScreen = () => {
     }
     const providerID = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-relationship/`,
-        {
+        accessToken, refreshAccessToken, logout, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            "Authorization": `Token ${authToken}`,
           },
           credentials: 'include',
-          body: JSON.stringify({
-            shareable_id: providerID,
-          }),
+          body: JSON.stringify({ shareable_id: providerID }),
         }
       );
 
@@ -99,10 +98,17 @@ const AccountScreen = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!authToken) {
+    if (!accessToken) {
       Alert.alert('Error', 'You are not authenticated');
       return;
     }
+
+    /* TODO/BUG: access tokens are very short-lived, and normally authFetch would automatically get 
+       a new access token from the server as long as the longer-lived refresh token is still valid. 
+       The above doesn't handle this case. But if we remove it, if the refresh attempt fails, the 
+       below authFetch will logout the user with no indication that the account wasn't successfully 
+       deleted. 
+    */ 
 
     Alert.alert(
       "Confirm Deletion",
@@ -113,11 +119,12 @@ const AccountScreen = () => {
           text: "Delete",
           style: "destructive", 
           onPress: async () => {
-            try{
-              const response = await axios.delete(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-patient/`, {
+            try {
+              const response = await authFetch(
+                `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-patient/`, 
+                accessToken, refreshAccessToken, logout, {
                 headers: {
                   'Content-Type': 'application/json',
-                  Authorization: `Token ${authToken}`,
                 },
               });
               
@@ -126,7 +133,7 @@ const AccountScreen = () => {
                   { text: "OK", onPress: () => navigation.navigate("Signup") },
                 ]);
               }
-            } catch (error) {
+            } catch (error: any) {
               Alert.alert("Error", error.response?.data?.error || "Failed to delete account");
             }
           },
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   inputContainer: {
@@ -229,7 +236,7 @@ const styles = StyleSheet.create({
     color: '#0E315F',
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',

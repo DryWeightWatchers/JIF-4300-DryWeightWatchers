@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useAuth } from './AuthProvider';
+import { authFetch } from '../../utils/authFetch'; 
+import type { RootStackScreenProps } from '../types/navigation';
+
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootStackScreenProps<'Login'>['navigation']>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
@@ -27,7 +30,6 @@ const LoginScreen = () => {
         console.log("LoginScreen: handleLogin: response returned with 200 OK")
         const data = await response.json();
         await login(data.access_token, data.refresh_token);
-
 
       } else {
         const errorData = await response.json();
