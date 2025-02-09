@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { RootStackScreenProps } from '../types/navigation';
 import { useAuth } from './AuthContext';
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootStackScreenProps<'Login'>['navigation']>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, authToken } = useAuth();

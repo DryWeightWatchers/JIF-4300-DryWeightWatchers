@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../(auth)/AuthContext';
+import { useAuth } from '../../(auth)/AuthContext';
 import axios from 'axios';
+
 
 const AccountScreen = () => {
   const navigation = useNavigation();
-  const [provider_id, setProviderID] = useState('');
   const inputRefs = useRef([]);
   const [code, setCode] = useState(new Array(8).fill(''));
   const { authToken, logout } = useAuth();
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   inputContainer: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     color: '#0E315F',
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',
