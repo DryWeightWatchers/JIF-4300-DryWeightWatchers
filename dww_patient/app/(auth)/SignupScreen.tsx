@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { RootStackScreenProps } from '../types/navigation';
 import axios from 'axios';
 
 const SignupScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootStackScreenProps<'Signup'>['navigation']>();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
