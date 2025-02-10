@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useAuth } from './AuthProvider';
+import { authFetch } from '../../utils/authFetch'; 
 import type { RootStackScreenProps } from '../types/navigation';
-import { useAuth } from './AuthContext';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation<RootStackScreenProps<'Login'>['navigation']>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, authToken } = useAuth();
+  const { login } = useAuth();
 
   const handleLogin = async () => {
+    console.log('LoginScreen: handleLogin');
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
         method: 'POST',
@@ -24,9 +27,10 @@ const LoginScreen = () => {
       });
 
       if (response.ok) {
+        console.log("LoginScreen: handleLogin: response returned with 200 OK")
         const data = await response.json();
-        login(data.token);
-        navigation.navigate('HomeTabs');
+        await login(data.access_token, data.refresh_token);
+
       } else {
         const errorData = await response.json();
         Alert.alert('Error', errorData.message);

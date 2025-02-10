@@ -1,29 +1,44 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import { useAuth } from '../(auth)/AuthContext';
+import { Text, StyleSheet, View, TextInput, Keyboard, 
+         TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { useAuth } from '../auth/AuthProvider'; 
+import { authFetch } from '../../utils/authFetch'; 
+
 
 const EnterDataScreen = () => {
   const [weight, setWeight] = useState('');
-  const { authToken } = useAuth();
+  const { accessToken, refreshAccessToken, logout } = useAuth(); 
 
   const handleReportData = async () => {
     if (!weight) {
       alert('Please enter a valid weight.');
       return;
     }
+
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
-        { 'weight': parseFloat(weight) }, 
-        {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'POST', 
           headers: {
-            'Authorization': `Token ${authToken}`,
-          }
+            'Content-Type': 'application/json', 
+          }, 
+          body: JSON.stringify({ weight: parseFloat(weight) }), 
         }
       );
-      console.log('weight input successful:', response.data);
-      alert(`Weight reported: ${weight}kg`);
-      setWeight(''); 
+
+      if (response.ok) {
+        const data = await response.json(); 
+        console.log('weight input successful:', data);
+        alert(`Weight reported: ${weight}kg`);
+        setWeight(''); 
+
+      } else {
+        const errorData = await response.json();
+        console.error('Weight input error:', errorData);
+        alert('Failed to report weight. Please try again.');
+      }
+
     } catch (error: any) {
       console.log('weight input error:', error.response?.data || error.message)
       alert('Failed to report weight. Please try again.')
