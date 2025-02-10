@@ -15,4 +15,5 @@ urlpatterns = [
     path('add-reminder/', views.add_reminder, name='add reminder'),
     path('get-reminders/', views.get_reminders, name='get reminders'),
     path('save-reminder/', views.save_reminder, name='save reminder'),
+    path('delete-reminder/<int:id>/', views.delete_reminder, name='delete reminder'),
 ]

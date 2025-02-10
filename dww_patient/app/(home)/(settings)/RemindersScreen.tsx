@@ -99,6 +99,27 @@ const RemindersScreen = () => {
     }
   }
 
+  const handleDeleteReminder = async () => { //delete selected reminder
+    try {
+      const response = await axios.delete(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-reminder/${selectedReminderID}/`, 
+        {
+          headers: {
+            'Authorization': `Token ${authToken}`,
+          }
+        }
+      );
+      console.log('delete reminder successful:', response.data);
+      alert(`reminder deleted`);
+      setModalVisible(false);
+      setSelectedDays([]);
+      setReminderType('');
+      fetchReminders();
+    } catch (error: any) {
+      console.log('delete reminder error:', error.response?.data || error.message)
+      alert('Failed to delete reminder. Please try again.')
+    }
+  }
+
   const handleToggleDay = (day: string) => {
     setSelectedDays((prevDays) => 
       prevDays.includes(day) ? prevDays.filter(d => d !== day) : [...prevDays, day]
@@ -155,6 +176,7 @@ const RemindersScreen = () => {
           </View>
           <View style={styles.buttonRow}>
             <Button title="Cancel" onPress={() => {setModalVisible(false); setTime(new Date()); setSelectedDays([])}}/>
+            {selectedReminderID !== -1 && (<Button title="Delete" onPress={handleDeleteReminder}/>)}
             <Button title={reminderType === 'add' ? 'Add' : 'Save'} onPress={reminderType === 'add' ? handleAddReminder : handleSaveReminder}/>
           </View>
         </View>

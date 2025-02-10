@@ -235,3 +235,22 @@ def save_reminder(request):
         return JsonResponse({'message': 'Reminder saved successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@login_required
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_reminder(request, id):
+    try:
+        user = request.user
+        
+        try:
+            reminder = PatientReminder.objects.get(id=id, patient=user)
+        except PatientReminder.DoesNotExist:
+            return JsonResponse({'error': 'Reminder not found'}, status=404)
+        
+        reminder.delete()
+
+        return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
