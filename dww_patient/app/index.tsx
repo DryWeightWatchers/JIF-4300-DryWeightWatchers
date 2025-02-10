@@ -56,6 +56,7 @@ function SettingsScreensStack() {
       <SettingsStack.Screen name="Settings" component={SettingsScreen} />
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
+      <SettingsStack.Screen name="Provider List" component={RemindersScreen} />
     </SettingsStack.Navigator>
   );
 }
