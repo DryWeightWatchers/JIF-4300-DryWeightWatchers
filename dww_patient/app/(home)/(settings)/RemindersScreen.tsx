@@ -1,29 +1,76 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, Switch } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, Switch, Pressable } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import ReminderItem from '../../../assets/components/ReminderItem'
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
+import axios from 'axios';
+import { useAuth } from '../../(auth)/AuthContext';
 
 //https://docs.expo.dev/versions/latest/sdk/notifications/
 const RemindersScreen = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'Reminders'>['navigation']>();
-  const [reminders, setReminders] = useState([]);
+  const { authToken } = useAuth();
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [time, setTime] = useState(new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [reminderType, setReminderType] = useState('');
+  const [selectedReminder, setSelectedReminder] = useState(-1);
 
-  const handleAddReminder = () => {
-    setModalVisible(true);
+  useEffect(() => {
+    const fetchReminders = async () => {
+      try {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, {
+          headers: {
+            'Authorization': `Token ${authToken}`,
+          }
+        });
+        console.log('got reminders: ', response.data)
+        const parsedReminders = response.data.map((reminder: any) => ({
+          ...reminder,
+          days: reminder.days.split(', '), 
+          time: reminder.time.substring(0, 5) 
+        }));
+        setReminders(parsedReminders);
+      } catch (error: any) {
+        console.log('get reminders error:', error.response?.data || error.message)
+        alert('Failed to get your reminders. Please try again.')
+      }
+    };
+
+    fetchReminders();
+  }, [authToken]);
+
+  const handleAddReminder = async () => {
+    try {
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
+        { 'time': time.getHours() + ':' + time.getMinutes(), 'days': selectedDays }, 
+        {
+          headers: {
+            'Authorization': `Token ${authToken}`,
+          }
+        }
+      );
+      console.log('add reminder successful:', response.data);
+      alert(`new reminder added`);
+      setModalVisible(false);
+      setSelectedDays([]);
+      setReminderType('');
+    } catch (error: any) {
+      console.log('add reminder error:', error.response?.data || error.message)
+      alert('Failed to add reminder. Please try again.')
+    }
+
   }
 
-  const handleEditReminder = () => {
-
+  const handleEditReminder = (index: number) => {
+    setSelectedReminder(index);
   }
 
   const handleSaveReminder = () => {
-    setModalVisible(false);
+    
   }
 
   const handleToggleDay = (day: string) => {
@@ -32,26 +79,35 @@ const RemindersScreen = () => {
     );
   };
 
+  const handleToggleReminder = (index: number) => {
+
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/*reminders here later*/}
+      {reminders.map((reminder, index) => (
+      <ReminderItem
+        key={index}
+        time={reminder.time}
+        days={reminder.days}
+        isEnabled={reminder.enabled}
+        onToggle={() => handleToggleReminder(index)}
+        onPress={() => handleEditReminder(index)}
+      />
+      ))}
         {reminders.length === 0 && (
           <Text style={styles.emptyText}>No reminders set</Text>
         )}
 
-        <TouchableOpacity style={styles.addButton} onPress={handleAddReminder}>
+        <TouchableOpacity style={styles.addButton} onPress={() => {setModalVisible(true); setReminderType('add')}}>
           <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
           <Text style={styles.addButtonText}>Add Reminder</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-      <TouchableOpacity 
-        style={styles.modalTop} 
-        activeOpacity={1}
-        onPress={() => setModalVisible(false)}
-      >
+      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => {setModalVisible(false); setSelectedReminder(-1)}}>
+        <Pressable style={styles.modalTop} onPress={() => setModalVisible(false)}/>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Edit Reminder</Text>
           <DateTimePicker
@@ -72,11 +128,10 @@ const RemindersScreen = () => {
             ))}
           </View>
           <View style={styles.buttonRow}>
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-            <Button title="Save" onPress={handleSaveReminder} />
+            <Button title="Cancel" onPress={() => {setModalVisible(false); setReminderType('')}}/>
+            <Button title={reminderType === 'add' ? 'Add' : 'Save'} onPress={reminderType === 'add' ? handleAddReminder : handleSaveReminder}/>
           </View>
         </View>
-        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -104,6 +159,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: 10,
     borderRadius: 25,
+    marginTop: 30,
   },
   addButtonText: {
     color: '#7B5CB8',
@@ -111,8 +167,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   modalTop: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    flex: 1
   },
   modalView: {
     backgroundColor: 'white',
@@ -125,6 +180,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    flex: 4,
   },
   modalTitle: {
     fontSize: 18,
@@ -153,5 +209,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   }
 });
+
+interface Reminder { //for typing... cant import this because of index...
+  id: number;
+  time: string;
+  days: string[];
+  enabled: boolean;
+}
 
 export default RemindersScreen;

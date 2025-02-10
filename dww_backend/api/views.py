@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from .forms import CustomUserCreationForm
 from api.models import *
 from .forms import *
-from .serializers import WeightRecordSerializer
+from .serializers import *
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -177,3 +177,33 @@ def delete_account(request):
         return JsonResponse({'message': 'Successfully deleted account'}, status=200)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+    
+@login_required
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def add_reminder(request):
+    try:
+        user = request.user
+
+        serializer = ReminderSerializer(data=request.data)
+        if not serializer.is_valid():
+            print('serializer invalid')
+            return Response({'error': serializer.errors}, status=400)
+        
+        PatientReminder.objects.create(patient=user, time=serializer.validated_data['time'], days=serializer.validated_data['days'])
+        return JsonResponse({'message': 'Reminder added successfully'}, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+@login_required
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_reminders(request):
+    try:
+        user = request.user
+        reminders = PatientReminder.objects.filter(patient=user).values('id', 'time', 'days', 'enabled')
+        return JsonResponse(list(reminders), safe=False, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

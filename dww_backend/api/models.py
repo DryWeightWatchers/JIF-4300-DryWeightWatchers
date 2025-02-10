@@ -103,3 +103,15 @@ class PatientNote(models.Model):
                                  blank=True, null=True, default=GENERIC)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     note = models.TextField(blank=True)
+
+class PatientReminder(models.Model):
+    patient = models.ForeignKey(
+        User, 
+        limit_choices_to={'role': User.PATIENT}, 
+        on_delete=models.CASCADE, 
+        related_name='patient_reminders'
+    )
+    time = models.TimeField()
+    days = models.CharField(max_length=62)
+    enabled = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
