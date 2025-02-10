@@ -199,7 +199,7 @@ const RemindersScreen = () => {
           </View>
           <View style={styles.buttonRow}>
             <Button title="Cancel" onPress={() => resetStates()}/>
-            {selectedReminderID !== -1 && (<Button title="Delete" onPress={handleDeleteReminder}/>)}
+            {selectedReminderID !== -1 && (<Button title="Delete" color='red' onPress={handleDeleteReminder}/>)}
             <Button title={selectedReminderID == -1 ? 'Add' : 'Save'} onPress={selectedReminderID == -1 ? handleAddReminder : handleSaveReminder}/>
           </View>
         </View>

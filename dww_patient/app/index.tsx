@@ -45,15 +45,15 @@ function HomeTabNavigator() {
       <HomeTabs.Screen name="Home" component={HomeScreen} />
       <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
       <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
-      <HomeTabs.Screen name="Settings" component={SettingsScreensStack} />
+      <HomeTabs.Screen name="Settings" component={SettingsScreensStack}/>
     </HomeTabs.Navigator>
   );
 }
 
 function SettingsScreensStack() {
   return (
-    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
-      <SettingsStack.Screen name="Settings" component={SettingsScreen} />
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
     </SettingsStack.Navigator>
