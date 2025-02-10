@@ -16,7 +16,6 @@ const RemindersScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [time, setTime] = useState(new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [reminderType, setReminderType] = useState('');
   const [selectedReminderID, setSelectedReminderID] = useState(-1);
 
   const fetchReminders = async () => {
@@ -54,10 +53,8 @@ const RemindersScreen = () => {
         }
       );
       console.log('add reminder successful:', response.data);
-      alert(`new reminder added`);
-      setModalVisible(false);
-      setSelectedDays([]);
-      setReminderType('');
+      resetStates();
+      fetchReminders();
     } catch (error: any) {
       console.log('add reminder error:', error.response?.data || error.message)
       alert('Failed to add reminder. Please try again.')
@@ -71,7 +68,6 @@ const RemindersScreen = () => {
       setSelectedDays(reminder.days);
       setSelectedReminderID(id);
       setModalVisible(true);
-      setReminderType('edit');
     } else {
       console.log(`Reminder with id ${id} not found`);
     }
@@ -88,10 +84,7 @@ const RemindersScreen = () => {
         }
       );
       console.log('save reminder successful:', response.data);
-      alert(`reminder saved`);
-      setModalVisible(false);
-      setSelectedDays([]);
-      setReminderType('');
+      resetStates();
       fetchReminders();
     } catch (error: any) {
       console.log('save reminder error:', error.response?.data || error.message)
@@ -109,10 +102,7 @@ const RemindersScreen = () => {
         }
       );
       console.log('delete reminder successful:', response.data);
-      alert(`reminder deleted`);
-      setModalVisible(false);
-      setSelectedDays([]);
-      setReminderType('');
+      resetStates();
       fetchReminders();
     } catch (error: any) {
       console.log('delete reminder error:', error.response?.data || error.message)
@@ -121,19 +111,50 @@ const RemindersScreen = () => {
   }
 
   const handleToggleDay = (day: string) => {
-    setSelectedDays((prevDays) => 
-      prevDays.includes(day) ? prevDays.filter(d => d !== day) : [...prevDays, day]
+    setSelectedDays(prevDays => 
+      prevDays.includes(day)
+        ? prevDays.filter(d => d !== day && d !== "")
+        : [...prevDays.filter(d => d !== ""), day]
     );
   };
 
-  const handleToggleReminder = (id: number) => {
+  const handleToggleReminder = async (id: number) => { //this needs to be changed eventually. I may move toggle to the editor modal.
+    const reminder = reminders.find(r => r.id === id);
+    if (reminder) {
+      const updatedReminder = { ...reminder, enabled: !reminder.enabled };
+      setReminders(reminders.map(r => r.id === id ? updatedReminder : r));
+      try {
+        const response = await axios.put(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`, 
+          { 'time': updatedReminder.time, 'days': updatedReminder.days, 'id': updatedReminder.id, 'enabled': updatedReminder.enabled }, 
+          {
+            headers: {
+              'Authorization': `Token ${authToken}`,
+            }
+          }
+        );
+        console.log('toggle reminder successful:', response.data);
+        fetchReminders();
+      } catch (error: any) {
+        console.log('toggle reminder error:', error.response?.data || error.message)
+        alert('Failed to toggle reminder. Please try again.')
+      }
+    } else {
+      console.log(`Reminder with id ${id} not found`);
+    }
+    //add actual notification system for phone
+  };
 
+  const resetStates = () => {
+    setModalVisible(false);
+    setTime(new Date());
+    setSelectedDays([]);
+    setSelectedReminderID(-1);
   }
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.container}>
-      {reminders.map((reminder, index) => (
+      {reminders.map((reminder) => (
       <ReminderItem
         key={reminder.id}
         time={reminder.time}
@@ -147,16 +168,18 @@ const RemindersScreen = () => {
           <Text style={styles.emptyText}>No reminders set</Text>
         )}
 
-        <TouchableOpacity style={styles.addButton} onPress={() => {setModalVisible(true); setReminderType('add')}}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
           <Text style={styles.addButtonText}>Add Reminder</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => {setModalVisible(false); setSelectedReminderID(-1)}}>
+      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => resetStates()}>
         <Pressable style={styles.modalTop} onPress={() => setModalVisible(false)}/>
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>Edit Reminder</Text>
+          <Text style={styles.modalTitle}>
+            {selectedReminderID !== -1 ? 'Edit Reminder' : 'Add Reminder'}
+          </Text>
           <DateTimePicker
             value={time}
             mode="time"
@@ -175,9 +198,9 @@ const RemindersScreen = () => {
             ))}
           </View>
           <View style={styles.buttonRow}>
-            <Button title="Cancel" onPress={() => {setModalVisible(false); setTime(new Date()); setSelectedDays([])}}/>
+            <Button title="Cancel" onPress={() => resetStates()}/>
             {selectedReminderID !== -1 && (<Button title="Delete" onPress={handleDeleteReminder}/>)}
-            <Button title={reminderType === 'add' ? 'Add' : 'Save'} onPress={reminderType === 'add' ? handleAddReminder : handleSaveReminder}/>
+            <Button title={selectedReminderID == -1 ? 'Add' : 'Save'} onPress={selectedReminderID == -1 ? handleAddReminder : handleSaveReminder}/>
           </View>
         </View>
       </Modal>

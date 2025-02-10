@@ -188,7 +188,6 @@ def add_reminder(request):
 
         serializer = ReminderSerializer(data=request.data)
         if not serializer.is_valid():
-            print('serializer invalid')
             return Response({'error': serializer.errors}, status=400)
         
         PatientReminder.objects.create(patient=user, time=serializer.validated_data['time'], days=serializer.validated_data['days'])
@@ -219,7 +218,6 @@ def save_reminder(request):
 
         serializer = ReminderSerializer(data=request.data)
         if not serializer.is_valid():
-            print('serializer invalid')
             return Response({'error': serializer.errors}, status=400)
         
         try:
@@ -229,6 +227,7 @@ def save_reminder(request):
         
         reminder.time = serializer.validated_data['time']
         reminder.days = serializer.validated_data['days']
+        reminder.enabled = request.data.get('enabled')
 
         reminder.save()
 
