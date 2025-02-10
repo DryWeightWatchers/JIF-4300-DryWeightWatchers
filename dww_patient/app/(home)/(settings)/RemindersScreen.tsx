@@ -17,33 +17,33 @@ const RemindersScreen = () => {
   const [time, setTime] = useState(new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [reminderType, setReminderType] = useState('');
-  const [selectedReminder, setSelectedReminder] = useState(-1);
+  const [selectedReminderID, setSelectedReminderID] = useState(-1);
 
+  const fetchReminders = async () => {
+    try {
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, {
+        headers: {
+          'Authorization': `Token ${authToken}`,
+        }
+      });
+      console.log('got reminders: ', response.data)
+      const parsedReminders = response.data.map((reminder: any) => ({
+        ...reminder,
+        days: reminder.days.split(', '), 
+        time: reminder.time.substring(0, 5) 
+      }));
+      setReminders(parsedReminders);
+    } catch (error: any) {
+      console.log('get reminders error:', error.response?.data || error.message)
+      alert('Failed to get your reminders. Please try again.')
+    }
+  };
+  
   useEffect(() => {
-    const fetchReminders = async () => {
-      try {
-        const response = await axios.get(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, {
-          headers: {
-            'Authorization': `Token ${authToken}`,
-          }
-        });
-        console.log('got reminders: ', response.data)
-        const parsedReminders = response.data.map((reminder: any) => ({
-          ...reminder,
-          days: reminder.days.split(', '), 
-          time: reminder.time.substring(0, 5) 
-        }));
-        setReminders(parsedReminders);
-      } catch (error: any) {
-        console.log('get reminders error:', error.response?.data || error.message)
-        alert('Failed to get your reminders. Please try again.')
-      }
-    };
-
     fetchReminders();
   }, [authToken]);
 
-  const handleAddReminder = async () => {
+  const handleAddReminder = async () => { //add new reminder
     try {
       const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
         { 'time': time.getHours() + ':' + time.getMinutes(), 'days': selectedDays }, 
@@ -62,15 +62,41 @@ const RemindersScreen = () => {
       console.log('add reminder error:', error.response?.data || error.message)
       alert('Failed to add reminder. Please try again.')
     }
-
   }
 
-  const handleEditReminder = (index: number) => {
-    setSelectedReminder(index);
+  const handleEditReminder = (id: number) => { //target old reminder
+    const reminder = reminders.find(r => r.id === id);
+    if (reminder) {
+      setTime(reminderTimeToDate(reminder.time));
+      setSelectedDays(reminder.days);
+      setSelectedReminderID(id);
+      setModalVisible(true);
+      setReminderType('edit');
+    } else {
+      console.log(`Reminder with id ${id} not found`);
+    }
   }
 
-  const handleSaveReminder = () => {
-    
+  const handleSaveReminder = async () => { //update old reminder with new data
+    try {
+      const response = await axios.put(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`, 
+        { 'time': time.getHours() + ':' + time.getMinutes(), 'days': selectedDays, 'id': selectedReminderID }, 
+        {
+          headers: {
+            'Authorization': `Token ${authToken}`,
+          }
+        }
+      );
+      console.log('save reminder successful:', response.data);
+      alert(`reminder saved`);
+      setModalVisible(false);
+      setSelectedDays([]);
+      setReminderType('');
+      fetchReminders();
+    } catch (error: any) {
+      console.log('save reminder error:', error.response?.data || error.message)
+      alert('Failed to save reminder. Please try again.')
+    }
   }
 
   const handleToggleDay = (day: string) => {
@@ -79,7 +105,7 @@ const RemindersScreen = () => {
     );
   };
 
-  const handleToggleReminder = (index: number) => {
+  const handleToggleReminder = (id: number) => {
 
   }
 
@@ -88,12 +114,12 @@ const RemindersScreen = () => {
       <ScrollView contentContainerStyle={styles.container}>
       {reminders.map((reminder, index) => (
       <ReminderItem
-        key={index}
+        key={reminder.id}
         time={reminder.time}
         days={reminder.days}
         isEnabled={reminder.enabled}
-        onToggle={() => handleToggleReminder(index)}
-        onPress={() => handleEditReminder(index)}
+        onToggle={() => handleToggleReminder(reminder.id)}
+        onPress={() => handleEditReminder(reminder.id)}
       />
       ))}
         {reminders.length === 0 && (
@@ -106,7 +132,7 @@ const RemindersScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => {setModalVisible(false); setSelectedReminder(-1)}}>
+      <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => {setModalVisible(false); setSelectedReminderID(-1)}}>
         <Pressable style={styles.modalTop} onPress={() => setModalVisible(false)}/>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Edit Reminder</Text>
@@ -128,7 +154,7 @@ const RemindersScreen = () => {
             ))}
           </View>
           <View style={styles.buttonRow}>
-            <Button title="Cancel" onPress={() => {setModalVisible(false); setReminderType('')}}/>
+            <Button title="Cancel" onPress={() => {setModalVisible(false); setTime(new Date()); setSelectedDays([])}}/>
             <Button title={reminderType === 'add' ? 'Add' : 'Save'} onPress={reminderType === 'add' ? handleAddReminder : handleSaveReminder}/>
           </View>
         </View>
@@ -216,5 +242,15 @@ interface Reminder { //for typing... cant import this because of index...
   days: string[];
   enabled: boolean;
 }
+
+const reminderTimeToDate = (timeString: string) => {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours);
+  date.setMinutes(minutes);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date;
+};
 
 export default RemindersScreen;

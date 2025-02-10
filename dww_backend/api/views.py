@@ -207,3 +207,31 @@ def get_reminders(request):
         return JsonResponse(list(reminders), safe=False, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@login_required
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def save_reminder(request):
+    try:
+        user = request.user
+        reminder_id = request.data.get('id')
+
+        serializer = ReminderSerializer(data=request.data)
+        if not serializer.is_valid():
+            print('serializer invalid')
+            return Response({'error': serializer.errors}, status=400)
+        
+        try:
+            reminder = PatientReminder.objects.get(id=reminder_id, patient=user)
+        except PatientReminder.DoesNotExist:
+            return JsonResponse({'error': 'Reminder not found'}, status=404)
+        
+        reminder.time = serializer.validated_data['time']
+        reminder.days = serializer.validated_data['days']
+
+        reminder.save()
+
+        return JsonResponse({'message': 'Reminder saved successfully'}, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
