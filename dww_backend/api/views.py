@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from api.models import *
 from .forms import *
-from .serializers import WeightRecordSerializer
+from .serializers import WeightRecordSerializer, UserSerializer
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -225,3 +225,34 @@ def delete_account(request):
         return JsonResponse({'message': 'Successfully deleted account'}, status=200)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@api_view(['GET'])
+def get_providers(request):
+    try:
+        patient = request.user
+        treatment_relationships = TreatmentRelationship.objects.filter(patient=patient)
+        providers = [relationship.provider for relationship in treatment_relationships]
+
+        serializer = UserSerializer(providers, many=True)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_relationship(request):
+    shareable_id = request.data.get("shareable_id")
+    if not shareable_id:
+        return Response({"error": "Shareable ID is required."}, status=400)
+
+    try:
+        provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+        relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
+        relationship.delete()
+        return Response({"message": "Relationship deleted successfully."}, status=200)
+    except User.DoesNotExist:
+        return Response({"error": "Provider not found."}, status=404)
+    except TreatmentRelationship.DoesNotExist:
+        return Response({"error": "Relationship not found."}, status=404)
