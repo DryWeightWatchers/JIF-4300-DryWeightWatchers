@@ -160,10 +160,6 @@ const RemindersScreen = () => {
     );
   };
 
-  const handleToggleReminder = async (id: number) => { 
-    //add actual notification system for phone
-  };
-
   const resetStates = () => {
     setModalVisible(false);
     setTime(new Date());
@@ -179,8 +175,6 @@ const RemindersScreen = () => {
         key={reminder.id}
         time={reminder.time}
         days={reminder.days}
-        isEnabled={reminder.enabled}
-        onToggle={() => handleToggleReminder(reminder.id)}
         onPress={() => handleEditReminder(reminder.id)}
       />
       ))}
@@ -305,7 +299,6 @@ interface Reminder { //for typing... cant import this because of index...
   id: number;
   time: string;
   days: string[];
-  enabled: boolean;
 }
 
 const reminderTimeToDate = (timeString: string) => {
