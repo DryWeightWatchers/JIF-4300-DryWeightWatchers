@@ -43,8 +43,9 @@ After cloning the repo, go to the root directory:
 - `dww_backend` is our Python server written with Django. Before installing its dependencies, you'll need to create a Python virtual environment. Do this by running `python -m venv venv` in the root directory. Then activate the venv with either `venv\Scripts\activate` (on Windows), or `source venv/bin/activate` (on MacOS or Linux). With the venv activated, run `pip install -r requirements.txt` to install the dependencies. 
 
 Always follow these practices whenever you are installing/uninstalling Python dependencies: 
+- Manually add the dependency to the `requirements.in` text file. (e.g., if you want to do `pip install xyz`, then add `xyz` on its own line. You don't necessarily have to specify a version.) 
 - Make sure the venv is activated. 
-- Afterwards, run `pip freeze > requirements.txt` in the root directory to update the dependency file. 
+- Then run `pip-compile --output-file=requirements.txt requirements.in` to generate a new `requirements.txt` dependency file which others can use to install the dependencies. 
 
 ### Accessing the database: 
 

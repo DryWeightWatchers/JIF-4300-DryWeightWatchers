@@ -6,12 +6,13 @@ import ReminderItem from '../../../assets/components/ReminderItem'
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import axios from 'axios';
-import { useAuth } from '../../(auth)/AuthContext';
+import { useAuth } from '../../auth/AuthProvider';
+import { authFetch } from '../../../utils/authFetch'; 
 
 //https://docs.expo.dev/versions/latest/sdk/notifications/
 const RemindersScreen = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'Reminders'>['navigation']>();
-  const { authToken } = useAuth();
+  const { accessToken, refreshAccessToken, logout } = useAuth();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -20,13 +21,23 @@ const RemindersScreen = () => {
 
   const fetchReminders = async () => {
     try {
-      const response = await axios.get(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, {
-        headers: {
-          'Authorization': `Token ${authToken}`,
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'GET', 
+          headers: {
+            'Content-Type': 'application/json', 
+          }, 
         }
-      });
-      console.log('got reminders: ', response.data)
-      const parsedReminders = response.data.map((reminder: any) => ({
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reminders');
+      }
+
+      const data = await response.json();
+      console.log('got reminders: ', data)
+      const parsedReminders = data.map((reminder: any) => ({
         ...reminder,
         days: reminder.days.split(', '), 
         time: reminder.time.substring(0, 5) 
@@ -40,19 +51,30 @@ const RemindersScreen = () => {
   
   useEffect(() => {
     fetchReminders();
-  }, [authToken]);
+  }, [accessToken]);
 
   const handleAddReminder = async () => { //add new reminder
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
-        { 'time': time.getHours() + ':' + time.getMinutes(), 'days': selectedDays }, 
-        {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'POST', 
           headers: {
-            'Authorization': `Token ${authToken}`,
-          }
+            'Content-Type': 'application/json', 
+          }, 
+          body: JSON.stringify({ 
+            time: time.getHours() + ':' + time.getMinutes(), 
+            days: selectedDays 
+          }),
         }
       );
-      console.log('add reminder successful:', response.data);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reminders');
+      }
+      
+      const data = await response.json();
+      console.log('add reminder successful:', data);
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -75,15 +97,27 @@ const RemindersScreen = () => {
 
   const handleSaveReminder = async () => { //update old reminder with new data
     try {
-      const response = await axios.put(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`, 
-        { 'time': time.getHours() + ':' + time.getMinutes(), 'days': selectedDays, 'id': selectedReminderID }, 
-        {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`,
+        accessToken, refreshAccessToken, logout, {
+          method: 'PUT',
           headers: {
-            'Authorization': `Token ${authToken}`,
-          }
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            time: time.getHours() + ':' + time.getMinutes(),
+            days: selectedDays,
+            id: selectedReminderID
+          })
         }
       );
-      console.log('save reminder successful:', response.data);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reminders');
+      }
+
+      const data = await response.json();
+      console.log('save reminder successful:', data);
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -94,14 +128,22 @@ const RemindersScreen = () => {
 
   const handleDeleteReminder = async () => { //delete selected reminder
     try {
-      const response = await axios.delete(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-reminder/${selectedReminderID}/`, 
-        {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-reminder/${selectedReminderID}/`,
+        accessToken, refreshAccessToken, logout, {
+          method: 'DELETE',
           headers: {
-            'Authorization': `Token ${authToken}`,
+            'Content-Type': 'application/json',
           }
         }
       );
-      console.log('delete reminder successful:', response.data);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch reminders');
+      }
+
+      const data = await response.json();
+      console.log('delete reminder successful:', data);
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -118,29 +160,7 @@ const RemindersScreen = () => {
     );
   };
 
-  const handleToggleReminder = async (id: number) => { //this needs to be changed eventually. I may move toggle to the editor modal.
-    const reminder = reminders.find(r => r.id === id);
-    if (reminder) {
-      const updatedReminder = { ...reminder, enabled: !reminder.enabled };
-      setReminders(reminders.map(r => r.id === id ? updatedReminder : r));
-      try {
-        const response = await axios.put(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`, 
-          { 'time': updatedReminder.time, 'days': updatedReminder.days, 'id': updatedReminder.id, 'enabled': updatedReminder.enabled }, 
-          {
-            headers: {
-              'Authorization': `Token ${authToken}`,
-            }
-          }
-        );
-        console.log('toggle reminder successful:', response.data);
-        fetchReminders();
-      } catch (error: any) {
-        console.log('toggle reminder error:', error.response?.data || error.message)
-        alert('Failed to toggle reminder. Please try again.')
-      }
-    } else {
-      console.log(`Reminder with id ${id} not found`);
-    }
+  const handleToggleReminder = async (id: number) => { 
     //add actual notification system for phone
   };
 
