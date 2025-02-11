@@ -1,19 +1,27 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.contrib.auth import authenticate,logout, login as django_login
+from django.contrib.auth import authenticate, logout, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from .forms import CustomUserCreationForm
 from api.models import *
 from .forms import *
 from .serializers import WeightRecordSerializer
 import json
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication 
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+'''
+Note: All patient-facing APIs should use rest_framework's JWT authentication, and all 
+provider-facing APIs should use Django's built-in (session-based) authentication 
+'''
+
 
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
@@ -28,11 +36,12 @@ def error_response(message, details=None, status=400):
         response["error"]["details"] = details
     return JsonResponse(response, status=status)
 
+
 def register(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            form = CustomUserCreationForm(data)
+            form = RegisterUserForm(data)
             if form.is_valid():
                 form.save()
                 return JsonResponse({'message': "User registered successfully"}, status=201)
@@ -43,6 +52,7 @@ def register(request):
             return JsonResponse({'error': "failed to read json data"}, status=400)
     else:
         return JsonResponse({'error': "wrong request type"}, status=405)
+
 
 def register_provider(request): 
     if request.method != 'POST': 
@@ -70,28 +80,64 @@ def register_provider(request):
 
 
 def login(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            email = data.get('email')
-            password = data.get('password')
-
-            user = authenticate(request, username=email, password=password)
-            token, created = Token.objects.get_or_create(user=user)
-
-            if user is not None:
-                django_login(request, user)
-                return JsonResponse({'message': 'Login successful', 'role': user.role, 'token': token.key}, status=200)
-            else:
-                return JsonResponse({'message': 'Invalid credentials'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
-    else:
+    if request.method != 'POST': 
         return JsonResponse({'error': 'Wrong request type'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        email = data.get('email')
+        password = data.get('password')
+        user = authenticate(request, username=email, password=password)
+        if user is None: 
+            return JsonResponse({'message': 'Invalid credentials'}, status=400) 
+        
+        # use JWT for patients 
+        if user.role == User.PATIENT: 
+            print('views.py: login: patient')
+            refresh = RefreshToken.for_user(user) 
+            return JsonResponse({
+                'message': 'Login successful', 
+                'role': user.role, 
+                'access_token': str(refresh.access_token), 
+                'refresh_token': str(refresh)
+            }, status=200)
+        
+        # use Django's built-in session-based auth for providers 
+        elif user.role == User.PROVIDER: 
+            print('views.py: login: provider'); 
+            django_login(request, user) 
+            return JsonResponse({
+                'message': 'Login successful', 
+                'role': user.role 
+            }, status=200)
+        
+        else: 
+            return JsonResponse({'error': 'Invalid role'}, status=403)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
+
+
+def refresh_access_token(request): 
+    if request.method != 'POST': 
+        return JsonResponse({'error': 'Wrong request type'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        refresh_token = data.get("refresh_token")
+        if not refresh_token:
+            return JsonResponse({'error': 'Refresh token is required'}, status=400)
+
+        try:
+            refresh = RefreshToken(refresh_token) 
+            access_token = str(refresh.access_token) 
+            return JsonResponse({'access_token': access_token}, status=200)
+        
+        except TokenError:
+            return JsonResponse({'error': 'Invalid or expired refresh token'}, status=401)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def add_relationship(request): 
     try:
@@ -131,8 +177,9 @@ def logout_view(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
+@authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile_data(request):
     user = request.user
@@ -144,8 +191,9 @@ def profile_data(request):
         'phone': str(user.phone)
     })
 
+
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def record_weight(request):
     try:
