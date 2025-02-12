@@ -23,3 +23,8 @@ class ReminderSerializer(serializers.ModelSerializer):
         if any(day.strip() not in valid_days for day in value):
             raise serializers.ValidationError("Invalid day(s) provided.")
         return ", ".join(value)
+      
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'shareable_id']

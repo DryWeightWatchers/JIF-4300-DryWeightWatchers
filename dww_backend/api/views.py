@@ -161,7 +161,7 @@ def add_relationship(request):
             return Response({'error': 'User is not authenticated'}, status=403)
 
         if TreatmentRelationship.objects.filter(patient=patient, provider=provider).exists():
-            return Response({'message': 'Relationship already exists'}, status=202)
+            return Response({'message': 'Relationshi already exists'}, status=202)
 
         relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
 
@@ -272,7 +272,7 @@ def save_reminder(request):
         
         reminder.time = serializer.validated_data['time']
         reminder.days = serializer.validated_data['days']
-        reminder.enabled = request.data.get('enabled')
+        reminder.enabled = request.data.get('enable
 
         reminder.save()
 
@@ -297,3 +297,33 @@ def delete_reminder(request, id):
         return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_providers(request):
+    try:
+        patient = request.user
+        treatment_relationships = TreatmentRelationship.objects.filter(patient=patient)
+        providers = [relationship.provider for relationship in treatment_relationships]
+
+        serializer = UserSerializer(providers, many=True)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_relationship(request):
+    shareable_id = request.data.get("shareable_id")
+    if not shareable_id:
+        return Response({"error": "Shareable ID is required."}, status=400)
+
+    try:
+        provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+        relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
+        relationship.delete()
+        return Response({"message": "Relationship deleted successfully."}, status=200)
+    except User.DoesNotExist:
+        return Response({"error": "Provider not found."}, status=404)
+    except TreatmentRelationship.DoesNotExist:
+        return Response({"error": "Relationship not found."}, status=404)
