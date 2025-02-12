@@ -226,7 +226,6 @@ def delete_account(request):
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
     
-@login_required
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -243,7 +242,6 @@ def add_reminder(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
-@login_required
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -255,7 +253,6 @@ def get_reminders(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
-@login_required
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -282,7 +279,6 @@ def save_reminder(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
-@login_required
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
