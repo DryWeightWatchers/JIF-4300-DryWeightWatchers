@@ -272,7 +272,7 @@ def save_reminder(request):
         
         reminder.time = serializer.validated_data['time']
         reminder.days = serializer.validated_data['days']
-        reminder.enabled = request.data.get('enable
+        reminder.enabled = request.data.get('enabled')
 
         reminder.save()
 
