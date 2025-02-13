@@ -19,18 +19,13 @@
   }
   
   .navbarList {
-    width: 50%; 
-    min-width: 450px; 
-    height: 100%;
-    margin: 0;
-    padding: 0;
-
-    list-style: none;
-
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
+    gap: 40px; 
+    margin-left: auto; 
+    list-style: none;
+    padding: 0;
+}
 
   .navbarList li {
     height: 100%;

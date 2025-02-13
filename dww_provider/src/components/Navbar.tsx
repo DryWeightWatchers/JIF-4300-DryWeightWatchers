@@ -35,7 +35,7 @@ const Navbar: React.FC = () => {
       </div>
       <ul className={styles.navbarList}>
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/dashboard">Dashboard</Link></li>
+        {isAuthenticated ? (<li><Link to="/dashboard">Dashboard</Link></li>) : null}
         {isAuthenticated ? (<li><Link to="/profile">Profile</Link></li>) : null}
         {!isAuthenticated ? (
           <li><Link to="/login">Login / Register</Link></li>
