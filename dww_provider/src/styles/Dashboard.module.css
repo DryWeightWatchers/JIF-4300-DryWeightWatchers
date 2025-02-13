@@ -41,5 +41,6 @@
   
   .table tbody tr:hover {
     background-color: #d9e0ef;
+    cursor: pointer; 
   }
   

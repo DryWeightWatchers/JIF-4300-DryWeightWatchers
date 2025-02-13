@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import styles from '../styles/Dashboard.module.css'; // Using CSS modules
+import { useNavigate } from 'react-router-dom';
+import styles from '../styles/Dashboard.module.css'; 
+
 
 type Patient = {
   id: number;
@@ -10,10 +12,12 @@ type Patient = {
   latest_weight_timestamp: string | null;
 };
 
+
 const Dashboard: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -63,7 +67,7 @@ const Dashboard: React.FC = () => {
           </thead>
           <tbody>
             {patients.map((patient) => (
-              <tr key={patient.id}>
+              <tr key={patient.id} onClick={() => navigate(`/patients/${patient.id}`)}>
                 <td>{patient.id}</td>
                 <td>{`${patient.first_name} ${patient.last_name}`}</td>
                 <td>{patient.email}</td>

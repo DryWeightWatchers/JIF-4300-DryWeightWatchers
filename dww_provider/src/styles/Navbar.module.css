@@ -20,6 +20,7 @@
   
   .navbarList {
     display: flex;
+    height: 100%;
     align-items: center;
     gap: 40px; 
     margin-left: auto; 
