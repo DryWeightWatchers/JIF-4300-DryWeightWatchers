@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Alert} from 'react-native';
 import styles from '../styles/Profile.module.css';
+import {useAuth} from '../components/AuthContext.tsx'
 
 type ProfileData = {
   firstname: string,
@@ -14,6 +16,8 @@ const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, logout } = useAuth();
+  const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
   const fetchProfileData = async () => {
     try {
@@ -33,6 +37,42 @@ const Profile = () => {
       setError(err.message);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    const authToken = localStorage.getItem("authToken")
+    console.log("Auth Token is:", authToken)
+    if (!authToken) {
+      console.error("No access token found");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(`${serverUrl}/delete-account/`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error deleting account: ${errorText}`);
+    } 
+
+    alert("Your account has been successfully deleted.");
+    logout();
+
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      alert("Failed to delete account. Please try again.");
     }
   }
 
@@ -110,6 +150,10 @@ const Profile = () => {
           <input type='checkbox' value='text' />
           Text
         </label>
+      </div>
+      <div>
+        <button type="button"
+        onClick={handleDeleteAccount}>Delete Account</button>
       </div>
 
     </div>
