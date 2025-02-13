@@ -1,11 +1,11 @@
 import React from 'react';
 import { SectionList, StyleSheet, Text } from 'react-native';
-import { SettingsItem } from '../../../assets/components/SettingsItem';
+import SettingsItem from '../../../assets/components/SettingsItem';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-export const SettingsScreen = () => {
+const SettingsScreen = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'Settings'>['navigation']>();
 
   const SETTINGS_SECTIONS = [
@@ -15,7 +15,12 @@ export const SettingsScreen = () => {
         {
           title: 'Account',
           icon: <Ionicons name='person'/>,
-          screen: 'Account' as const,
+          screen: 'Account',
+        },
+        {
+          title: 'Provider List',
+          icon: <Ionicons name='list-outline'/>,
+          screen: 'Provider List' as const,
         },
         {
           title: 'Provider List',
@@ -30,7 +35,7 @@ export const SettingsScreen = () => {
         {
           title: 'Reminders',
           icon: <Ionicons name='notifications'/>,
-          screen: 'Reminders' as const,
+          screen: 'Reminders',
         },
       ],
     },
@@ -44,7 +49,7 @@ export const SettingsScreen = () => {
         <SettingsItem
           title={item.title}
           icon={item.icon}
-          onPress={() => navigation.navigate(item.screen)}
+          onPress={() => navigation.navigate(item.screen as any)}
         />
       )}
       renderSectionHeader={({ section }) => (

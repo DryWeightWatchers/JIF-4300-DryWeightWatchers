@@ -10,7 +10,7 @@ type SettingsItemProps = {
   onPress: () => void;
 };
 
-export const SettingsItem = ({ title, icon, onPress }: SettingsItemProps) => (
+const SettingsItem = ({ title, icon, onPress }: SettingsItemProps) => (
   <TouchableOpacity style={styles.itemContainer} onPress={onPress}>
     <View style={styles.itemContent}>
       {icon}

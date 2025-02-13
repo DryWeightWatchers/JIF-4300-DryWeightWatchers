@@ -12,16 +12,14 @@ import DashboardScreen from './home/DashboardScreen';
 import AccountScreen from './home/settings/Account';
 import SettingsScreen from './home/settings/SettingsScreen'; 
 import RemindersScreen from './home/settings/RemindersScreen'; 
-import ProviderListScreen from './home/settings/ProviderListScreen';
+import ProviderListScreen from './home/settings/ProviderList';
 
 import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation'; 
 import { useAuth } from './auth/AuthProvider';
 
-
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 const HomeTabs = createBottomTabNavigator<HomeTabParamList>();
-
 
 // Tab Navigator for screens in (home), anything in this section should be require-login
 function HomeTabNavigator() {
@@ -58,11 +56,11 @@ function HomeTabNavigator() {
 
 function SettingsScreensStack() {
   return (
-    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
-      <SettingsStack.Screen name="Settings" component={SettingsScreen} />
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
-      <SettingsStack.Screen name="ProviderList" component={ProviderListScreen} />
+      <SettingsStack.Screen name="Provider List" component={ProviderListScreen} />
     </SettingsStack.Navigator>
   );
 }
@@ -84,7 +82,7 @@ const RootNavigator = () => {
   } 
   
   return (
-    <RootStack.Navigator>
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
         <RootStack.Screen name="HomeTabs" component={HomeTabNavigator} />
       ) : (

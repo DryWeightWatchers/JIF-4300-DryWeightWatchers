@@ -39,7 +39,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.cardButton}
-          //onPress={() => navigation.navigate('Settings')} navigate to settings screen in near future
+          onPress={() => navigation.navigate('Settings')}
         >
           <Text style={styles.cardText}>Alerts</Text>
         </TouchableOpacity>
