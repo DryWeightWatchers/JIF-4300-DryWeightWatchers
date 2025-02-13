@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, logout, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.db.models import OuterRef, Subquery
 from api.models import *
 from .forms import *
 from .serializers import *
@@ -161,7 +162,7 @@ def add_relationship(request):
             return Response({'error': 'User is not authenticated'}, status=403)
 
         if TreatmentRelationship.objects.filter(patient=patient, provider=provider).exists():
-            return Response({'message': 'Relationshi already exists'}, status=202)
+            return Response({'message': 'Relationship already exists'}, status=202)
 
         relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
 
@@ -190,6 +191,31 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def dashboard(request): 
+
+    # get all patients associated with this provider 
+    provider = request.user 
+    patient_ids = TreatmentRelationship.objects.filter(
+        provider_id=provider.id 
+    ).values_list('patient_id', flat=True)
+
+    # subquery to get the most recent weight record for each patient 
+    latest_weight_subquery = WeightRecord.objects.filter(
+        patient_id=OuterRef('id')
+    ).order_by('-timestamp').values_list('weight', 'timestamp')[:1] 
+
+    # main query to get all needed info 
+    patients = User.objects.filter(id__in=patient_ids, role='patient').annotate(
+        latest_weight=Subquery(latest_weight_subquery.values_list('weight', flat=True)),
+        latest_weight_timestamp=Subquery(latest_weight_subquery.values_list('timestamp', flat=True))
+    ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
+
+    return JsonResponse({'patients': list(patients)})
 
 
 @api_view(['POST'])
