@@ -113,5 +113,4 @@ class PatientReminder(models.Model):
     )
     time = models.TimeField()
     days = models.CharField(max_length=62)
-    enabled = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)

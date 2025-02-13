@@ -248,7 +248,7 @@ def add_reminder(request):
 def get_reminders(request):
     try:
         user = request.user
-        reminders = PatientReminder.objects.filter(patient=user).values('id', 'time', 'days', 'enabled')
+        reminders = PatientReminder.objects.filter(patient=user).values('id', 'time', 'days')
         return JsonResponse(list(reminders), safe=False, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -272,7 +272,6 @@ def save_reminder(request):
         
         reminder.time = serializer.validated_data['time']
         reminder.days = serializer.validated_data['days']
-        reminder.enabled = request.data.get('enabled')
 
         reminder.save()
 

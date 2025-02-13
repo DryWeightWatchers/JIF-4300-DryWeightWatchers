@@ -1,15 +1,13 @@
 import React from 'react';
-import { Pressable, View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 type ReminderItemProps = {
   time: string;
   days: string[];
-  isEnabled: boolean;
   onPress: () => void;
-  onToggle: () => void;
 };
 
-const ReminderItem = ({ time, days, isEnabled, onToggle, onPress }: ReminderItemProps) => {
+const ReminderItem = ({ time, days, onPress }: ReminderItemProps) => {
   const formatDays = (days: string[]) => {
     return days.map(day => day.substring(0, 3)).join(', ');
   };
@@ -23,12 +21,6 @@ const ReminderItem = ({ time, days, isEnabled, onToggle, onPress }: ReminderItem
             {days.length > 0 ? formatDays(days) : 'No days selected'}
           </Text>
         </View>
-        <Switch
-          value={isEnabled}
-          onValueChange={onToggle}
-          trackColor={{ false: '#767577', true: '#7B5CB8' }}
-          thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
-        />
       </View>
     </TouchableOpacity>
   );
