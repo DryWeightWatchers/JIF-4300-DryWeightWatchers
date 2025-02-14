@@ -58,11 +58,12 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",  # will need to deal with this later 
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+MIDDLEWARE.insert(len(MIDDLEWARE) - 1, "core.middleware.DebugMiddleware")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -96,7 +97,6 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
-SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
@@ -187,6 +187,14 @@ if DJANGO_ENV == "production":
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 else:
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
+    SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
+
+    SESSION_COOKIE_SAMESITE = 'None'  # Allow cross-origin cookies
+    SESSION_COOKIE_SECURE = False  # False for local dev (HTTP); True for production (HTTPS)
+    SESSION_COOKIE_HTTPONLY = True  # Ensure the cookie is not accessible via JavaScript
+    SESSION_COOKIE_NAME = 'sessionid'
+
+    # CSRF Cookie Settings for Cross-Site Contexts
+    CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
+    CSRF_COOKIE_SECURE = False  # False for HTTP (dev); True for HTTPS (prod)
+    CSRF_COOKIE_HTTPONLY = True  # Ensure the CSRF cookie is not accessible via JS

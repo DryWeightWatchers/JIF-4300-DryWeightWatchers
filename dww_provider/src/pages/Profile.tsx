@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
-import {useAuth} from '../components/AuthContext.tsx'
+import { useAuth } from '../components/AuthContext.tsx'
 
 type ProfileData = {
   firstname: string,
@@ -21,7 +21,7 @@ const Profile = () => {
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile`, {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile/`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -44,17 +44,8 @@ const Profile = () => {
     fetchProfileData();
   }, []);
 
-  const getCSRFToken = async () => {
-    const response = await fetch(`${serverUrl}/get-csrf-token/`, {
-      credentials: 'include', 
-    });
-    const data = await response.json();
-    return data.csrfToken;
-  };
-
+  
   const handleDeleteAccount = async () => {
-    const csrfToken = await getCSRFToken();
-
     const confirmDelete = window.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
     );
@@ -64,19 +55,18 @@ const Profile = () => {
       const response = await fetch(`${serverUrl}/delete-account/`, {
         method: "DELETE",
         headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json",
         },
         credentials: 'include',
-    });
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error deleting account: ${errorText}`);
-    } 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error deleting account: ${errorText}`);
+      }
 
-    alert("Your account has been successfully deleted.");
-    logout();
+      alert("Your account has been successfully deleted.");
+      logout();
 
     } catch (error) {
       console.error("Failed to delete account:", error);
@@ -157,7 +147,7 @@ const Profile = () => {
       </div>
       <div>
         <button type="button"
-        onClick={handleDeleteAccount}>Delete Account</button>
+          onClick={handleDeleteAccount}>Delete Account</button>
       </div>
 
     </div>
