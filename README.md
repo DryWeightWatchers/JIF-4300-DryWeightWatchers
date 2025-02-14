@@ -28,6 +28,24 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 - The JWT access tokens are very short-lived. Functionally, if the access token is refreshed mid-operation and the operation fails, this could log out the patient and make it unclear whether the operation succeeded and confuse the patient.
 - Various typescript errors due to unstrictly typed functions. Does not impede functionality.
 
+## Version 0.1.0: Initial Setup
+### Features 
+#### For patients: 
+- Patient can create an account and login 
+- After login, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
+- Patient can log out of their account
+- Patient can register their provider
+#### For providers: 
+- Providers can create an account and login 
+- After login, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
+- Provider can log out of their account
+
+### Bug Fixes
+- (N/A)
+
+### Known Issues
+- (none) 
+
 # Developer Setup 
 
 ### Prerequisites: 
