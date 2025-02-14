@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Button, Switch, Pressable } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, Button, Switch, Pressable } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import ReminderItem from '../../../assets/components/ReminderItem'
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
-import axios from 'axios';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
+import { scheduleNotification, cancelAllNotifications, requestNotificationPermissions } from '../../../utils/reminderNotifications';
 
 //https://docs.expo.dev/versions/latest/sdk/notifications/
 const RemindersScreen = () => {
@@ -53,6 +53,20 @@ const RemindersScreen = () => {
     fetchReminders();
   }, [accessToken]);
 
+  useEffect(() => { //im scared of messing up database to local notification synchronization so im wiping all notifications and rescheduling whatever is retrieved
+    const resyncNotifications = async () => {
+      await requestNotificationPermissions();
+      
+      await cancelAllNotifications();
+  
+      reminders.forEach(async (reminder) => {
+        await scheduleNotification(reminder);
+      });
+    };
+    
+    resyncNotifications();
+  }, [reminders]);
+
   const handleAddReminder = async () => { //add new reminder
     try {
       const response = await authFetch(
@@ -72,9 +86,9 @@ const RemindersScreen = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch reminders');
       }
-      
       const data = await response.json();
       console.log('add reminder successful:', data);
+
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -115,9 +129,9 @@ const RemindersScreen = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch reminders');
       }
-
       const data = await response.json();
       console.log('save reminder successful:', data);
+
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -141,9 +155,9 @@ const RemindersScreen = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch reminders');
       }
-
       const data = await response.json();
       console.log('delete reminder successful:', data);
+
       resetStates();
       fetchReminders();
     } catch (error: any) {
@@ -158,10 +172,6 @@ const RemindersScreen = () => {
         ? prevDays.filter(d => d !== day && d !== "")
         : [...prevDays.filter(d => d !== ""), day]
     );
-  };
-
-  const handleToggleReminder = async (id: number) => { 
-    //add actual notification system for phone
   };
 
   const resetStates = () => {
@@ -179,8 +189,6 @@ const RemindersScreen = () => {
         key={reminder.id}
         time={reminder.time}
         days={reminder.days}
-        isEnabled={reminder.enabled}
-        onToggle={() => handleToggleReminder(reminder.id)}
         onPress={() => handleEditReminder(reminder.id)}
       />
       ))}
@@ -305,7 +313,6 @@ interface Reminder { //for typing... cant import this because of index...
   id: number;
   time: string;
   days: string[];
-  enabled: boolean;
 }
 
 const reminderTimeToDate = (timeString: string) => {
