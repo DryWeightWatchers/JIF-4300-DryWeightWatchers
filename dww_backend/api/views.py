@@ -1,7 +1,7 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
-from django.contrib.auth.decorators import login_required
+from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from api.models import *
@@ -217,7 +217,9 @@ def record_weight(request):
 
 
 @csrf_exempt
-@login_required
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_account(request):
     if request.method == "DELETE":
         user = request.user
@@ -296,6 +298,13 @@ def delete_reminder(request, id):
         return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def get_csrf_token(request):
+    response = JsonResponse({'csrfToken': get_token(request)})
+    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
+    return response
+
 
 @api_view(['GET'])
 def get_providers(request):

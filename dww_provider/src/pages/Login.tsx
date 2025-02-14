@@ -24,12 +24,12 @@ const Login: React.FC = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
         if (data.role !== 'provider') {
           alert('Access restricted to providers only');
           return;
         }
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('authToken', data.access);
         login();
         navigate('/dashboard');
       } else {

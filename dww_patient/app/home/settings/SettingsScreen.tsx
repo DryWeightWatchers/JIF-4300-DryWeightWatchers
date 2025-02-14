@@ -22,6 +22,11 @@ const SettingsScreen = () => {
           icon: <Ionicons name='list-outline'/>,
           screen: 'Provider List' as const,
         },
+        {
+          title: 'Provider List',
+          icon: <Ionicons name='list-outline'/>,
+          screen: 'ProviderList' as const,
+        },
       ],
     },
     {
