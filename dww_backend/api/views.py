@@ -250,21 +250,9 @@ def record_weight(request):
 
 @csrf_exempt
 @api_view(["DELETE"])
-@authentication_classes([SessionAuthentication])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
-    if request.method == "DELETE":
-        user = request.user
-        user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)
-    
-@csrf_exempt
-@api_view(["DELETE"])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def delete_patient(request):
     if request.method == "DELETE":
         user = request.user
         user.delete()
