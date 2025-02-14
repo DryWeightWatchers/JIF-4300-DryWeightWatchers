@@ -21,6 +21,7 @@ export type SettingsStackParamList = {
   Settings: undefined;
   Account: undefined;
   Reminders: undefined;
+  ProviderList: undefined;
 };
   
 declare global {
