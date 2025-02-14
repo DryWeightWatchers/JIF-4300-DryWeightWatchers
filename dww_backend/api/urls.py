@@ -15,4 +15,5 @@ urlpatterns = [
     path('delete-account/', views.delete_account, name='delete_account'),
     path('user/providers/', views.get_providers, name='get_registered_providers'),
     path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
+    path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
 ]

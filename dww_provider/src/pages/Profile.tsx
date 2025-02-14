@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Alert} from 'react-native';
 import styles from '../styles/Profile.module.css';
 import {useAuth} from '../components/AuthContext.tsx'
 
@@ -16,8 +15,9 @@ const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
+
 
   const fetchProfileData = async () => {
     try {
@@ -40,13 +40,20 @@ const Profile = () => {
     }
   }
 
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const getCSRFToken = async () => {
+    const response = await fetch(`${serverUrl}/get-csrf-token/`, {
+      credentials: 'include', 
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  };
+
   const handleDeleteAccount = async () => {
-    const authToken = localStorage.getItem("authToken")
-    console.log("Auth Token is:", authToken)
-    if (!authToken) {
-      console.error("No access token found");
-      return;
-    }
+    const csrfToken = await getCSRFToken();
 
     const confirmDelete = window.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
@@ -57,9 +64,10 @@ const Profile = () => {
       const response = await fetch(`${serverUrl}/delete-account/`, {
         method: "DELETE",
         headers: {
-            "Authorization": `Bearer ${authToken}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
         },
+        credentials: 'include',
     });
 
     if (!response.ok) {
@@ -75,10 +83,6 @@ const Profile = () => {
       alert("Failed to delete account. Please try again.");
     }
   }
-
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
 
   if (isLoading) {
     return <p>Loading...</p>

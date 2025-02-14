@@ -3,11 +3,10 @@ import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFee
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
-import axios from 'axios';
-
+import { SettingsStackScreenProps } from '../../types/navigation';
 
 const AccountScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<SettingsStackScreenProps<'Account'>['navigation']>();
   const inputRefs = useRef([]);
   const [code, setCode] = useState(new Array(8).fill(''));
   const { accessToken, refreshAccessToken, logout } = useAuth();
@@ -26,7 +25,6 @@ const AccountScreen = () => {
 
       if (response.ok) {
         logout();
-        navigation.navigate('Login');
       } else {
         const errorData = await response.json();
         Alert.alert('Error', errorData.message || 'Logout failed');
@@ -123,6 +121,7 @@ const AccountScreen = () => {
               const response = await authFetch(
                 `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-account/`, 
                 accessToken, refreshAccessToken, logout, {
+                method: 'DELETE',
                 headers: {
                   'Content-Type': 'application/json',
                 },
@@ -130,7 +129,7 @@ const AccountScreen = () => {
               
               if (response.status == 200) {
                 Alert.alert("Success", "Your account has been deleted.", [
-                  { text: "OK", onPress: () => navigation.navigate("Signup") },
+                  { text: "OK", onPress: () => logout() }, 
                 ]);
               }
             } catch (error: any) {
