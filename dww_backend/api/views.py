@@ -298,11 +298,6 @@ def delete_reminder(request, id):
         return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    user = request.user
-    if not user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
-    user.delete()
-    return JsonResponse({'message': 'Successfully deleted account'}, status=200)
 
 
 def get_csrf_token(request):
