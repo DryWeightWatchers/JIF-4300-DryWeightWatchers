@@ -338,7 +338,12 @@ def delete_reminder(request, id):
 
 def get_csrf_token(request):
     response = JsonResponse({'csrfToken': get_token(request)})
-    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
+    return response
+
+def get_session_id(request):
+    response = JsonResponse({'sessionid': request.session.session_key})
+    response.set_cookie('sessionid', request.session.session_key, samesite='None', secure=True)  
     return response
 
 

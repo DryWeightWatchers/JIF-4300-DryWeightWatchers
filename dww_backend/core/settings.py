@@ -180,14 +180,20 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+SESSION_COOKIE_DOMAIN = ".django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com"
+CSRF_COOKIE_DOMAIN = ".django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com"
 
 if DJANGO_ENV == "production":
-    SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOW_HEADERS = list(default_headers) + ["X-CSRFToken", "Authorization"]
+    SECURE_SSL_REDIRECT = False  # Should be True if using HTTPS in production
+    SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin authentication
+    SESSION_COOKIE_SECURE = True  # Must be True for HTTPS
+    SESSION_COOKIE_HTTPONLY = True  # Ensures JavaScript can't access the session
+    SESSION_COOKIE_NAME = 'sessionid'  # Default Django session cookie name
+
+    CSRF_COOKIE_SAMESITE = 'None'  # Required for cross-origin CSRF protection
+    CSRF_COOKIE_SECURE = True  # Must be True for HTTPS
+    CSRF_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing CSRF cookie
+
 else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
@@ -198,5 +204,5 @@ else:
 
     # CSRF Cookie Settings for Cross-Site Contexts
     CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
-    CSRF_COOKIE_SECURE = True  # False for HTTP (dev); True for HTTPS (prod)
-    CSRF_COOKIE_HTTPONLY = True  # Ensure the CSRF cookie is not accessible via JS
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
