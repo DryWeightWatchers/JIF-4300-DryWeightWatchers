@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
+import { useAuth } from '../components/AuthContext.tsx'
 
 type ProfileData = {
   firstname: string,
@@ -14,10 +15,13 @@ const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { logout } = useAuth();
+  const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
+
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile`, {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile/`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -39,6 +43,46 @@ const Profile = () => {
   useEffect(() => {
     fetchProfileData();
   }, []);
+
+  const getCSRFToken = async () => {
+    const response = await fetch(`${serverUrl}/get-csrf-token/`, {
+      credentials: 'include', 
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  };
+
+  const handleDeleteAccount = async () => {
+    const csrfToken = await getCSRFToken();
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(`${serverUrl}/delete-account/`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+        },
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error deleting account: ${errorText}`);
+    } 
+
+    alert("Your account has been successfully deleted.");
+    logout();
+
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      alert("Failed to delete account. Please try again.");
+    }
+  }
 
   if (isLoading) {
     return <p>Loading...</p>
@@ -110,6 +154,10 @@ const Profile = () => {
           <input type='checkbox' value='text' />
           Text
         </label>
+      </div>
+      <div>
+        <button type="button"
+          onClick={handleDeleteAccount}>Delete Account</button>
       </div>
 
     </div>
