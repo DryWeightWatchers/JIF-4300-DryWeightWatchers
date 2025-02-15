@@ -4,47 +4,53 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 
 
 # Release Notes
-## Version 0.2.0: Record Weight, Account Settings, Reminder Notifications
-### Features 
-#### For patients on the mobile interface: 
-- Patients can record their weight to the database on the Enter Data screen.
-- Patients can see a list of providers associated with their account and choose to remove providers on the Provider List screen.
-- Patients may delete their account and all personal data associated with their account from the Accounts screen.
-- Patients can create daily reminders to assist them in routinely recording their weight. 
-   - They can create, edit, and delete reminders in the Reminders screen.
-   - Reminders can be customized to any time and specify which days of the week the reminder should occur.
-#### For providers on the desktop interface: 
-- Providers can see a dashboard containing information on all patients assigned to them.
-- Providers can delete their account and all personal data associated with their account.
 
-### Bug Fixes
-- Fixed provider profile information being shown after logout.
-- Fixed patient signup allowing provider accounts to be created on mobile interface.
+<details>
+  <summary>Version 0.2.0: Record Weight, Account Settings, Reminder Notifications</summary>
+  ### Features 
+  #### For patients on the mobile interface: 
+  - Patients can record their weight to the database on the Enter Data screen.
+  - Patients can see a list of providers associated with their account and choose to remove providers on the Provider List screen.
+  - Patients may delete their account and all personal data associated with their account from the Accounts screen.
+  - Patients can create daily reminders to assist them in routinely recording their weight. 
+     - They can create, edit, and delete reminders in the Reminders screen.
+     - Reminders can be customized to any time and specify which days of the week the reminder should occur.
+  - Patients will be remembered with a token when they are logged in. If this token is still valid next app opening, they are automatically logged in.
+  #### For providers on the desktop interface: 
+  - Providers can see a dashboard containing information on all patients assigned to them.
+  - Providers can delete their account and all personal data associated with their account.
 
-### Known Issues
-- Shareable ID input on mobile interface has autocorrect enabled.
-- Shareable ID is not marked as required unique.
-- Accounts screen contains a large number of account-related features. These features can likely be separated onto their own screens to reduce clutter.
-- The JWT access tokens are very short-lived. Functionally, if the access token is refreshed mid-operation and the operation fails, this could log out the patient and make it unclear whether the operation succeeded and confuse the patient.
-- Various typescript errors due to unstrictly typed functions. Does not impede functionality.
+  ### Bug Fixes
+  - Fixed provider profile information being shown after logout.
+  - Fixed patient signup allowing provider accounts to be created on mobile interface.
 
-## Version 0.1.0: Initial Setup
-### Features 
-#### For patients: 
-- Patient can create an account and login 
-- After login, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
-- Patient can log out of their account
-- Patient can register their provider
-#### For providers: 
-- Providers can create an account and login 
-- After login, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
-- Provider can log out of their account
+  ### Known Issues
+  - Shareable ID input on mobile interface has autocorrect enabled.
+  - Shareable ID is not marked as required unique.
+  - Accounts screen contains a large number of account-related features. These features can likely be separated onto their own screens to reduce clutter.
+  - The JWT access tokens are very short-lived. Functionally, if the access token is refreshed mid-operation and the operation fails, this could log out the patient and make it unclear whether the operation succeeded and confuse the patient.
+  - Various typescript errors due to unstrictly typed functions. Does not impede functionality.
+</details>
 
-### Bug Fixes
-- (N/A)
+<details>
+  <summary>Version 0.1.0: Initial Setup</summary>
+  ### Features 
+  #### For patients: 
+  - Patient can create an account and login 
+  - After login, the patient can see a basic dashboard with navigation to different placeholder pages for entering data, and viewing data. 
+  - Patient can log out of their account
+  - Patient can register their provider
+  #### For providers: 
+  - Providers can create an account and login 
+  - After login, the provider can see a basic dashboard with navigation to different placeholder pages for viewing their dashboard, home, and profile
+  - Provider can log out of their account
 
-### Known Issues
-- (none) 
+  ### Bug Fixes
+  - (N/A)
+
+  ### Known Issues
+  - (none) 
+</details>
 
 # Developer Setup 
 
