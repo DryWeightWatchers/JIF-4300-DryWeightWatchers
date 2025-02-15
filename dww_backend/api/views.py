@@ -260,11 +260,6 @@ def delete_account(request):
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
 
-def get_csrf_token(request):
-    response = JsonResponse({'csrfToken': get_token(request)})
-    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
-    return response
-
 @csrf_exempt 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
