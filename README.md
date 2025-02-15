@@ -7,7 +7,8 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 
 <details>
   <summary>Version 0.2.0: Record Weight, Account Settings, Reminder Notifications</summary>
-  ### Features 
+  
+  ### Features
   #### For patients on the mobile interface: 
   - Patients can record their weight to the database on the Enter Data screen.
   - Patients can see a list of providers associated with their account and choose to remove providers on the Provider List screen.
@@ -34,6 +35,7 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 
 <details>
   <summary>Version 0.1.0: Initial Setup</summary>
+  
   ### Features 
   #### For patients: 
   - Patient can create an account and login 
