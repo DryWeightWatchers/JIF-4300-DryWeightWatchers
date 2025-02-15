@@ -18,8 +18,8 @@ export default function App() {
           <Route path='/profile' element={<MainLayout><Profile /></MainLayout>} />
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
           <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
-          <Route path="/delete" element={<MainLayout><Profile /></MainLayout>} />
           <Route path="/patients/:id" element={<MainLayout><PatientDetails /></MainLayout>} />
+          <Route path="/delete" element={<MainLayout><Profile /></MainLayout>} />
         </Routes>
       </Router>
     </AuthProvider>

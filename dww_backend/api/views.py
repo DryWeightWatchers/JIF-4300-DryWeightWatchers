@@ -340,6 +340,13 @@ def delete_reminder(request, id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
+def get_csrf_token(request):
+    response = JsonResponse({'csrfToken': get_token(request)})
+    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
+    return response
+
+
 @csrf_exempt
 @api_view(['GET'])
 def get_providers(request):
