@@ -62,3 +62,33 @@
     display: flex; 
     justify-content: space-between;
   }
+
+  .profileContainer > div > button {
+    width: "100%";
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  .deleteButton {
+    background-color: #dc3545; /* Red color */
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .deleteButton:hover {
+    background-color: #c82333; /* Darker red */
+  }
+  
+  .deleteButton:active {
+    background-color: #a71d2a;
+  }
+  

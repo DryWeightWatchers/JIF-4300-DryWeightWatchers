@@ -155,8 +155,8 @@ const Profile = () => {
           Text
         </label>
       </div>
-      <div>
-        <button type="button"
+      <div className={styles.buttonContainer}>
+        <button type="button" className={styles.deleteButton} 
           onClick={handleDeleteAccount}>Delete Account</button>
       </div>
 
