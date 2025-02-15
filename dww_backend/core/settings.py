@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv 
 import os 
+from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -90,7 +91,6 @@ ROOT_URLCONF = "core.urls"
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
-    "http://d13ezaiebkeiy0.cloudfront.net",
     os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
 ]
 
@@ -186,6 +186,8 @@ if DJANGO_ENV == "production":
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_HEADERS = list(default_headers) + ["X-CSRFToken", "Authorization"]
 else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
