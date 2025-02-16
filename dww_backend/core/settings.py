@@ -93,7 +93,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
-    os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
+    os.getenv("FRONTEND_URL", "http://localhost:5174"), # this line is necessary for the CORS Policy in the two different env
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -102,7 +102,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    os.getenv("FRONTEND_URL", "http://localhost:5174"),
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
@@ -206,11 +206,11 @@ else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
     SESSION_COOKIE_SAMESITE = 'None'  # Allow cross-origin cookies
-    SESSION_COOKIE_SECURE = True  # False for local dev (HTTP); True for production (HTTPS)
-    SESSION_COOKIE_HTTPONLY = True  # Ensure the cookie is not accessible via JavaScript
+    SESSION_COOKIE_SECURE = False  # False for local dev (HTTP); True for production (HTTPS)
+    SESSION_COOKIE_HTTPONLY = False  # Ensure the cookie is not accessible via JavaScript
     SESSION_COOKIE_NAME = 'sessionid'
 
     # CSRF Cookie Settings for Cross-Site Contexts
     CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
-    CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False

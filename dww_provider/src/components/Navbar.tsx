@@ -32,10 +32,13 @@ const Navbar: React.FC = () => {
     isAuthenticated && <li key="home"><Link to="/">Home</Link></li>,
     isAuthenticated && <li key="dashboard"><Link to="/dashboard">Dashboard</Link></li>,
     isAuthenticated && <li key="profile"><Link to="/profile">Profile</Link></li>,
-    !isAuthenticated ? <li key="login"><Link to="/login">Login / Register</Link></li> : (
-      <Link to="#" onClick={handleLogout}>Sign Out</Link>
+    !isAuthenticated ? (
+      <li key="login"><Link to="/login">Login / Register</Link></li>
+    ) : (
+      <li key="logout"><Link to="#" onClick={handleLogout}>Sign Out</Link></li> // ✅ Wrapped in <li> with key
     )
   ].filter(Boolean); // Remove falsy values
+
 
   return (
     <nav className={styles.navbar}>
