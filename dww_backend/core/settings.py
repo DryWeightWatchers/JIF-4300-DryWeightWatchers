@@ -180,8 +180,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-SESSION_COOKIE_DOMAIN = ".django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com"
-CSRF_COOKIE_DOMAIN = ".django-eb-env.eba-6awiphjs.us-east-1.elasticbeanstalk.com"
 
 if DJANGO_ENV == "production":
     SECURE_SSL_REDIRECT = False  # Should be True if using HTTPS in production

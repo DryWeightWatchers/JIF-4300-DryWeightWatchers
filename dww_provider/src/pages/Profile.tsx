@@ -26,8 +26,18 @@ const Profile = () => {
     return data.csrfToken;
   };
 
+  const getSessionId = async () => {
+    const response = await fetch(`${serverUrl}/get-session-id/`, {
+      credentials: 'include', 
+    });
+    const data = await response.json();
+    return data.sessionid;
+  };
+
+
   const fetchProfileData = async () => {
     const csrfToken = await getCSRFToken();
+    const sessionId = await getSessionId();
     try {
       const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile/`, {
         headers: {
