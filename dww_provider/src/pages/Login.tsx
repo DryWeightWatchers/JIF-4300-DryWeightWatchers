@@ -34,16 +34,13 @@ const Login: React.FC = () => {
         navigate('/dashboard');
       } else {
         const errorData = await response.json();
+        console.log(errorData); 
         alert(errorData.message || 'Invalid credentials');
       }
     } catch (error) {
       console.error('Login error:', error);
     }
   };
-
-
-
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
