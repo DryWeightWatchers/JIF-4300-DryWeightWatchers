@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
-import {useAuth} from '../components/AuthContext.tsx'
+import { useAuth } from '../components/AuthContext.tsx'
 
 type ProfileData = {
   firstname: string,
@@ -18,10 +18,11 @@ const Profile = () => {
   const { logout } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
+  
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile`, {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile/`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -157,7 +158,7 @@ const Profile = () => {
       </div>
       <div>
         <button type="button"
-        onClick={handleDeleteAccount}>Delete Account</button>
+          onClick={handleDeleteAccount}>Delete Account</button>
       </div>
 
     </div>

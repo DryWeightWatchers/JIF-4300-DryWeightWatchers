@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Build the project
+npm install
 npm run build
 
 # Upload HTML files

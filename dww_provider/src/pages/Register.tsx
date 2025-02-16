@@ -27,7 +27,7 @@ const Register: React.FC = () => {
     console.log('Form submitted:', formData);
 
     try {
-      const res = await fetch('http://localhost:8000/register-provider', {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/register-provider`, {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json' 
