@@ -17,6 +17,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 
 '''
 Note: All patient-facing APIs should use rest_framework's JWT authentication, and all 
@@ -28,8 +30,8 @@ def test(request: HttpRequest):
     return HttpResponse("hello world") 
 @csrf_exempt
 def health_check(request):
-    if request.method == 'GET':
-        return JsonResponse({'message': "health check passed"}, status=200)
+    return HttpResponse("OK", content_type="text/plain", status=200)
+
 @csrf_exempt
 def error_response(message, details=None, status=400):
     response = {"error": {"message": message}}
@@ -81,9 +83,13 @@ def register_provider(request):
 
 
 @csrf_exempt
+@ratelimit(key='ip', rate='5/m', method='POST', block=False) 
 def login(request):
     if request.method != 'POST': 
         return JsonResponse({'error': 'Wrong request type'}, status=405)
+    if getattr(request, 'limited', False): 
+        print("rate limit triggered")
+        return JsonResponse({'message': 'Too many login attempts. Please try again later.'}, status=429)
     try:
         data = json.loads(request.body.decode('utf-8'))
         email = data.get('email')
@@ -107,10 +113,7 @@ def login(request):
         elif user.role == User.PROVIDER: 
             print('views.py: login: provider'); 
             django_login(request, user) 
-            request.session.save()  # Force saving the session explicitly
-
-            print(f"🚀 Logged in user: {user.username}")
-            print(f"Session ID: {request.session.session_key}")
+            request.session.save()
             response = JsonResponse({
                 'message': 'Login successful', 
                 'role': user.role
@@ -259,6 +262,7 @@ def delete_account(request):
         return JsonResponse({'message': 'Successfully deleted account'}, status=200)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+    
 
 @csrf_exempt 
 @api_view(['POST'])
@@ -338,9 +342,8 @@ def delete_reminder(request, id):
 
 def get_csrf_token(request):
     response = JsonResponse({'csrfToken': get_token(request)})
-    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
     return response
-
 
 @csrf_exempt
 @api_view(['GET'])

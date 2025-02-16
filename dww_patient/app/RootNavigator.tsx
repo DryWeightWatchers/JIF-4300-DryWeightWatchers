@@ -60,7 +60,7 @@ function SettingsScreensStack() {
       <SettingsStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
-      <SettingsStack.Screen name="Provider List" component={ProviderListScreen} />
+      <SettingsStack.Screen name="ProviderList" component={ProviderListScreen} />
     </SettingsStack.Navigator>
   );
 }

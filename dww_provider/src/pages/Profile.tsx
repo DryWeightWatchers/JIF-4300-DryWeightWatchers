@@ -18,6 +18,7 @@ const Profile = () => {
   const { logout } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
+  
 
   const fetchProfileData = async () => {
     try {

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv 
 import os 
+from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -90,7 +91,8 @@ ROOT_URLCONF = "core.urls"
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
-    "http://d13ezaiebkeiy0.cloudfront.net",
+    'https://dryweightwatchers.com',
+    'https://www.dryweightwatchers.com',
     os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
 ]
 
@@ -101,7 +103,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
     os.getenv("FRONTEND_URL", "http://localhost:5173"),
-    'http://localhost:8081'
+    'http://localhost:8081',
+    'https://dryweightwatchers.com',
+    'https://www.dryweightwatchers.com',
 ]
 
 TEMPLATES = [
@@ -181,11 +185,23 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 if DJANGO_ENV == "production":
-    SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True  # Should be True if using HTTPS in production
+    SESSION_COOKIE_SAMESITE = 'None'  # Required for cross-origin authentication
+    SESSION_COOKIE_SECURE = True  # Must be True for HTTPS
+    SESSION_COOKIE_HTTPONLY = True  # Ensures JavaScript can't access the session
+    SESSION_COOKIE_NAME = 'sessionid'  # Default Django session cookie name
+
+    CSRF_COOKIE_SAMESITE = 'None'  # Required for cross-origin CSRF protection
+    CSRF_COOKIE_SECURE = True  # Must be True for HTTPS
+    CSRF_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing CSRF cookie
+    CORS_ALLOW_HEADERS = [
+        "Authorization",
+        "Content-Type",
+        "X-CSRFToken",
+        "Access-Control-Allow-Origin"
+    ]
+
 else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
@@ -196,5 +212,5 @@ else:
 
     # CSRF Cookie Settings for Cross-Site Contexts
     CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
-    CSRF_COOKIE_SECURE = True  # False for HTTP (dev); True for HTTPS (prod)
-    CSRF_COOKIE_HTTPONLY = True  # Ensure the CSRF cookie is not accessible via JS
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
