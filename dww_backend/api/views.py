@@ -113,10 +113,7 @@ def login(request):
         elif user.role == User.PROVIDER: 
             print('views.py: login: provider'); 
             django_login(request, user) 
-            request.session.save()  # Force saving the session explicitly
-
-            print(f"🚀 Logged in user: {user.username}")
-            print(f"Session ID: {request.session.session_key}")
+            request.session.save()
             response = JsonResponse({
                 'message': 'Login successful', 
                 'role': user.role
@@ -256,9 +253,9 @@ def record_weight(request):
 
 @csrf_exempt
 @api_view(["DELETE"])
-@authentication_classes([JWTAuthentication])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def delete_patient_account(request):
+def delete_account(request):
     if request.method == "DELETE":
         user = request.user
         user.delete()
@@ -266,16 +263,6 @@ def delete_patient_account(request):
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
     
-@api_view(["DELETE"])
-@authentication_classes([SessionAuthentication])
-@permission_classes([IsAuthenticated])
-def delete_provider_account(request):
-    if request.method == "DELETE":
-        user = request.user
-        user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)
 
 @csrf_exempt 
 @api_view(['POST'])
@@ -357,12 +344,6 @@ def get_csrf_token(request):
     response = JsonResponse({'csrfToken': get_token(request)})
     response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
     return response
-
-def get_session_id(request):
-    response = JsonResponse({'sessionid': request.session.session_key})
-    response.set_cookie('sessionid', request.session.session_key, samesite='None', secure=True)  
-    return response
-
 
 @csrf_exempt
 @api_view(['GET'])

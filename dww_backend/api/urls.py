@@ -17,10 +17,8 @@ urlpatterns = [
     path('get-reminders/', views.get_reminders, name='get reminders'),
     path('save-reminder/', views.save_reminder, name='save reminder'),
     path('delete-reminder/<int:id>/', views.delete_reminder, name='delete reminder'),
-    path('delete-patient-account/', views.delete_patient_account, name='delete_patient_account'),
-    path('delete-provider-account/', views.delete_provider_account, name='delete_provider_account'),
+    path('delete-account/', views.delete_account, name='delete_account'),
     path('user/providers/', views.get_providers, name='get_registered_providers'),
     path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
-    path('get-session-id/', views.get_session_id, name='get_session_id'),
 ]

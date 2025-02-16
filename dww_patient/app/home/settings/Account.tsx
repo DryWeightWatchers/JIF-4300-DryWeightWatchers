@@ -119,7 +119,7 @@ const AccountScreen = () => {
           onPress: async () => {
             try {
               const response = await authFetch(
-                `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-patient-account/`, 
+                `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-account/`, 
                 accessToken, refreshAccessToken, logout, {
                 method: 'DELETE',
                 headers: {
