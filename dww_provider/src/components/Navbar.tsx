@@ -17,9 +17,7 @@ const Navbar: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
-
         logout();
-
         navigate('/login');
       } else {
         console.error('Failed to log out');
@@ -28,24 +26,28 @@ const Navbar: React.FC = () => {
       console.error('Logout error:', error);
     }
   };
+
+  // Determine the number of visible navbar items
+  const navItems = [
+    isAuthenticated && <li key="home"><Link to="/">Home</Link></li>,
+    isAuthenticated && <li key="dashboard"><Link to="/dashboard">Dashboard</Link></li>,
+    isAuthenticated && <li key="profile"><Link to="/profile">Profile</Link></li>,
+    !isAuthenticated ? <li key="login"><Link to="/login">Login / Register</Link></li> : (
+      <li key="signout" className={styles.signout}>
+        <Link to="#" onClick={handleLogout}>Sign Out</Link>
+      </li>
+    )
+  ].filter(Boolean); // Remove falsy values
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.brand}>
-        <Link to="/">
+        {isAuthenticated ? (<Link to="/">
           <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />
-        </Link>
+        </Link>) : <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />}
       </div>
-      <ul className={styles.navbarList}>
-        <li><Link to="/">Home</Link></li>
-        {isAuthenticated ? (<li><Link to="/dashboard">Dashboard</Link></li>) : null}
-        {isAuthenticated ? (<li><Link to="/profile">Profile</Link></li>) : null}
-        {!isAuthenticated ? (
-          <li><Link to="/login">Login / Register</Link></li>
-        ) : (
-          <li className={styles.signout}>
-            <Link to="#" onClick={handleLogout}>Sign Out</Link>
-          </li>
-        )}
+      <ul className={`${styles.navbarList} ${navItems.length === 1 ? styles.alignRight : ''}`}>
+        {navItems}
       </ul>
     </nav>
   );

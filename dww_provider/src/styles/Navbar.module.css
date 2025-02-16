@@ -2,9 +2,7 @@
   flex-shrink: 0;
   height: 60px;
   width: 100%;
-
   background-color: #d5c9ff;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,22 +17,27 @@
 }
 
 .navbarList {
-  width: 50%;
+  width: 25%;
   min-width: 450px;
   height: 100%;
   margin: 0;
   padding: 0;
-
   list-style: none;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+/* Align right when there is only one item */
+.alignRight {
+  justify-content: flex-end;
+  min-width: unset; /* Prevent excessive spacing */
+  width: auto; /* Shrinks to fit content */
+  margin-right: 20px; /* Push to the right */
+}
+
 .navbarList li {
   height: 100%;
-
   display: flex;
   align-items: center;
 }
@@ -50,7 +53,6 @@
   padding: 0px 12px;
   color: rgb(0, 0, 0);
   text-decoration: none;
-
   display: flex;
   align-items: center;
 }
