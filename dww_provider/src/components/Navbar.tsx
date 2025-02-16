@@ -33,9 +33,7 @@ const Navbar: React.FC = () => {
     isAuthenticated && <li key="dashboard"><Link to="/dashboard">Dashboard</Link></li>,
     isAuthenticated && <li key="profile"><Link to="/profile">Profile</Link></li>,
     !isAuthenticated ? <li key="login"><Link to="/login">Login / Register</Link></li> : (
-      <li key="signout" className={styles.signout}>
-        <Link to="#" onClick={handleLogout}>Sign Out</Link>
-      </li>
+      <Link to="#" onClick={handleLogout}>Sign Out</Link>
     )
   ].filter(Boolean); // Remove falsy values
 
@@ -43,7 +41,8 @@ const Navbar: React.FC = () => {
     <nav className={styles.navbar}>
       <div className={styles.brand}>
         {isAuthenticated ? (<Link to="/">
-          <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />
+          {/* <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />
+           */} Dry Weight Watchers
         </Link>) : <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />}
       </div>
       <ul className={`${styles.navbarList} ${navItems.length === 1 ? styles.alignRight : ''}`}>

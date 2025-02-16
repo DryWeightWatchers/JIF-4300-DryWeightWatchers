@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../styles/Dashboard.module.css'; 
-
+import styles from '../styles/Dashboard.module.css';
 
 type Patient = {
   id: number;
@@ -12,24 +11,21 @@ type Patient = {
   latest_weight_timestamp: string | null;
 };
 
-
 const Dashboard: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/dashboard`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
         });
         if (!res.ok) {
-          setError(`HTTP error: ${res.status}`); 
+          setError(`HTTP error: ${res.status}`);
         }
         const data = await res.json();
         setPatients(data.patients);
@@ -39,7 +35,7 @@ const Dashboard: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
     fetchPatients();
   }, []);
 
@@ -54,40 +50,46 @@ const Dashboard: React.FC = () => {
   return (
     <div className={styles.dashboard}>
       <h1 className={styles.title}>Patient Dashboard</h1>
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Patient ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Latest Weight</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patients.map((patient) => (
-              <tr key={patient.id} onClick={() => navigate(`/patients/${patient.id}`)}>
-                <td>{patient.id}</td>
-                <td>{`${patient.first_name} ${patient.last_name}`}</td>
-                <td>{patient.email}</td>
-                <td>
-                  {patient.latest_weight !== null
-                    ? `${patient.latest_weight} kg`
-                    : 'N/A'}
-                </td>
-                <td>
-                  {patient.latest_weight_timestamp
-                    ? new Date(patient.latest_weight_timestamp).toLocaleString()
-                    : 'N/A'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.cardContainer}>
+        {patients.map((patient) => {
+          let weightClass = styles.neutralWeight;
+          if (patient.latest_weight !== null) {
+            if (patient.latest_weight < 50) {
+              weightClass = styles.lowWeight;
+            } else if (patient.latest_weight > 150) {
+              weightClass = styles.atRiskWeight;
+            } else {
+              weightClass = styles.greatWeight;
+            }
+          }
+
+          return (
+            <div
+              key={patient.id}
+              className={`${styles.patientCard} ${weightClass}`}
+              onClick={() => navigate(`/patients/${patient.id}`)}
+            >
+              <div className={styles.patientInfo}>
+                <h3>{`${patient.first_name} ${patient.last_name}`}</h3>
+                <p>Contact: {patient.email}</p>
+              </div>
+              <div className={styles.weightInfo}>
+                <span className={styles.weightLabel}>LATEST WEIGHT</span>
+                <span className={styles.weightValue}>
+                  {patient.latest_weight !== null ? `${patient.latest_weight} lbs` : 'N/A'}
+                </span>
+              </div>
+              <p className={styles.timestamp}>
+                {patient.latest_weight_timestamp
+                  ? new Date(patient.latest_weight_timestamp).toLocaleString()
+                  : 'No data'}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
