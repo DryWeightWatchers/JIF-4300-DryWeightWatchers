@@ -18,21 +18,13 @@ const Profile = () => {
   const { logout } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
 
-  const getCSRFToken = async () => {
-    const response = await fetch(`${serverUrl}/get-csrf-token/`, {
-      credentials: 'include', 
-    });
-    const data = await response.json();
-    return data.csrfToken;
-  };
+  
 
   const fetchProfileData = async () => {
-    const csrfToken = await getCSRFToken();
     try {
       const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/profile/`, {
         headers: {
           'Content-Type': 'application/json',
-          "X-CSRFToken": csrfToken,
         },
         credentials: 'include',
       });
@@ -53,7 +45,13 @@ const Profile = () => {
     fetchProfileData();
   }, []);
 
-  
+  const getCSRFToken = async () => {
+    const response = await fetch(`${serverUrl}/get-csrf-token/`, {
+      credentials: 'include', 
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  };
 
   const handleDeleteAccount = async () => {
     const csrfToken = await getCSRFToken();
