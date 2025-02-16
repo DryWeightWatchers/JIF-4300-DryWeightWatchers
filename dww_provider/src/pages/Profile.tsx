@@ -64,7 +64,7 @@ const Profile = () => {
 
     if (!confirmDelete) return;
     try {
-      const response = await fetch(`${serverUrl}/delete-account/`, {
+      const response = await fetch(`${serverUrl}/delete-provider-account/`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

@@ -36,7 +36,7 @@ DEBUG = DJANGO_ENV == "development"
 # defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 # Application definition
 
@@ -103,7 +103,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
     os.getenv("FRONTEND_URL", "http://localhost:5173"),
-    'http://localhost:8081'
+    'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
 ]
