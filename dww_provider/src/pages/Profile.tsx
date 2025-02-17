@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
-import {useAuth} from '../components/AuthContext.tsx'
+import { useAuth } from '../components/AuthContext.tsx'
 
 type ProfileData = {
   firstname: string,

@@ -4,14 +4,19 @@ import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../components/AuthContext';
 
 const Navbar: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, getCSRFToken } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      const csrfToken = await getCSRFToken(); 
       const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/logout/`, {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include', 
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken || "",
+      },
       });
 
       if (response.ok) {

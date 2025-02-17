@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import FormErrorDisplay, { ErrorObject } from '../components/FormErrorDisplay'; 
 import styles from '../styles/auth-forms.module.css'; 
+import { useAuth } from '../components/AuthContext'; 
 
 const Register: React.FC = () => {
 
+  const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -16,6 +18,16 @@ const Register: React.FC = () => {
   });
   const [response, setResponse] = useState<ErrorObject|null>(null); 
   const navigate = useNavigate(); 
+  const { getCSRFToken } = useAuth();
+  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      const token = await getCSRFToken();
+      setCsrfToken(token); 
+    };
+    fetchCsrfToken();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,13 +37,16 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+    console.log('csrfToken: ', csrfToken); 
 
     try {
-      const res = await fetch('http://localhost:8000/register-provider', {
+      const res = await fetch(`${serverUrl}/register-provider`, {
         method: 'POST', 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json', 
+          "X-CSRFToken": csrfToken || "",
         }, 
+        credentials: 'include', 
         body: JSON.stringify(formData)
       }); 
 
