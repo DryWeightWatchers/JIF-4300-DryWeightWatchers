@@ -23,21 +23,21 @@ Note: All patient-facing APIs should use rest_framework's JWT authentication, an
 provider-facing APIs should use Django's built-in (session-based) authentication 
 '''
 
-
+@csrf_exempt
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
-
+@csrf_exempt
 def health_check(request):
-    if request.method == 'GET':
-        return JsonResponse({'message': "health check passed"}, status=200)
+    return HttpResponse("OK", content_type="text/plain", status=200)
 
+@csrf_exempt
 def error_response(message, details=None, status=400):
     response = {"error": {"message": message}}
     if details:
         response["error"]["details"] = details
     return JsonResponse(response, status=status)
 
-
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         try:
@@ -54,7 +54,7 @@ def register(request):
     else:
         return JsonResponse({'error': "wrong request type"}, status=405)
 
-
+@csrf_exempt
 def register_provider(request): 
     if request.method != 'POST': 
         return error_response('invalid request') 
@@ -80,6 +80,7 @@ def register_provider(request):
         return error_response('Registration unsuccessful.', details=form.errors) 
 
 
+@csrf_exempt
 @ratelimit(key='ip', rate='5/m', method='POST', block=False) 
 def login(request):
     if request.method != 'POST': 
@@ -110,17 +111,19 @@ def login(request):
         elif user.role == User.PROVIDER: 
             print('views.py: login: provider'); 
             django_login(request, user) 
-            return JsonResponse({
+            request.session.save()
+            response = JsonResponse({
                 'message': 'Login successful', 
-                'role': user.role 
-            }, status=200)
-        
+                'role': user.role
+            })
+            response.set_cookie('sessionid', request.session.session_key, samesite='None', secure=True)  
+            return response        
         else: 
             return JsonResponse({'error': 'Invalid role'}, status=403)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
 
-
+@csrf_exempt
 def refresh_access_token(request): 
     if request.method != 'POST': 
         return JsonResponse({'error': 'Wrong request type'}, status=405)
@@ -140,7 +143,7 @@ def refresh_access_token(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
-
+@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -174,7 +177,7 @@ def add_relationship(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
     
-
+@csrf_exempt
 def logout_view(request):
     if request.method == 'POST':
         logout(request) 
@@ -221,7 +224,7 @@ def dashboard(request):
 
     return JsonResponse({'patients': list(patients)})
 
-
+@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -258,6 +261,8 @@ def delete_account(request):
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
     
+
+@csrf_exempt 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -273,7 +278,8 @@ def add_reminder(request):
         return JsonResponse({'message': 'Reminder added successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+@csrf_exempt 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -284,7 +290,8 @@ def get_reminders(request):
         return JsonResponse(list(reminders), safe=False, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+@csrf_exempt   
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -310,7 +317,8 @@ def save_reminder(request):
         return JsonResponse({'message': 'Reminder saved successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+@csrf_exempt   
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -332,10 +340,10 @@ def delete_reminder(request, id):
 
 def get_csrf_token(request):
     response = JsonResponse({'csrfToken': get_token(request)})
-    response.set_cookie('csrftoken', get_token(request), httponly=False, secure=True, samesite='Lax')
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
     return response
 
-
+@csrf_exempt
 @api_view(['GET'])
 def get_providers(request):
     try:
@@ -348,7 +356,7 @@ def get_providers(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
     
-
+@csrf_exempt
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_relationship(request):

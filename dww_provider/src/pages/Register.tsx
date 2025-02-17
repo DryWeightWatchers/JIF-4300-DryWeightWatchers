@@ -7,7 +7,6 @@ import { useAuth } from '../components/AuthContext';
 
 const Register: React.FC = () => {
 
-  const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -40,7 +39,7 @@ const Register: React.FC = () => {
     console.log('csrfToken: ', csrfToken); 
 
     try {
-      const res = await fetch(`${serverUrl}/register-provider`, {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/register-provider`, {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json', 
