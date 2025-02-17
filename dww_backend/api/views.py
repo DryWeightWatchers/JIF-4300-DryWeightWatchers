@@ -9,7 +9,6 @@ from api.models import *
 from .forms import *
 from .serializers import *
 import json
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -18,7 +17,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django_ratelimit.decorators import ratelimit
-from django_ratelimit.exceptions import Ratelimited
 
 '''
 Note: All patient-facing APIs should use rest_framework's JWT authentication, and all 
