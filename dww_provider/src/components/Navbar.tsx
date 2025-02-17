@@ -44,9 +44,10 @@ const Navbar: React.FC = () => {
     <nav className={styles.navbar}>
       <div className={styles.brand}>
         {isAuthenticated ? (<Link to="/">
-          {/* <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />
-           */} Dry Weight Watchers
-        </Link>) : <img src="/dww_banner.png" alt="Dry Weight Watchers Logo" className={styles.logo} />}
+           Dry Weight Watchers
+        </Link>) : <Link to="/login">
+           Dry Weight Watchers
+        </Link>}
       </div>
       <ul className={`${styles.navbarList} ${navItems.length === 1 ? styles.alignRight : ''}`}>
         {navItems}
