@@ -1,22 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaHome, FaUser, FaChartBar, FaSignOutAlt, FaBars, FaTimes, FaSignInAlt } from 'react-icons/fa';
 import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../components/AuthContext';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, logout, getCSRFToken } = useAuth();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      const csrfToken = await getCSRFToken(); 
+      const csrfToken = await getCSRFToken();
       const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/logout/`, {
         method: 'POST',
-        credentials: 'include', 
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken || "",
-      },
+        },
       });
 
       if (response.ok) {
@@ -32,30 +34,54 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Determine the number of visible navbar items
-  const navItems = [
-    isAuthenticated && <li key="home"><Link to="/">Home</Link></li>,
-    isAuthenticated && <li key="dashboard"><Link to="/dashboard">Dashboard</Link></li>,
-    isAuthenticated && <li key="profile"><Link to="/profile">Profile</Link></li>,
-    !isAuthenticated ? (
-      <li key="login"><Link to="/login">Login / Register</Link></li>
-    ) : (
-      <li key="logout"><Link to="#" onClick={handleLogout}>Sign Out</Link></li> // ✅ Wrapped in <li> with key
-    )
-  ].filter(Boolean); // Remove falsy values
-
-
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.brand}>
-        {isAuthenticated ? (<Link to="/">
-           Dry Weight Watchers
-        </Link>) : <Link to="/login">
-           Dry Weight Watchers
-        </Link>}
+    <nav className={`${styles.navbar} ${isOpen ? styles.open : styles.collapsed}`}>
+      <div className={styles.logoContainer}>
+        <img src={"/logo_no_bg_white.svg"} alt="Logo" className={`${styles.logo} ${isOpen ? styles.logoExpanded : ''}`} />
       </div>
-      <ul className={`${styles.navbarList} ${navItems.length === 1 ? styles.alignRight : ''}`}>
-        {navItems}
+      <button className={styles.hamburger} onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      <ul className={styles.navItems}>
+        {isAuthenticated && (
+          <>
+            <li>
+              <Link to="/" className={styles.navLink}>
+                <FaHome className={styles.icon} />
+                {isOpen && <span>Home</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard" className={styles.navLink}>
+                <FaChartBar className={styles.icon} />
+                {isOpen && <span>Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile" className={styles.navLink}>
+                <FaUser className={styles.icon} />
+                {isOpen && <span>Profile</span>}
+              </Link>
+            </li>
+            <li>
+              <button className={styles.navLinkLogOut} onClick={handleLogout}>
+                <FaSignOutAlt className={styles.icon} />
+                {isOpen && <span>Sign Out</span>}
+              </button>
+            </li>
+          </>
+        )}
+        {!isAuthenticated && (
+          <>
+            <li>
+              <Link to="/login" className={styles.navLink}>
+                <FaSignInAlt className={styles.icon} />
+                {isOpen && <span>Sign In / Register</span>}
+              </Link>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );

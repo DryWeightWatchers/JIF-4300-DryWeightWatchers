@@ -1,69 +1,110 @@
 .navbar {
-  flex-shrink: 0;
-  height: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  background-color: #7B5CB8;
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
+.navbar.collapsed {
+  width: 80px;
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  background-color: #d5c9ff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navbar .brand {
-  margin: 0px 20px;
-  font-size: 1.25rem;
-  align-items: center;
-  font-weight: 600;
-  color: black;
-  text-decoration: none;
-}
-
-.navbarList {
-  width: 25%;
-  min-width: 450px;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* Align right when there is only one item */
-.alignRight {
-  justify-content: flex-end;
-  min-width: unset; /* Prevent excessive spacing */
-  width: auto; /* Shrinks to fit content */
-  margin-right: 20px; /* Push to the right */
-}
-
-.navbarList li {
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.navbarList li.signout {
-  margin: 0px 20px;
-  color: black;
-  text-decoration: underline;
-}
-
-.navbarList a {
-  height: 100%;
-  padding: 0px 12px;
-  color: rgb(0, 0, 0);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
-
-.navbarList a:hover {
-  text-decoration: underline;
+  margin-top: 40px;
 }
 
 .logo {
-  height: 90px;
-  width: auto;
-  margin-right: 20px;
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease-in-out;
+}
+
+.logoExpanded {
+  width: 100px;
+  height: 100px;
+}
+
+.hamburger {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.hamburger:hover {
+  color: #ffcc00;
+}
+
+.navItems {
+  list-style: none;
+  padding: 0;
+  margin: 60px 0 0 0;
+  width: 100%;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  padding: 15px 20px;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navLinkLogOut {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  padding: 15px 20px;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.navLinkLogOut:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+  font-size: 24px;
+  margin-right: 15px;
+}
+
+.navbar.collapsed .navLink span {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    width: 80px;
+  }
+
+  .navbar.open {
+    width: 250px;
+  }
 }

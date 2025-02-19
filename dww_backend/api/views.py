@@ -23,6 +23,7 @@ Note: All patient-facing APIs should use rest_framework's JWT authentication, an
 provider-facing APIs should use Django's built-in (session-based) authentication 
 '''
 
+### Test Endpoints
 @csrf_exempt
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
@@ -37,6 +38,9 @@ def error_response(message, details=None, status=400):
         response["error"]["details"] = details
     return JsonResponse(response, status=status)
 
+
+
+### Account Management Enpoints
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
@@ -78,7 +82,6 @@ def register_provider(request):
         return JsonResponse({}, status=201)
     else: 
         return error_response('Registration unsuccessful.', details=form.errors) 
-
 
 @csrf_exempt
 @ratelimit(key='ip', rate='5/m', method='POST', block=False) 
@@ -123,6 +126,11 @@ def login(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
 
+def get_csrf_token(request):
+    response = JsonResponse({'csrfToken': get_token(request)})
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
+    return response
+
 @csrf_exempt
 def refresh_access_token(request): 
     if request.method != 'POST': 
@@ -143,6 +151,29 @@ def refresh_access_token(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
+@csrf_exempt
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request) 
+        return JsonResponse({'message': 'Logout successful'}, status=200)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    if request.method == "DELETE":
+        user = request.user
+        user.delete()
+        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+### Patient-Provider Relationship Endpoints 
 @csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -178,14 +209,26 @@ def add_relationship(request):
         return Response({'error': str(e)}, status=500)
     
 @csrf_exempt
-def logout_view(request):
-    if request.method == 'POST':
-        logout(request) 
-        return JsonResponse({'message': 'Logout successful'}, status=200)
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_relationship(request):
+    shareable_id = request.data.get("shareable_id")
+    if not shareable_id:
+        return Response({"error": "Shareable ID is required."}, status=400)
+
+    try:
+        provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+        relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
+        relationship.delete()
+        return Response({"message": "Relationship deleted successfully."}, status=200)
+    except User.DoesNotExist:
+        return Response({"error": "Provider not found."}, status=404)
+    except TreatmentRelationship.DoesNotExist:
+        return Response({"error": "Relationship not found."}, status=404)
 
 
+
+### Provider Account Endpoints   
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
@@ -198,7 +241,6 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
-
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
@@ -224,6 +266,33 @@ def dashboard(request):
 
     return JsonResponse({'patients': list(patients)})
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_patient_data(request):
+    patient_id = request.GET.get("id")
+
+    weight_history = list(WeightRecord.objects.filter(
+        patient_id=patient_id
+    ).order_by('timestamp').values('weight', 'timestamp'))
+
+    patientInformation = User.objects.filter(id=patient_id, role='patient').annotate(
+        latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
+                               .values('weight')[:1]),
+        latest_weight_timestamp=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
+                                         .values('timestamp')[:1])
+    ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
+
+    if patientInformation.exists():
+        response_data = dict(patientInformation[0])
+        response_data["weight_history"] = weight_history
+        return JsonResponse(response_data, safe=False)
+    else:
+        return JsonResponse({"error": "Patient not found"}, status=404)
+    
+  
+
+### Patient Account Endpoints
 @csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -247,20 +316,6 @@ def record_weight(request):
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
-
-@csrf_exempt
-@api_view(["DELETE"])
-@authentication_classes([SessionAuthentication, JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def delete_account(request):
-    if request.method == "DELETE":
-        user = request.user
-        user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)
-    
 
 @csrf_exempt 
 @api_view(['POST'])
@@ -337,12 +392,6 @@ def delete_reminder(request, id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
-def get_csrf_token(request):
-    response = JsonResponse({'csrfToken': get_token(request)})
-    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
-    return response
-
 @csrf_exempt
 @api_view(['GET'])
 def get_providers(request):
@@ -356,20 +405,3 @@ def get_providers(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
     
-@csrf_exempt
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_relationship(request):
-    shareable_id = request.data.get("shareable_id")
-    if not shareable_id:
-        return Response({"error": "Shareable ID is required."}, status=400)
-
-    try:
-        provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
-        relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
-        relationship.delete()
-        return Response({"message": "Relationship deleted successfully."}, status=200)
-    except User.DoesNotExist:
-        return Response({"error": "Provider not found."}, status=404)
-    except TreatmentRelationship.DoesNotExist:
-        return Response({"error": "Relationship not found."}, status=404)
