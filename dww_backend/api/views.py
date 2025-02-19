@@ -209,24 +209,34 @@ def add_relationship(request):
         return Response({'error': str(e)}, status=500)
     
 @csrf_exempt
-@api_view(['DELETE'])
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_relationship(request):
-    shareable_id = request.data.get("shareable_id")
-    if not shareable_id:
-        return Response({"error": "Shareable ID is required."}, status=400)
-
-    try:
-        provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
-        relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
-        relationship.delete()
-        return Response({"message": "Relationship deleted successfully."}, status=200)
-    except User.DoesNotExist:
-        return Response({"error": "Provider not found."}, status=404)
-    except TreatmentRelationship.DoesNotExist:
-        return Response({"error": "Relationship not found."}, status=404)
-
-
+    if request.user.role == User.PATIENT:
+        shareable_id = request.data.get("shareable_id")
+        if not shareable_id:
+            return Response({"error": "Shareable ID is required."}, status=400)
+        try:
+            provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+            relationship = TreatmentRelationship.objects.get(patient=request.user, provider=provider)
+            relationship.delete()
+            return Response({"message": "Relationship deleted successfully."}, status=200)
+        except User.DoesNotExist:
+            return Response({"error": "Provider not found."}, status=404)
+        except TreatmentRelationship.DoesNotExist:
+            return Response({"error": "Relationship not found."}, status=404)
+    elif request.user.role == User.PROVIDER:
+        try:
+            patient_id = request.data.get("id")
+            patient = User.objects.get(id=patient_id)
+            relationship = TreatmentRelationship.objects.get(patient=patient, provider=request.user)
+            relationship.delete()
+            return Response({"message": "Relationship deleted successfully."}, status=200)
+        except User.DoesNotExist:
+            return Response({"error": "Patient not found."}, status=404)
+        except TreatmentRelationship.DoesNotExist:
+            return Response({"error": "Relationship not found."}, status=404)
 
 ### Provider Account Endpoints   
 @api_view(['GET'])
