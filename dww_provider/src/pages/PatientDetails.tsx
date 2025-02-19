@@ -87,7 +87,7 @@ const PatientDetails: React.FC = () => {
         </div>
 
         <div className={styles.weight_history}>
-          <h2>Weight History</h2>
+          <h2 className={styles.weight_history_title}>Weight History</h2>
           {weightHistory.length > 0 ? (
             <div className={styles.chart_container}>
               <Line data={chartData} options={chartOptions} />
