@@ -93,7 +93,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
-    os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
+    "http://localhost:5173", # this line is necessary for the CORS Policy in the two different env
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -102,7 +102,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    "http://localhost:5173",
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
