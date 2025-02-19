@@ -1,18 +1,19 @@
 
 
-import React from 'react'; 
-import Navbar from './Navbar'; 
-import styles from '../styles/MainLayout.module.css'; 
+import React, { useState } from 'react';
+import Navbar from './Navbar';
+import styles from '../styles/MainLayout.module.css';
 
 type MainLayoutProps = {
   children: React.ReactNode;
 };
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  const [isNavOpen, setIsNavOpen] = useState(true); 
   return (
     <div className={styles.container}>
-      <Navbar /> 
-      <main>{children}</main>
+      <Navbar isOpen={isNavOpen} setIsOpen={setIsNavOpen} />
+      <main><div className={`content ${isNavOpen ? "" : "collapsed"}`}>{children}</div></main>
     </div>
   )
 }
