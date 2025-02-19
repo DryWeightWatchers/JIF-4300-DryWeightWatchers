@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
 import { useAuth } from '../components/AuthContext.tsx'
+import { useNavigate } from 'react-router-dom';
 
 type ProfileData = {
   firstname: string,
@@ -17,6 +18,7 @@ const Profile = () => {
   const [error, setError] = useState<string | null>(null);
   const { logout } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
+  const navigate = useNavigate(); 
 
   
 
@@ -78,6 +80,7 @@ const Profile = () => {
 
     alert("Your account has been successfully deleted.");
     logout();
+    navigate('/login'); 
 
     } catch (error) {
       console.error("Failed to delete account:", error);

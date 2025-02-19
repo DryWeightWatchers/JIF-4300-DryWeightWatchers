@@ -54,7 +54,7 @@ const Register: React.FC = () => {
         setResponse(errorData.error); 
       } else {
         setResponse(null); 
-        navigate('/'); 
+        navigate('/login'); 
       }
 
     } catch (error: unknown) {
