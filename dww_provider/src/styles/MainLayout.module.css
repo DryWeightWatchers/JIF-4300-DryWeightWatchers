@@ -26,24 +26,3 @@ footer {
 
     background-color: rgb(174, 174, 203);
 }
-
-/* Content Wrapper */
-.content {
-    margin-left: 250px;
-    /* Default space for expanded navbar */
-    padding: 20px;
-    transition: margin-left 0.3s ease-in-out;
-}
-
-/* When Navbar is Collapsed */
-.content.collapsed {
-    margin-left: 80px;
-    /* Less space for collapsed navbar */
-}
-
-/* Ensure responsiveness */
-@media (max-width: 768px) {
-    .content {
-        margin-left: 80px;
-    }
-}

@@ -4,9 +4,10 @@ import { FaHome, FaUser, FaChartBar, FaSignOutAlt, FaBars, FaTimes, FaSignInAlt 
 import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../components/AuthContext';
 
-const Navbar: React.FC<{ isOpen: boolean; setIsOpen: (isOpen: boolean) => void }> = ({ isOpen, setIsOpen }) => {
+const Navbar: React.FC = () => {
   const { isAuthenticated, logout, getCSRFToken } = useAuth();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
