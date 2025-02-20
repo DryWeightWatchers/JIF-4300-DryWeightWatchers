@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { useParams } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, plugins } from "chart.js";
+=======
+import { useNavigate, useParams } from 'react-router-dom';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+>>>>>>> provider_info_change
 import { Line } from 'react-chartjs-2';
 import styles from "../styles/PatientDetails.module.css";
 
@@ -26,6 +31,48 @@ const PatientDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+<<<<<<< HEAD
+=======
+  const navigate = useNavigate(); 
+
+  const getCSRFToken = async () => {
+    const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
+      credentials: 'include',
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  };
+
+  const handleRemovePatientRelationship = async () => {
+    const csrfToken = await getCSRFToken();
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this patient from your account?"
+    );
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/user/providers/delete/`, {
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({id: id})
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error removing relationship: ${errorText}`);
+      } 
+      alert("The patient has been removed.");
+      navigate('/dashboard'); 
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> provider_info_change
 
   useEffect(() => {
     const getPatientData = async () => {
@@ -96,6 +143,12 @@ const PatientDetails: React.FC = () => {
             <p>No weight history available.</p>
           )}
         </div>
+<<<<<<< HEAD
+=======
+        <div className={styles.button_container}>
+          <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
+        </div>
+>>>>>>> provider_info_change
       </div>
     </div>
   );

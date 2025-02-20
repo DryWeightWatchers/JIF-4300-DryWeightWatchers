@@ -12,15 +12,20 @@ type ProfileData = {
 }
 
 const Profile = () => {
-
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { logout } = useAuth();
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<string>('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [editingPassword, setEditingPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
-  const navigate = useNavigate(); 
-
-  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const fetchProfileData = async () => {
     try {
@@ -32,7 +37,7 @@ const Profile = () => {
       });
       if (!res.ok) {
         setError(`HTTP error: ${res.status}`);
-        return; 
+        return;
       }
       const data = await res.json();
       setProfileData(data);
@@ -49,7 +54,7 @@ const Profile = () => {
 
   const getCSRFToken = async () => {
     const response = await fetch(`${serverUrl}/get-csrf-token/`, {
-      credentials: 'include', 
+      credentials: 'include',
     });
     const data = await response.json();
     return data.csrfToken;
@@ -67,26 +72,91 @@ const Profile = () => {
       const response = await fetch(`${serverUrl}/delete-account/`, {
         method: "DELETE",
         headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
         },
         credentials: 'include',
-    });
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error deleting account: ${errorText}`);
-    } 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error deleting account: ${errorText}`);
+      }
 
-    alert("Your account has been successfully deleted.");
-    logout();
-    navigate('/login'); 
+      alert("Your account has been successfully deleted.");
+      logout();
+      navigate('/login');
 
     } catch (error) {
       console.error("Failed to delete account:", error);
       alert("Failed to delete account. Please try again.");
     }
   }
+
+  const handleUpdate = async (field: 'email' | 'phone') => {
+    if (!tempValue) {
+      setMessage(`Please enter a valid ${field}.`);
+      return;
+    }
+
+    try {
+      const csrfToken = await getCSRFToken();
+      const response = await fetch(`${serverUrl}/update-${field}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ [field]: tempValue }),
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+
+      setMessage(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
+      setProfileData((prev) => (prev ? { ...prev, [field]: tempValue } : null));
+      setEditingField(null); // Exit edit mode
+    } catch (error) {
+      setMessage(`Failed to update ${field}. Please try again.`);
+    }
+  };
+
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setMessage('All password fields are required.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setMessage('New passwords do not match.');
+      return;
+    }
+
+    try {
+      const csrfToken = await getCSRFToken();
+      const response = await fetch(`${serverUrl}/change-password/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword, confirm_password: confirmPassword }),
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+
+      setMessage('Password updated successfully!');
+      setEditingPassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      setMessage('Failed to update password. Please try again.');
+    }
+  };
+
 
   if (isLoading) {
     return <p>Loading...</p>
@@ -116,28 +186,77 @@ const Profile = () => {
       <div>
         <label>Email:</label>
         <div>
-          <p>{profileData?.email}</p>
-          <a href='#'>Change email</a>
+          {editingField === 'email' ? (
+            <>
+              <input
+                type="email"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+              />
+              <button onClick={() => handleUpdate('email')}>Update</button>
+              <button onClick={() => setEditingField(null)}>Cancel</button>
+            </>
+          ) : (
+            <>
+              <p>{profileData?.email}</p>
+              <a href="#" onClick={() => { setEditingField('email'); setTempValue(profileData?.email || '') }}>Change email</a>
+            </>
+          )}
         </div>
       </div>
 
       <div>
         <label>Phone:</label>
         <div>
-          <p>{profileData?.phone}</p>
-          <a href='#'>Change phone</a>
+          {editingField === 'phone' ? (
+            <>
+              <input
+                type="text"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+              />
+              <button onClick={() => handleUpdate('phone')}>Update</button>
+              <button onClick={() => setEditingField(null)}>Cancel</button>
+            </>
+          ) : (
+            <>
+              <p>{profileData?.phone}</p>
+              <a href="#" onClick={() => { setEditingField('phone'); setTempValue(profileData?.phone || '') }}>Change phone</a>
+            </>
+          )}
         </div>
       </div>
 
       <div>
         <label>Password:</label>
-        <div>
+        {editingPassword ? (
+          <>
+            <div>
+              <label>Current Password:</label>
+              <input type={showPassword ? "text" : "password"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+            </div>
+            <div>
+              <label>New Password:</label>
+              <input type={showPassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            </div>
+            <div>
+              <label>Confirm New Password:</label>
+              <input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+            </div>
+            <div>
+              <button className={styles.showPasswordBtn} onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? "Hide Passwords" : "Show Passwords"}
+              </button>
+              <button className={styles.updateBtn} onClick={handleChangePassword}>Update Password</button>
+              <button className={`${styles.cancelBtn}`} onClick={() => setEditingPassword(false)}>Cancel</button>
+            </div>
+          </>
+        ) : (
           <div>
             <p>********</p>
-            <a href='#'>Show password</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setEditingPassword(true); }}>Change password</a>
           </div>
-          <a href='#'>Change password</a>
-        </div>
+        )}
       </div>
 
       <div>
@@ -159,9 +278,11 @@ const Profile = () => {
           Text
         </label>
       </div>
-      <div className={styles.buttonContainer}>
-        <button type="button" className={styles.deleteButton} 
-          onClick={handleDeleteAccount}>Delete Account</button>
+      <div>
+        <div className={styles.btnContainer}>
+          <button type="button" className={styles.deleteAccountBtn}
+            onClick={handleDeleteAccount}>Delete Account</button>
+        </div>
       </div>
 
     </div>
