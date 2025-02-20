@@ -26,3 +26,33 @@ footer {
 
     background-color: rgb(174, 174, 203);
 }
+
+
+.content {
+    flex-grow: 1;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.collapsed {
+    margin-left: 80px;
+}
+
+.expanded {
+    margin-left: 250px;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+}
+
+footer {
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(174, 174, 203);
+}

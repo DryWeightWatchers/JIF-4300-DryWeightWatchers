@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaChartBar, FaSignOutAlt, FaBars, FaTimes, FaSignInAlt } from 'react-icons/fa';
 import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../components/AuthContext';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
   const { isAuthenticated, logout, getCSRFToken } = useAuth();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -22,8 +26,6 @@ const Navbar: React.FC = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log(data.message);
         logout();
         navigate('/login');
       } else {
@@ -44,7 +46,7 @@ const Navbar: React.FC = () => {
       </button>
 
       <ul className={styles.navItems}>
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <>
             <li>
               <Link to="/" className={styles.navLink}>
@@ -71,16 +73,13 @@ const Navbar: React.FC = () => {
               </button>
             </li>
           </>
-        )}
-        {!isAuthenticated && (
-          <>
-            <li>
-              <Link to="/login" className={styles.navLink}>
-                <FaSignInAlt className={styles.icon} />
-                {isOpen && <span>Sign In / Register</span>}
-              </Link>
-            </li>
-          </>
+        ) : (
+          <li>
+            <Link to="/login" className={styles.navLink}>
+              <FaSignInAlt className={styles.icon} />
+              {isOpen && <span>Sign In / Register</span>}
+            </Link>
+          </li>
         )}
       </ul>
     </nav>

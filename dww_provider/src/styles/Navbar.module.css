@@ -98,13 +98,3 @@
 .navbar.collapsed .navLink span {
   display: none;
 }
-
-@media (max-width: 768px) {
-  .navbar {
-    width: 80px;
-  }
-
-  .navbar.open {
-    width: 250px;
-  }
-}

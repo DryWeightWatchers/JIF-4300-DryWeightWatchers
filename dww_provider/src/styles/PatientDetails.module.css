@@ -4,10 +4,6 @@
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-<<<<<<< HEAD
-    font-family: "Arial", sans-serif;
-=======
->>>>>>> provider_info_change
 }
 
 .header {
@@ -69,8 +65,6 @@
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-<<<<<<< HEAD
-=======
 }
 
 .button_container {
@@ -96,5 +90,4 @@
 
 .remove_patient_btn:active {
     background-color: #a71d2a;
->>>>>>> provider_info_change
 }

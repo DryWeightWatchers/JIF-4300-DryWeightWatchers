@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
-<<<<<<< HEAD
-import { useParams } from 'react-router-dom';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, plugins } from "chart.js";
-=======
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
->>>>>>> provider_info_change
 import { Line } from 'react-chartjs-2';
 import styles from "../styles/PatientDetails.module.css";
 
@@ -31,8 +26,6 @@ const PatientDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-<<<<<<< HEAD
-=======
   const navigate = useNavigate(); 
 
   const getCSRFToken = async () => {
@@ -72,7 +65,6 @@ const PatientDetails: React.FC = () => {
       setLoading(false);
     }
   };
->>>>>>> provider_info_change
 
   useEffect(() => {
     const getPatientData = async () => {
@@ -143,12 +135,9 @@ const PatientDetails: React.FC = () => {
             <p>No weight history available.</p>
           )}
         </div>
-<<<<<<< HEAD
-=======
         <div className={styles.button_container}>
           <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
         </div>
->>>>>>> provider_info_change
       </div>
     </div>
   );
