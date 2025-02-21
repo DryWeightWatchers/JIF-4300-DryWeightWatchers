@@ -5,7 +5,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('refresh/', views.refresh_access_token, name='refresh access token'), 
     path('test/', views.test, name='test'), 
-    path('register-provider', views.register_provider, name='register provider'), 
+    path('register-provider/', views.register_provider, name='register provider'), 
     path('register/', views.register, name='register user'),
     path('add-relationship/', views.add_relationship, name='add_relationship'),
     path('logout/', views.logout_view, name='logout'), 
@@ -21,4 +21,5 @@ urlpatterns = [
     path('user/providers/', views.get_providers, name='get_registered_providers'),
     path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
+    path('get-patient-data/', views.get_patient_data, name='get_patient_data'),
 ]
