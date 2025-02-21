@@ -1,18 +1,48 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Text, StyleSheet, View, TextInput, Keyboard, 
+         TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { useAuth } from '../auth/AuthProvider'; 
+import { authFetch } from '../../utils/authFetch'; 
+
 
 const EnterDataScreen = () => {
-  const navigation = useNavigation();
   const [weight, setWeight] = useState('');
+  const { accessToken, refreshAccessToken, logout } = useAuth(); 
 
-  const handleReportData = () => {
-    if (!weight || isNaN(weight)) {
+  const handleReportData = async () => {
+    if (!weight) {
       alert('Please enter a valid weight.');
       return;
     }
-    alert(`Weight reported: ${weight}kg`);
-    setWeight(''); 
+
+    try {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json', 
+          }, 
+          body: JSON.stringify({ weight: parseFloat(weight) }), 
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json(); 
+        console.log('weight input successful:', data);
+        alert(`Weight reported: ${weight}kg`);
+        setWeight(''); 
+
+      } else {
+        const errorData = await response.json();
+        console.error('Weight input error:', errorData);
+        alert('Failed to report weight. Please try again.');
+      }
+
+    } catch (error: any) {
+      console.log('weight input error:', error.response?.data || error.message)
+      alert('Failed to report weight. Please try again.')
+    }
   };
 
   return (
@@ -59,7 +89,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#0E315F',
+    color: '#4f3582',
     marginBottom: 5,
   },
   subtitle: {
@@ -83,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   reportButton: {
-    backgroundColor: '#0E315F',
+    backgroundColor: '#7B5CB8',
     padding: 12,
     borderRadius: 8,
     width: '90%',

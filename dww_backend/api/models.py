@@ -27,7 +27,6 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 # 'Custom' user model to be used with Django's built-in authentication
-# no need for separate Patient and Provider tables since they are both Users 
 class User(AbstractUser):
     PATIENT = 'patient'
     PROVIDER = 'provider'
@@ -37,7 +36,6 @@ class User(AbstractUser):
     ]
     first_name = models.CharField(max_length=50) 
     last_name = models.CharField(max_length=50) 
-    # phone field is flexible with formatting but rejects invalid numbers (e.g. nonexisting area code) 
     phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None) 
@@ -105,3 +103,14 @@ class PatientNote(models.Model):
                                  blank=True, null=True, default=GENERIC)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     note = models.TextField(blank=True)
+
+class PatientReminder(models.Model):
+    patient = models.ForeignKey(
+        User, 
+        limit_choices_to={'role': User.PATIENT}, 
+        on_delete=models.CASCADE, 
+        related_name='patient_reminders'
+    )
+    time = models.TimeField()
+    days = models.CharField(max_length=62)
+    timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)

@@ -4,9 +4,9 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PatientDetails from './pages/PatientDetails';
 import MainLayout from './components/MainLayout';
 import { AuthProvider } from './components/AuthContext';
-import styles from './styles/App.module.css';
 
 export default function App() {
   return (
@@ -18,9 +18,12 @@ export default function App() {
           <Route path='/profile' element={<MainLayout><Profile /></MainLayout>} />
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
           <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
+          <Route path="/patients/:id" element={<MainLayout><PatientDetails /></MainLayout>} />
+          <Route path="/delete" element={<MainLayout><Profile /></MainLayout>} />
         </Routes>
       </Router>
     </AuthProvider>
 
   );
 }
+
