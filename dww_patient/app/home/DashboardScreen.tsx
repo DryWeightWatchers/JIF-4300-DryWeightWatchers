@@ -8,6 +8,11 @@ import Calendar from '../../assets/components/Calendar';
 const DashboardScreen = () => {
   const navigation = useNavigation<HomeTabScreenProps<'Dashboard'>['navigation']>();
   const [chart, setChart] = useState('chart');
+  const [selectedDay, setSelectedDay] = useState<{
+    day: Date;
+    weight?: number;
+    notes?: string;
+  } | null>(null);
 
   return (
     <View style={styles.mainContainer}>
@@ -24,7 +29,7 @@ const DashboardScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.chartContainer}>
-        {chart === 'chart' ? <Chart date={new Date()}/> : <Calendar/>}
+        {chart === 'chart' ? <Chart date={new Date()} data={null}/> : <Calendar/>}
       </View>
       <ScrollView style={styles.noteContainer}>
 

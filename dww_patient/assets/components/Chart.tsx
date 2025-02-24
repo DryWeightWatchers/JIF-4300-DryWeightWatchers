@@ -4,7 +4,14 @@ import Svg, { Text, Line, Path, Circle, G } from 'react-native-svg';
 
 type CalendarProps = {
   date: Date
-  //data: any
+  data: Array<{
+    day: Date;
+    weight: number;
+  }>;
+  onDataPointSelect: (selectedData: {
+    day: Date;
+    weight: number;
+  }) => void;
 };
 
 const Chart = ({ date }: CalendarProps) => { //add data as param later
