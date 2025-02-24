@@ -1,11 +1,10 @@
-import React from 'react';
-import { View, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, LayoutChangeEvent } from 'react-native';
 import Svg, { Rect, Text, G } from 'react-native-svg';
 
 const Calendar = () => {
-  const { width } = Dimensions.get('window');
-  const CELL_SIZE = width / 7;
-  const PADDING = 12;
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const CELL_SIZE = dimensions.width / 7;
   const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   const today = new Date();
@@ -13,6 +12,11 @@ const Calendar = () => {
   const month = today.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = new Date(year, month, 1).getDay();
+
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setDimensions({ width, height });
+  };
 
   const grid = [];
   let dayCounter = 1;
@@ -34,8 +38,8 @@ const Calendar = () => {
   }
 
   return (
-    <View style={{ flex: 1, padding: PADDING }}>
-      <Svg width={width - 2 * PADDING} height={CELL_SIZE * 7} viewBox={`0 0 ${width} ${CELL_SIZE * 7}`} preserveAspectRatio="xMinYMin meet">
+    <View style={{ flex: 1 }} onLayout={onLayout}>
+      <Svg width={dimensions.width} height={dimensions.height} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} preserveAspectRatio="xMinYMin meet">
         <G>
           {DAYS.map((day, index) => (
             <Text

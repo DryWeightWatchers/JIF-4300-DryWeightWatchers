@@ -24,7 +24,7 @@ const DashboardScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.chartContainer}>
-        {chart === 'chart' ? <Chart/> : <Calendar/>}
+        {chart === 'chart' ? <Chart date={new Date()}/> : <Calendar/>}
       </View>
       <ScrollView style={styles.noteContainer}>
 
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     flex: 2,
-    //padding: 12,
+    padding: 12,
     backgroundColor: 'white',
     justifyContent: 'center',
   },
