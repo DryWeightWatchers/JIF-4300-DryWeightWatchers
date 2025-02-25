@@ -1,21 +1,100 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, ScrollView, } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps } from '../types/navigation';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
+import { useAuth } from '../auth/AuthProvider';
+import { authFetch } from '../../utils/authFetch'; 
+
+type WeightRecord = {
+  timestamp: Date,
+  weight: number,
+}
+
+type PatientNote = {
+  timestamp: Date,
+  note: string,
+}
 
 const DashboardScreen = () => {
   const navigation = useNavigation<HomeTabScreenProps<'Dashboard'>['navigation']>();
+  const { accessToken, refreshAccessToken, logout } = useAuth();
   const [chart, setChart] = useState('chart');
   const [selectedDay, setSelectedDay] = useState<{
     day: Date;
     weight?: number;
     notes?: string;
-  } | null>(null);
+  } | null>({ day: new Date() });
+  const [weightRecord, setWeightRecord] = useState<WeightRecord[]>([]);
+  const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
+
+  const fetchWeightRecord = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-weight-record/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'GET', 
+          headers: {
+            'Content-Type': 'application/json', 
+          }, 
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch your weight data.');
+      }
+
+      const data = await response.json();
+      console.log('got record: ', data)
+      const formattedRecord = data.map((item: any) => ({
+        timestamp: new Date(item.timestamp),
+        weight: item.weight,
+      }));
+      setWeightRecord(formattedRecord);
+
+    } catch (error: any) {
+      console.log('get weight record error:', error.response?.data || error.message)
+      alert('Failed to get your weight data. Please try again.')
+    }
+  }
+
+  const fetchPatientNotes = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-patient-notes/`, 
+        accessToken, refreshAccessToken, logout, {
+          method: 'GET', 
+          headers: {
+            'Content-Type': 'application/json', 
+          }, 
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch your notes.');
+      }
+
+      const data = await response.json();
+      console.log('got notes: ', data)
+      setPatientNotes(data);
+
+    } catch (error: any) {
+      console.log('get patient notes error:', error.response?.data || error.message)
+      alert('Failed to get your patient notes. Please try again.')
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchWeightRecord();
+      fetchPatientNotes();
+    }, [accessToken])
+  );
 
   return (
     <View style={styles.mainContainer}>
+
       <View style={styles.chartSliderContainer}>
         <TouchableOpacity style={[styles.leftSlider, {backgroundColor: chart === 'chart' ? '#7B5CB8' : 'white'}]} onPress={() => setChart('chart')}>
           <Text style={{color: chart === 'chart' ? 'white': 'gray'}}>
@@ -28,9 +107,11 @@ const DashboardScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.chartContainer}>
-        {chart === 'chart' ? <Chart date={new Date()} data={null}/> : <Calendar/>}
+        {chart === 'chart' ? <Chart weightRecord={weightRecord} onDataPointSelect={setSelectedDay}/> : <Calendar/>}
       </View>
+
       <ScrollView style={styles.noteContainer}>
 
       </ScrollView>
@@ -41,13 +122,13 @@ const DashboardScreen = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   chartSliderContainer: {
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: 'white',
   },
   leftSlider: {
     padding: 12,
@@ -88,7 +169,11 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     flex: 1,
+    padding: 12,
     backgroundColor: 'white',
+    borderColor: '#7B5CB8',
+    borderWidth: 1,
+    borderBottomWidth: 0,
   },
 });
 

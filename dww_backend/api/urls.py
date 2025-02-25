@@ -22,4 +22,6 @@ urlpatterns = [
     path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
     path('get-patient-data/', views.get_patient_data, name='get_patient_data'),
+    path('get-weight-record/', views.get_weight_record, name='get weight record'),
+    path('get-patient-notes/', views.get_patient_notes, name='get patient notes'),
 ]
