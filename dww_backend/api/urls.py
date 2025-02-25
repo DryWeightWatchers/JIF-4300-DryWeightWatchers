@@ -22,4 +22,7 @@ urlpatterns = [
     path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
     path('get-patient-data/', views.get_patient_data, name='get_patient_data'),
+    path('update-email/', views.update_email, name='update_email'),
+    path('update-phone/', views.update_phone, name='update_phone'),
+    path('change-password/', views.change_password, name='change_password'),
 ]

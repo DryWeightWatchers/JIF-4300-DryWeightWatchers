@@ -238,6 +238,8 @@ def delete_relationship(request):
         except TreatmentRelationship.DoesNotExist:
             return Response({"error": "Relationship not found."}, status=404)
 
+
+
 ### Provider Account Endpoints   
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
@@ -299,7 +301,66 @@ def get_patient_data(request):
         return JsonResponse(response_data, safe=False)
     else:
         return JsonResponse({"error": "Patient not found"}, status=404)
-    
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def update_email(request):
+    try:
+        new_email = request.data.get('email')
+        if not new_email:
+            return JsonResponse({'error': 'Email is required.'}, status=400)
+        user = request.user
+        user.email = new_email
+        user.save()
+        return JsonResponse({'message': 'Email updated successfully.', 'email': new_email}, status=200)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def update_phone(request):
+    try:
+        new_phone = request.data.get('phone')
+        if not new_phone:
+            return JsonResponse({'error': 'Phone number is required.'}, status=400)
+        user = request.user
+        user.phone = new_phone
+        user.save()
+        return JsonResponse({'message': 'Phone number updated successfully.', 'phone': new_phone}, status=200)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    try:
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+        if not current_password or not new_password or not confirm_password:
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+        user = request.user
+        if not user.check_password(current_password):
+            return JsonResponse({'error': 'Incorrect current password.'}, status=400)
+        if new_password != confirm_password:
+            return JsonResponse({'error': 'New passwords do not match.'}, status=400)
+        user.set_password(new_password)
+        user.save()
+        django_login(request, user) # need to redo this after password is changed
+        request.session.save()
+        return JsonResponse({'message': 'Password updated successfully.'}, status=200)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
   
 
 ### Patient Account Endpoints
