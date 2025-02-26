@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import { Line } from 'react-chartjs-2';
 import styles from "../styles/PatientDetails.module.css";
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import Chart from '../components/Chart';
 
 type WeightRecord = {
   weight: number;
   timestamp: string;
+}
+
+type PatientNote = {
+  timestamp: Date,
+  note: string,
 }
 
 type Patient = {
@@ -19,6 +21,7 @@ type Patient = {
   latest_weight: number | null;
   latest_weight_timestamp: string | null;
   weight_history?: WeightRecord[];
+  notes_history?: PatientNote[];
 };
 
 const PatientDetails: React.FC = () => {
@@ -26,6 +29,11 @@ const PatientDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedDay, setSelectedDay] = useState<{
+    day: Date;
+    weight?: number;
+    notes?: string;
+  } | null>({ day: new Date() });
   const navigate = useNavigate(); 
 
   const getCSRFToken = async () => {
@@ -66,6 +74,25 @@ const PatientDetails: React.FC = () => {
     }
   };
 
+  const handleDataPointSelect = (selectedData: { day: Date }) => {
+    if (!patient) return;
+  
+    const selectedWeightRecord = patient.weight_history?.find(record => 
+      new Date(record.timestamp).toDateString() === selectedData.day.toDateString()
+    );
+    
+    const selectedNotes = patient.notes_history?.filter(note =>
+      new Date(note.timestamp).toDateString() === selectedData.day.toDateString()
+    ).map(note => note.note).join('\n') || 'No notes for this day';
+  
+    setSelectedDay({
+      day: selectedData.day,
+      weight: selectedWeightRecord ? selectedWeightRecord.weight : undefined,
+      notes: selectedNotes,
+    });
+  };
+  
+
   useEffect(() => {
     const getPatientData = async () => {
       try {
@@ -100,19 +127,6 @@ const PatientDetails: React.FC = () => {
   }
 
   const weightHistory = patient!.weight_history || [];
-  const chartData = {
-    labels: weightHistory.map((record: { timestamp: string | number | Date; }) => new Date(record.timestamp).toLocaleDateString()),
-    datasets: [
-      {
-        label: "Weight Over Time",
-        data: weightHistory.map((record: { weight: any; }) => record.weight),
-        borderColor: "rgba(123, 92, 184)",
-        fill: true,
-      },
-    ],
-  };
-
-  const chartOptions = { plugins: { legend: { display: false, } } };
 
   return (
     <div className={styles.container}>
@@ -129,15 +143,36 @@ const PatientDetails: React.FC = () => {
           <h2 className={styles.weight_history_title}>Weight History</h2>
           {weightHistory.length > 0 ? (
             <div className={styles.chart_container}>
-              <Line data={chartData} options={chartOptions} />
+              <Chart 
+                weightRecord={weightHistory.map(r => ({
+                  timestamp: new Date(r.timestamp),
+                  weight: r.weight
+                }))}
+                onDataPointSelect={handleDataPointSelect}
+              />
             </div>
           ) : (
             <p>No weight history available.</p>
           )}
         </div>
+
+        <div className={styles.patient_info}>
+          <p><span className={styles.label}>Selected Day: </span> 
+            {selectedDay!.day.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+          <p><span className={styles.label}>Weight Recorded: </span> {selectedDay!.weight ? `${selectedDay!.weight} lbs` : "N/A"}</p>
+          <p><span className={styles.label}>Notes: </span> {selectedDay!.notes ? selectedDay!.notes : "No notes for this day"}</p>
+        </div>
+
         <div className={styles.button_container}>
           <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
         </div>
+
       </div>
     </div>
   );
