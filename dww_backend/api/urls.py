@@ -24,4 +24,7 @@ urlpatterns = [
     path('get-patient-data/', views.get_patient_data, name='get_patient_data'),
     path('get-weight-record/', views.get_weight_record, name='get weight record'),
     path('get-patient-notes/', views.get_patient_notes, name='get patient notes'),
+    path('update-email/', views.update_email, name='update_email'),
+    path('update-phone/', views.update_phone, name='update_phone'),
+    path('change-password/', views.change_password, name='change_password'),
 ]
