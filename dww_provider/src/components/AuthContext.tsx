@@ -10,15 +10,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    localStorage.getItem('authToken') ? true : false
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); 
 
   const login = () => setIsAuthenticated(true);
-  const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('authToken');
-  };
+  const logout = () => setIsAuthenticated(false); 
   const getCSRFToken = async () => {
     const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
       credentials: 'include', 

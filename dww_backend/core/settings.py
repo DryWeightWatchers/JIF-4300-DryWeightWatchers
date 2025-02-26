@@ -35,10 +35,9 @@ DEBUG = DJANGO_ENV == "development"
 # defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_AGE = 60*60*24*7  # provider sessions expire after 1 week
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",

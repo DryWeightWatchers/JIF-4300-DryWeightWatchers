@@ -22,9 +22,7 @@ const Navbar: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
-
         logout();
-
         navigate('/login');
       } else {
         console.error('Failed to log out');
