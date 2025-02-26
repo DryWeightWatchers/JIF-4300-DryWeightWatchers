@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, ScrollView, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps } from '../types/navigation';
@@ -77,13 +77,27 @@ const DashboardScreen = () => {
 
       const data = await response.json();
       console.log('got notes: ', data)
-      setPatientNotes(data);
+      const formattedNotes = data.map((item: any) => ({
+        timestamp: new Date(item.timestamp),
+        note: item.note,
+      }));
+      setPatientNotes(formattedNotes);
 
     } catch (error: any) {
       console.log('get patient notes error:', error.response?.data || error.message)
       alert('Failed to get your patient notes. Please try again.')
     }
   }
+
+  const handleDataPointSelect = (selectedData: { day: Date }) => {
+    setSelectedDay({
+      day: selectedData.day,
+      weight: weightRecord.find(record => record.timestamp.toDateString() === selectedData.day.toDateString())?.weight,
+      notes: patientNotes
+        .filter(note => note.timestamp.toDateString() === selectedData.day.toDateString())
+        .map(note => note.note).join('\n') || 'No notes for this day',
+    });
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -109,11 +123,66 @@ const DashboardScreen = () => {
       </View>
 
       <View style={styles.chartContainer}>
-        {chart === 'chart' ? <Chart weightRecord={weightRecord} onDataPointSelect={setSelectedDay}/> : <Calendar/>}
+        {chart === 'chart' ? <Chart weightRecord={weightRecord} onDataPointSelect={handleDataPointSelect}/> : <Calendar/>}
       </View>
 
       <ScrollView style={styles.noteContainer}>
+      {selectedDay ? (
+        <View style={styles.noteContent}>
 
+          <View style={styles.noteSection}>
+            <Text style={styles.noteLabel}>Date:</Text>
+            <Text style={styles.noteValue}>
+              {selectedDay.day.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Text>
+          </View>
+
+          {selectedDay.weight && (
+            <View style={styles.noteSection}>
+              <Text style={styles.noteLabel}>Weight Recorded:</Text>
+              <Text style={styles.noteValue}>
+                {selectedDay.weight} lbs
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.noteSection}>
+            <Text style={styles.noteLabel}>Notes:</Text>
+            {patientNotes
+              .filter(note => 
+                note.timestamp.toDateString() === selectedDay.day.toDateString()
+              )
+              .map((note, index) => (
+                <View key={index} style={styles.noteItem}>
+                  <Text style={styles.noteText}>{note.note}</Text>
+                  <Text style={styles.noteTime}>
+                    {note.timestamp.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </Text>
+                </View>
+              ))}
+            
+            {!patientNotes.some(note => 
+              note.timestamp.toDateString() === selectedDay.day.toDateString()
+            ) && (
+              <Text style={styles.noNotesText}>No notes for this day</Text>
+            )}
+          </View>
+        </View>
+      ) : (
+        <View style={styles.placeholderContainer}>
+          <Text style={styles.placeholderText}>
+            Select a data point to view details
+          </Text>
+        </View>
+      )}
       </ScrollView>
     </View>
   );
@@ -172,8 +241,55 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: 'white',
     borderColor: '#7B5CB8',
-    borderWidth: 1,
-    borderBottomWidth: 0,
+  },
+  noteContent: {
+    padding: 16,
+  },
+  noteSection: {
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    paddingBottom: 16,
+  },
+  noteLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4f3582',
+    marginBottom: 8,
+  },
+  noteValue: {
+    fontSize: 16,
+    color: '#333',
+  },
+  noteItem: {
+    backgroundColor: '#F5F9FF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  noteText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  noteTime: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  noNotesText: {
+    fontStyle: 'italic',
+    color: '#999',
+    textAlign: 'center',
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 200,
+  },
+  placeholderText: {
+    color: '#999',
+    fontSize: 16,
   },
 });
 

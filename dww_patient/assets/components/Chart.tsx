@@ -10,7 +10,6 @@ type ChartProps = {
   }>;
   onDataPointSelect: (selectedData: { //function to interact with selected days in screen
     day: Date;
-    weight: number;
   }) => void;
 };
 
@@ -22,8 +21,9 @@ type WeightRecord = {
 const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => { 
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
+  const [selectedDay, setSelectedDay] = useState(new Date());
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const MARGIN = 60;
+  const MARGIN = 48;
 
   const onLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -95,7 +95,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
 
   // draw axes (line x2), gridlines, line (path), then interactable points (circles)
   return (
-    <View style={{ flex: 1 }} onLayout={onLayout}>
+    <View style={{ flex: 1 }}>
 
       <View style={styles.monthHeader}>
         <TouchableOpacity onPress={handlePrevMonth}>
@@ -111,105 +111,109 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.chartContainer}>
-      <Svg width={dimensions.width} height={dimensions.height} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} preserveAspectRatio="xMinYMin meet">
+      <View style={styles.chartContainer} onLayout={onLayout}>
+        <Svg width={dimensions.width} height={dimensions.height}>
 
-        <Line
-          x1={MARGIN}
-          y1={dimensions.height - MARGIN}
-          x2={dimensions.width - MARGIN}
-          y2={dimensions.height - MARGIN}
-          stroke="black"
-          strokeWidth="1"
-        />
-        <Line
-          x1={MARGIN}
-          y1={MARGIN}
-          x2={MARGIN}
-          y2={dimensions.height - MARGIN}
-          stroke="black"
-          strokeWidth="1"
-        />
+          <Line
+            x1={MARGIN}
+            y1={dimensions.height - MARGIN}
+            x2={dimensions.width - MARGIN}
+            y2={dimensions.height - MARGIN}
+            stroke="black"
+            strokeWidth="1"
+          />
+          <Line
+            x1={MARGIN}
+            y1={MARGIN}
+            x2={MARGIN}
+            y2={dimensions.height - MARGIN}
+            stroke="black"
+            strokeWidth="1"
+          />
 
-        {generateYAxisGrid().map((gridValue) => {
-          const y = yScale(gridValue);
-          if (isNaN(gridValue)) return null;
-          return (
-            <G key={`y-${gridValue}`}>
-              <Line
-                x1={MARGIN}
-                y1={y}
-                x2={dimensions.width - MARGIN}
-                y2={y}
-                stroke="#E0E0E0"
-                strokeWidth="0.5"
-                opacity={0.5}
-              />
-              <SvgText
-                x={MARGIN - 10}
-                y={y + 4}
-                textAnchor="end"
-                fill="#666"
-                fontSize="10"
-              >
-                {Math.round(gridValue)}
-              </SvgText>
-            </G>
-          );
-        })}
-
-        {generateXAxisGrid(selectedMonth).map((day) => {
-          const tempDate = new Date(selectedMonth);
-          tempDate.setDate(day);
-          const x = xScale(tempDate);
-          return (
-            <G key={`x-${day}`}>
-              <Line
-                x1={x}
-                y1={MARGIN}
-                x2={x}
-                y2={dimensions.height - MARGIN}
-                stroke="#E0E0E0"
-                strokeWidth="0.5"
-                opacity={0.5}
-              />
-              {day % 5 === 0 && (
+          {generateYAxisGrid().map((gridValue) => {
+            const y = yScale(gridValue);
+            if (isNaN(gridValue)) return null;
+            return (
+              <G key={`y-${gridValue}`}>
+                <Line
+                  x1={MARGIN}
+                  y1={y}
+                  x2={dimensions.width - MARGIN}
+                  y2={y}
+                  stroke="#E0E0E0"
+                  strokeWidth="0.5"
+                  opacity={0.5}
+                />
                 <SvgText
-                  x={x}
-                  y={dimensions.height - MARGIN + 15}
-                  textAnchor="middle"
+                  x={MARGIN - 10}
+                  y={y + 4}
+                  textAnchor="end"
                   fill="#666"
                   fontSize="10"
                 >
-                  {`${selectedMonth.getMonth() + 1}/${day}`}
+                  {Math.round(gridValue)}
                 </SvgText>
-              )}
-            </G>
-          );
-        })}
+              </G>
+            );
+          })}
 
-        <Path
-          d={path}
-          stroke="#7B5CB8"
-          strokeWidth="2"
-          fill="none"
-        />
+          {generateXAxisGrid(selectedMonth).map((day) => {
+            if (day % 5 === 0) {
+              const tempDate = new Date(selectedMonth);
+              tempDate.setDate(day);
+              const x = xScale(tempDate);
+              return (
+                <G key={`x-${day}`}>
+                  <Line
+                    x1={x}
+                    y1={MARGIN}
+                    x2={x}
+                    y2={dimensions.height - MARGIN}
+                    stroke="#E0E0E0"
+                    strokeWidth="0.5"
+                    opacity={0.5}
+                  />
+                  <SvgText
+                    x={x}
+                    y={dimensions.height - MARGIN + 15}
+                    textAnchor="middle"
+                    fill="#666"
+                    fontSize="10"
+                  >
+                    {`${selectedMonth.getMonth() + 1}/${day}`}
+                  </SvgText>
+                </G>
+              );
+            }
+            return null; 
+          })}
 
-        {selectedMonthRecord.map((point, index) => {
-          const x = xScale(point.timestamp);
-          const y = yScale(point.weight);
-          return (
-            <G key={index}>
-              <Circle
-                cx={x}
-                cy={y}
-                r="6"
-                fill="#7B5CB8"
-                onPress={() => onDataPointSelect} 
-              />
-            </G>
-          );
-        })}
+
+          <Path
+            d={path}
+            stroke="#7B5CB8"
+            strokeWidth="2"
+            fill="none"
+          />
+
+          {selectedMonthRecord.map((point, index) => {
+            const x = xScale(point.timestamp);
+            const y = yScale(point.weight);
+            const isSelected = selectedDay && selectedDay.getTime() === point.timestamp.getTime();
+            return (
+              <G key={index}>
+                <Circle
+                  cx={x}
+                  cy={y}
+                  r={isSelected ? "8" : "6"}
+                  fill={isSelected ? "#4f3582" : "#7B5CB8"}
+                  onPress={() => { setSelectedDay(point.timestamp); onDataPointSelect({ day: point.timestamp }); }}
+                />
+              </G>
+            );
+          })}
+
 
         </Svg>
       </View>
@@ -237,6 +241,7 @@ const styles = StyleSheet.create({
   chartContainer: {
     borderColor: '#7B5CB8',
     borderWidth: 1,
+    flex: 1,
   },
 });
 
