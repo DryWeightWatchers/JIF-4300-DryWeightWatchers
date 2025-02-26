@@ -475,4 +475,39 @@ def get_providers(request):
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@csrf_exempt
+@api_view(['GET'])   
+def get_weight_record(request):
+    try:
+        user = request.user
+
+        try:
+            weight_history = list(WeightRecord.objects.filter(
+                patient=user
+                ).order_by('timestamp').values('weight', 'timestamp'))
+        except WeightRecord.DoesNotExist:
+            return JsonResponse({'error': 'Record not found'}, status=404)
+        
+        return JsonResponse(weight_history, safe=False, status=201)
     
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+@csrf_exempt
+@api_view(['GET'])   
+def get_patient_notes(request):
+    try:
+        user = request.user
+
+        try:
+            patient_notes = list(PatientNote.objects.filter(
+                patient=user
+                ).order_by('timestamp').values('note', 'timestamp'))
+        except PatientNote.DoesNotExist:
+            return JsonResponse({'error': 'Notes not found'}, status=404)
+        
+        return JsonResponse(patient_notes, safe=False, status=201)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
