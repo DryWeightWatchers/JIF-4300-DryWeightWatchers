@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv 
 import os 
-from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,10 +34,10 @@ DEBUG = DJANGO_ENV == "development"
 # the domain that the browser will send the cookie back to. Will also send to subdomains of this domain. 
 # defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_AGE = 60*60*24*7  # provider sessions expire after 1 week
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -93,7 +92,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
-    os.getenv("FRONTEND_URL", "http://localhost:5174"), # this line is necessary for the CORS Policy in the two different env
+    os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -102,7 +101,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv("FRONTEND_URL", "http://localhost:5174"),
+    os.getenv("FRONTEND_URL", "http://localhost:5173"),
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',

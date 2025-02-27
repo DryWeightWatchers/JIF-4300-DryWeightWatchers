@@ -26,6 +26,8 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
         logout();
         navigate('/login');
       } else {
