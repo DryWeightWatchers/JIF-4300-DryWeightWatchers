@@ -150,6 +150,8 @@ def record_weight(request):
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_providers(request):
     try:
         patient = request.user
@@ -162,6 +164,8 @@ def get_providers(request):
 
 
 @api_view(['GET'])   
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_weight_record(request):
     try:
         user = request.user
@@ -178,7 +182,9 @@ def get_weight_record(request):
         return JsonResponse({'error': str(e)}, status=500)
     
 
-@api_view(['GET'])   
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_patient_notes(request):
     try:
         user = request.user
