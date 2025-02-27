@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'), 
     path('dashboard/', views.dashboard, name='dashboard'), 
     path('profile/', views.profile_data, name='profile'),
+    path('patient-profile/', views.patient_profile_data, name='patient-profile'),
     path('record_weight/', views.record_weight, name='record weight'), 
     path('health-check/', views.health_check, name="health_check"),
     path('add-reminder/', views.add_reminder, name='add reminder'),
@@ -27,4 +28,5 @@ urlpatterns = [
     path('update-email/', views.update_email, name='update_email'),
     path('update-phone/', views.update_phone, name='update_phone'),
     path('change-password/', views.change_password, name='change_password'),
+    path('patient-change-password/', views.patient_change_password, name='patient_change_password'),
 ]
