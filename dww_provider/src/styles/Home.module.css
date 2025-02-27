@@ -1,0 +1,12 @@
+.container {
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #444;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.5rem;
+}

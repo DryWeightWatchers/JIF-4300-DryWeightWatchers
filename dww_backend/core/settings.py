@@ -205,11 +205,11 @@ else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
     SESSION_COOKIE_SAMESITE = 'None'  # Allow cross-origin cookies
-    SESSION_COOKIE_SECURE = True  # False for local dev (HTTP); True for production (HTTPS)
-    SESSION_COOKIE_HTTPONLY = True  # Ensure the cookie is not accessible via JavaScript
+    SESSION_COOKIE_SECURE = False  # False for local dev (HTTP); True for production (HTTPS)
+    SESSION_COOKIE_HTTPONLY = False  # Ensure the cookie is not accessible via JavaScript
     SESSION_COOKIE_NAME = 'sessionid'
 
     # CSRF Cookie Settings for Cross-Site Contexts
     CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
-    CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
