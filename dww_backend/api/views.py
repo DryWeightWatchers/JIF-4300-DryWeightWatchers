@@ -152,6 +152,40 @@ def refresh_access_token(request):
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
 @csrf_exempt
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def add_relationship(request): 
+    try:
+        print("Authenticated User:", request.user)
+        print("Received Token:", request.headers.get("Authorization"))
+
+        data = request.data
+        shareable_id = data.get('shareable_id')
+
+        if not shareable_id:
+            return Response({'error': "Provider shareable ID is required"}, status=400)
+
+        try:
+            provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid ID'}, status=404)
+
+        patient = request.user
+
+        if patient.is_anonymous:
+            return Response({'error': 'User is not authenticated'}, status=403)
+
+        if TreatmentRelationship.objects.filter(patient=patient, provider=provider).exists():
+            return Response({'message': 'Relationship already exists'}, status=202)
+
+        relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
+
+        return Response({"message": "Relationship created successfully"}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    
+@csrf_exempt
 def logout_view(request):
     if request.method == 'POST':
         logout(request) 
@@ -427,6 +461,20 @@ def record_weight(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
+@csrf_exempt
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    if request.method == "DELETE":
+        user = request.user
+        user.delete()
+        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+    
+
 @csrf_exempt 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -501,6 +549,12 @@ def delete_reminder(request, id):
         return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def get_csrf_token(request):
+    response = JsonResponse({'csrfToken': get_token(request)})
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
+    return response
 
 @csrf_exempt
 @api_view(['GET'])
