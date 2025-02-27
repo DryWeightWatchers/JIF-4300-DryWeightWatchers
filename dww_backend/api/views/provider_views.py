@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from django.db.models import OuterRef, Subquery
 from api.models import *
 from api.forms import *
@@ -13,14 +12,20 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 
-
-
 """
 Note: All provider-facing APIs should use Django's built-in (session-based) authentication 
 """
 
+# this is a utility function, not a view 
+def error_response(message, details=None, status=400):
+    response = {"error": {"message": message}}
+    if details:
+        response["error"]["details"] = details
+    return JsonResponse(response, status=status)
 
 
+
+@api_view(['GET'])
 def get_csrf_token(request):
     response = JsonResponse({'csrfToken': get_token(request)})
     response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
@@ -28,15 +33,13 @@ def get_csrf_token(request):
 
 
 @csrf_exempt
+@api_view(['POST'])
 def register_provider(request): 
-    if request.method != 'POST': 
-        return error_response('invalid request') 
     try:
         data = json.loads(request.body)  # Parse JSON body
     except json.JSONDecodeError:
         return error_response('invalid request') 
     
-    print(f'data: {data}')
     form = RegisterProviderForm(data) 
     if form.is_valid(): 
         try: 
@@ -44,14 +47,11 @@ def register_provider(request):
             user.role = User.PROVIDER 
             user.set_password(form.cleaned_data['password'])
             user.save()
-
         except Exception as e: 
-            print(f'error: {e}')
             return error_response('An unexpected error occurred', status=500) 
         return JsonResponse({}, status=201)
     else: 
         return error_response('Registration unsuccessful.', details=form.errors) 
-
 
 
 @api_view(['GET'])
@@ -66,6 +66,7 @@ def profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
@@ -90,6 +91,7 @@ def dashboard(request):
     ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
 
     return JsonResponse({'patients': list(patients)})
+
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])

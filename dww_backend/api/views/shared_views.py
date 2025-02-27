@@ -1,14 +1,13 @@
 
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from api.models import *
 from api.forms import *
 from api.serializers import *
 import json
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication 
@@ -18,10 +17,14 @@ from django_ratelimit.decorators import ratelimit
 
 
 @csrf_exempt
-@ratelimit(key='ip', rate='5/m', method='POST', block=False) 
+def test(request: HttpRequest): 
+    return HttpResponse("hello world") 
+
+
+@csrf_exempt
+@api_view(['POST'])
+@ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def login(request):
-    if request.method != 'POST': 
-        return JsonResponse({'error': 'Wrong request type'}, status=405)
     if getattr(request, 'limited', False): 
         print("rate limit triggered")
         return JsonResponse({'message': 'Too many login attempts. Please try again later.'}, status=429)
@@ -61,32 +64,21 @@ def login(request):
         return JsonResponse({'error': 'Failed to read JSON data'}, status=400)
 
 
-
-@csrf_exempt
+@api_view(['POST'])
 def logout_view(request):
-    if request.method == 'POST':
-        logout(request) 
-        return JsonResponse({'message': 'Logout successful'}, status=200)
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    logout(request) 
+    return JsonResponse({'message': 'Logout successful'}, status=200)
 
 
-
-@csrf_exempt
 @api_view(["DELETE"])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
-    if request.method == "DELETE":
-        user = request.user
-        user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)
+    user = request.user
+    user.delete()
+    return JsonResponse({'message': 'Successfully deleted account'}, status=200)
 
 
-
-@csrf_exempt
 @api_view(["DELETE"])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -135,6 +127,7 @@ def update_email(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -151,6 +144,7 @@ def update_phone(request):
         return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
@@ -178,14 +172,10 @@ def change_password(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@csrf_exempt
 @api_view(["DELETE"])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
-    if request.method == "DELETE":
-        user = request.user
-        user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)
+    user = request.user
+    user.delete()
+    return JsonResponse({'message': 'Successfully deleted account'}, status=200)

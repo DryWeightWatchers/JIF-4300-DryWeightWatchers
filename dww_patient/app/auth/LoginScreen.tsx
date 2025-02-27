@@ -33,7 +33,7 @@ const LoginScreen = () => {
 
       } else {
         const errorData = await response.json();
-        Alert.alert('Error', errorData.message);
+        Alert.alert(`Error ${response.status}: ${errorData.message}`);
       }
   } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again later.');

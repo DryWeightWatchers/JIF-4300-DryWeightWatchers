@@ -1,12 +1,9 @@
 from django.urls import path
-from .views import test_views, shared_views, patient_views, patient_reminder_views, provider_views
+from .views import shared_views, patient_views, patient_reminder_views, provider_views
 
 urlpatterns = [
-    # test/misc endpoints 
-    path('test/', test_views.test, name='test'), 
-    path('health-check/', test_views.health_check, name="health_check"),
-
     # endpoints used by both interfaces 
+    path('test/', shared_views.test, name='test'), 
     path('login/', shared_views.login, name='login'),
     path('logout/', shared_views.logout_view, name='logout'), 
     path('delete-account/', shared_views.delete_account, name='delete_account'),
@@ -27,8 +24,8 @@ urlpatterns = [
     path('patient-change-password/', patient_views.patient_change_password, name='patient_change_password'),
 
     # endpoints used for reminders on patient interface 
-    path('add-reminder/', patient_reminder_views.add_reminder, name='add reminder'),
     path('get-reminders/', patient_reminder_views.get_reminders, name='get reminders'),
+    path('add-reminder/', patient_reminder_views.add_reminder, name='add reminder'),
     path('save-reminder/', patient_reminder_views.save_reminder, name='save reminder'),
     path('delete-reminder/<int:id>/', patient_reminder_views.delete_reminder, name='delete reminder'),
 

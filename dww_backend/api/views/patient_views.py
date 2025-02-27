@@ -2,7 +2,6 @@
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -22,9 +21,8 @@ Note: All patient-facing APIs should use rest_framework's JWT authentication
 
 
 @csrf_exempt
+@api_view(['POST'])
 def refresh_access_token(request): 
-    if request.method != 'POST': 
-        return JsonResponse({'error': 'Wrong request type'}, status=405)
     try:
         data = json.loads(request.body.decode('utf-8'))
         refresh_token = data.get("refresh_token")
@@ -43,36 +41,28 @@ def refresh_access_token(request):
 
 
 @csrf_exempt
+@api_view(['POST'])
 def register(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            form = RegisterUserForm(data)
-            if form.is_valid():
-                form.save()
-                return JsonResponse({'message': "User registered successfully"}, status=201)
-            else:
-                print(form.errors)
-                return JsonResponse({'errors': form.errors}, status=400)
-        except:
-            return JsonResponse({'error': "failed to read json data"}, status=400)
-    else:
-        return JsonResponse({'error': "wrong request type"}, status=405)
+    try:
+        data = json.loads(request.body)
+        form = RegisterUserForm(data)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': "User registered successfully"}, status=201)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    except:
+        return JsonResponse({'error': "failed to read json data"}, status=400)
 
 
-
-@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def add_relationship(request): 
     try:
-        print("Authenticated User:", request.user)
-        print("Received Token:", request.headers.get("Authorization"))
-
         data = request.data
         shareable_id = data.get('shareable_id')
-
         if not shareable_id:
             return Response({'error': "Provider shareable ID is required"}, status=400)
 
@@ -82,7 +72,6 @@ def add_relationship(request):
             return Response({'error': 'Invalid ID'}, status=404)
 
         patient = request.user
-
         if patient.is_anonymous:
             return Response({'error': 'User is not authenticated'}, status=403)
 
@@ -90,11 +79,10 @@ def add_relationship(request):
             return Response({'message': 'Relationship already exists'}, status=202)
 
         relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
-
         return Response({"message": "Relationship created successfully"}, status=201)
+
     except Exception as e:
         return Response({'error': str(e)}, status=500)
-
 
 
 @api_view(['GET'])
@@ -109,6 +97,7 @@ def patient_profile_data(request):
         'email': user.email,
         'phone': str(user.phone)
     })
+
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -135,7 +124,7 @@ def patient_change_password(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-@csrf_exempt
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -160,29 +149,22 @@ def record_weight(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-
-
-
-
-@csrf_exempt
 @api_view(['GET'])
 def get_providers(request):
     try:
         patient = request.user
         treatment_relationships = TreatmentRelationship.objects.filter(patient=patient)
         providers = [relationship.provider for relationship in treatment_relationships]
-
         serializer = UserSerializer(providers, many=True)
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
-@csrf_exempt
+
 @api_view(['GET'])   
 def get_weight_record(request):
     try:
         user = request.user
-
         try:
             weight_history = list(WeightRecord.objects.filter(
                 patient=user
@@ -195,12 +177,11 @@ def get_weight_record(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     
-@csrf_exempt
+
 @api_view(['GET'])   
 def get_patient_notes(request):
     try:
         user = request.user
-
         try:
             patient_notes = list(PatientNote.objects.filter(
                 patient=user
