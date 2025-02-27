@@ -152,6 +152,40 @@ def refresh_access_token(request):
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
 @csrf_exempt
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def add_relationship(request): 
+    try:
+        print("Authenticated User:", request.user)
+        print("Received Token:", request.headers.get("Authorization"))
+
+        data = request.data
+        shareable_id = data.get('shareable_id')
+
+        if not shareable_id:
+            return Response({'error': "Provider shareable ID is required"}, status=400)
+
+        try:
+            provider = User.objects.get(shareable_id=shareable_id, role=User.PROVIDER)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid ID'}, status=404)
+
+        patient = request.user
+
+        if patient.is_anonymous:
+            return Response({'error': 'User is not authenticated'}, status=403)
+
+        if TreatmentRelationship.objects.filter(patient=patient, provider=provider).exists():
+            return Response({'message': 'Relationship already exists'}, status=202)
+
+        relationship = TreatmentRelationship.objects.create(patient=patient, provider=provider)
+
+        return Response({"message": "Relationship created successfully"}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    
+@csrf_exempt
 def logout_view(request):
     if request.method == 'POST':
         logout(request) 
@@ -303,7 +337,7 @@ def get_patient_data(request):
         return JsonResponse({"error": "Patient not found"}, status=404)
 
 @api_view(['POST'])
-@authentication_classes([SessionAuthentication])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def update_email(request):
     try:
@@ -312,6 +346,7 @@ def update_email(request):
             return JsonResponse({'error': 'Email is required.'}, status=400)
         user = request.user
         user.email = new_email
+        print(new_email)
         user.save()
         return JsonResponse({'message': 'Email updated successfully.', 'email': new_email}, status=200)
     except json.JSONDecodeError:
@@ -320,7 +355,7 @@ def update_email(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @api_view(['POST'])
-@authentication_classes([SessionAuthentication])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def update_phone(request):
     try:
@@ -337,7 +372,7 @@ def update_phone(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @api_view(['POST'])
-@authentication_classes([SessionAuthentication])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def change_password(request):
     try:
@@ -364,6 +399,44 @@ def change_password(request):
   
 
 ### Patient Account Endpoints
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def patient_profile_data(request):
+    user = request.user
+    print(request.user.password)
+    return JsonResponse({
+        'firstname': user.first_name,
+        'lastname': user.last_name,
+        'email': user.email,
+        'phone': str(user.phone)
+    })
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def patient_change_password(request):
+    try:
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+        if not current_password or not new_password or not confirm_password:
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+        user = request.user
+        if not user.check_password(current_password):
+            return JsonResponse({'error': 'Incorrect current password.'}, status=400)
+        if new_password != confirm_password:
+            return JsonResponse({'error': 'New passwords do not match.'}, status=400)
+        user.set_password(new_password)
+        user.save()
+        django_login(request, user) 
+        request.session.save()
+        return JsonResponse({'message': 'Password updated successfully.'}, status=200)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 @csrf_exempt
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -387,6 +460,20 @@ def record_weight(request):
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@api_view(["DELETE"])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    if request.method == "DELETE":
+        user = request.user
+        user.delete()
+        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+    
 
 @csrf_exempt 
 @api_view(['POST'])
@@ -462,6 +549,12 @@ def delete_reminder(request, id):
         return JsonResponse({'message': 'Reminder deleted successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def get_csrf_token(request):
+    response = JsonResponse({'csrfToken': get_token(request)})
+    response.set_cookie('csrftoken', get_token(request), httponly=True, secure=True, samesite='None')
+    return response
 
 @csrf_exempt
 @api_view(['GET'])
