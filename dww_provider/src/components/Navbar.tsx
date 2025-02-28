@@ -10,8 +10,9 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
-  const { isAuthenticated, logout, getCSRFToken } = useAuth();
+  const { logout, getCSRFToken } = useAuth();
   const navigate = useNavigate();
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
 
   const handleLogout = async () => {
     try {
