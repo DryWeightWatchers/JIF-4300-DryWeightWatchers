@@ -66,17 +66,10 @@ MIDDLEWARE = [
 MIDDLEWARE.insert(len(MIDDLEWARE) - 1, "core.middleware.DebugMiddleware")
 
 
-''' pretty sure we don't need these since we're already using the decorators 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
 }
-'''
 
 
 SIMPLE_JWT = {

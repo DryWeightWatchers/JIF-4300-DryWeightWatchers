@@ -56,6 +56,20 @@ def register(request):
         return JsonResponse({'error': "failed to read json data"}, status=400)
 
 
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_providers(request):
+    try:
+        patient = request.user
+        treatment_relationships = TreatmentRelationship.objects.filter(patient=patient)
+        providers = [relationship.provider for relationship in treatment_relationships]
+        serializer = UserSerializer(providers, many=True)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -125,6 +139,25 @@ def patient_change_password(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@api_view(['GET'])   
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_weight_record(request):
+    try:
+        user = request.user
+        try:
+            weight_history = list(WeightRecord.objects.filter(
+                patient=user
+                ).order_by('timestamp').values('weight', 'timestamp'))
+        except WeightRecord.DoesNotExist:
+            return JsonResponse({'error': 'Record not found'}, status=404)
+        
+        return JsonResponse(weight_history, safe=False, status=201)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -145,39 +178,6 @@ def record_weight(request):
         WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
 
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def get_providers(request):
-    try:
-        patient = request.user
-        treatment_relationships = TreatmentRelationship.objects.filter(patient=patient)
-        providers = [relationship.provider for relationship in treatment_relationships]
-        serializer = UserSerializer(providers, many=True)
-        return Response(serializer.data, status=200)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-
-
-@api_view(['GET'])   
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def get_weight_record(request):
-    try:
-        user = request.user
-        try:
-            weight_history = list(WeightRecord.objects.filter(
-                patient=user
-                ).order_by('timestamp').values('weight', 'timestamp'))
-        except WeightRecord.DoesNotExist:
-            return JsonResponse({'error': 'Record not found'}, status=404)
-        
-        return JsonResponse(weight_history, safe=False, status=201)
-    
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     

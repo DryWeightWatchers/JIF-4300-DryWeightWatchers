@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!refreshToken) return;
     console.log("AuthProvider: refreshAccessToken: ", refreshToken); 
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh/`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh-jwt/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh_token: refreshToken }),

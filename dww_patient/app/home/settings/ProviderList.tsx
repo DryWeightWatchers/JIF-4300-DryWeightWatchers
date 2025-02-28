@@ -56,7 +56,8 @@ const ProviderListScreen = () => {
             await refreshAccessToken();
         }
         // const shareableId = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
-        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/user/providers/delete/`, accessToken, refreshAccessToken, logout, {
+        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-relationship/`, 
+            accessToken, refreshAccessToken, logout, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,

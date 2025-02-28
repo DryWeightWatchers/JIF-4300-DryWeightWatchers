@@ -24,7 +24,7 @@ def test(request: HttpRequest):
 @csrf_exempt
 @api_view(['POST'])
 @ratelimit(key='ip', rate='5/m', method='POST', block=False)
-def login(request):
+def login_view(request):
     if getattr(request, 'limited', False): 
         print("rate limit triggered")
         return JsonResponse({'message': 'Too many login attempts. Please try again later.'}, status=429)
@@ -96,6 +96,7 @@ def delete_relationship(request):
             return Response({"error": "Provider not found."}, status=404)
         except TreatmentRelationship.DoesNotExist:
             return Response({"error": "Relationship not found."}, status=404)
+        
     elif request.user.role == User.PROVIDER:
         try:
             patient_id = request.data.get("id")
@@ -112,7 +113,7 @@ def delete_relationship(request):
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def update_email(request):
+def change_email(request):
     try:
         new_email = request.data.get('email')
         if not new_email:
@@ -131,7 +132,7 @@ def update_email(request):
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def update_phone(request):
+def change_phone(request):
     try:
         new_phone = request.data.get('phone')
         if not new_phone:

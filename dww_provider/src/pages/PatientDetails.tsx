@@ -51,7 +51,7 @@ const PatientDetails: React.FC = () => {
     );
     if (!confirmDelete) return;
     try {
-      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/user/providers/delete/`, {
+      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/delete-relationship/`, {
         method: 'DELETE',
         headers: {
           "Content-Type": "application/json",
