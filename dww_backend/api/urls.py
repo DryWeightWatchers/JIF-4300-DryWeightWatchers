@@ -1,32 +1,41 @@
 from django.urls import path
-from . import views
+from .views import shared_views, patient_views, patient_reminder_views, provider_views
 
 urlpatterns = [
-    path('login/', views.login, name='login'),
-    path('refresh/', views.refresh_access_token, name='refresh access token'), 
-    path('test/', views.test, name='test'), 
-    path('register-provider/', views.register_provider, name='register provider'), 
-    path('register/', views.register, name='register user'),
-    path('add-relationship/', views.add_relationship, name='add_relationship'),
-    path('logout/', views.logout_view, name='logout'), 
-    path('dashboard/', views.dashboard, name='dashboard'), 
-    path('profile/', views.profile_data, name='profile'),
-    path('patient-profile/', views.patient_profile_data, name='patient-profile'),
-    path('record_weight/', views.record_weight, name='record weight'), 
-    path('health-check/', views.health_check, name="health_check"),
-    path('add-reminder/', views.add_reminder, name='add reminder'),
-    path('get-reminders/', views.get_reminders, name='get reminders'),
-    path('save-reminder/', views.save_reminder, name='save reminder'),
-    path('delete-reminder/<int:id>/', views.delete_reminder, name='delete reminder'),
-    path('delete-account/', views.delete_account, name='delete_account'),
-    path('user/providers/', views.get_providers, name='get_registered_providers'),
-    path('user/providers/delete/', views.delete_relationship, name='delete-provider'),
-    path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
-    path('get-patient-data/', views.get_patient_data, name='get_patient_data'),
-    path('get-weight-record/', views.get_weight_record, name='get weight record'),
-    path('get-patient-notes/', views.get_patient_notes, name='get patient notes'),
-    path('update-email/', views.update_email, name='update_email'),
-    path('update-phone/', views.update_phone, name='update_phone'),
-    path('change-password/', views.change_password, name='change_password'),
-    path('patient-change-password/', views.patient_change_password, name='patient_change_password'),
+    # endpoints used by both interfaces 
+    ## testing & auth 
+    path('test/', shared_views.test, name='test'), 
+    path('login/', shared_views.login_view, name='login'),
+    path('logout/', shared_views.logout_view, name='logout'), 
+    ## account management 
+    path('delete-account/', shared_views.delete_account, name='delete_account'),
+    path('delete-relationship/', shared_views.delete_relationship, name='delete_provider'),
+    path('change-email/', shared_views.change_email, name='change_email'),
+    path('change-phone/', shared_views.change_phone, name='change_phone'),
+    path('change-password/', shared_views.change_password, name='change_password'),
+
+    # endpoints used by patient interface 
+    ## auth & account 
+    path('refresh-jwt/', patient_views.refresh_access_token, name='refresh_access_token'), 
+    path('register/', patient_views.register, name='register_user'),
+    path('user/providers/', patient_views.get_providers, name='get_registered_providers'),
+    path('add-relationship/', patient_views.add_relationship, name='add_relationship'),
+    path('patient-profile/', patient_views.patient_profile_data, name='patient-profile'),
+    path('patient-change-password/', patient_views.patient_change_password, name='patient_change_password'),
+    ## patient data 
+    path('get-weight-record/', patient_views.get_weight_record, name='get weight record'),
+    path('record_weight/', patient_views.record_weight, name='record weight'), 
+    path('get-patient-notes/', patient_views.get_patient_notes, name='get patient notes'),
+    ## reminders 
+    path('get-reminders/', patient_reminder_views.get_reminders, name='get_reminders'),
+    path('add-reminder/', patient_reminder_views.add_reminder, name='add_reminder'),
+    path('save-reminder/', patient_reminder_views.save_reminder, name='save_reminder'),
+    path('delete-reminder/<int:id>/', patient_reminder_views.delete_reminder, name='delete_reminder'),
+
+    # endpoints used by provider interface 
+    path('get-csrf-token/', provider_views.get_csrf_token, name='get_csrf_token'),
+    path('register-provider/', provider_views.register_provider, name='register_provider'), 
+    path('profile/', provider_views.profile_data, name='profile'),
+    path('dashboard/', provider_views.dashboard, name='dashboard'), 
+    path('get-patient-data/', provider_views.get_patient_data, name='get_patient_data'),
 ]

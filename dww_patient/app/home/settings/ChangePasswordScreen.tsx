@@ -32,7 +32,8 @@ const ChangePasswordScreen = () => {
         }
     
         try {
-          const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-password/`, accessToken, refreshAccessToken, logout,{
+          const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-password/`, 
+            accessToken, refreshAccessToken, logout, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ const ChangePasswordScreen = () => {
           setCurrentPassword('');
           setNewPassword('');
           setConfirmPassword('');
-          Alert.alert('Successly changed password');
+          Alert.alert('Successfully changed password');
         } catch (error) {
           setMessage('Failed to update password. Please try again.');
         }
