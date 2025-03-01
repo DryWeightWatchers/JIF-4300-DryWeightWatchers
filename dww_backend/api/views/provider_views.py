@@ -24,6 +24,13 @@ def error_response(message, details=None, status=400):
     return JsonResponse(response, status=status)
 
 
+@api_view(['GET']) 
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_auth_status(request): 
+    return JsonResponse({}, status=200) 
+    # whether this returns a 200 or 401/403 is used for the client to determine whether it's authenticated 
+
 
 @api_view(['GET'])
 def get_csrf_token(request):
