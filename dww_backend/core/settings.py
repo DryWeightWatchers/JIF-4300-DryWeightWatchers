@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv 
 import os 
-from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,10 +34,10 @@ DEBUG = DJANGO_ENV == "development"
 # the domain that the browser will send the cookie back to. Will also send to subdomains of this domain. 
 # defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_AGE = 60*60*24*7  # provider sessions expire after 1 week
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -66,15 +65,12 @@ MIDDLEWARE = [
 ]
 MIDDLEWARE.insert(len(MIDDLEWARE) - 1, "core.middleware.DebugMiddleware")
 
+
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
 }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=2),
@@ -206,11 +202,11 @@ else:
     SECURE_SSL_REDIRECT = False # for this to work we need a valid SSL which we can only get if we pay for a domain, so for now I'll leave it with HTTP
 
     SESSION_COOKIE_SAMESITE = 'None'  # Allow cross-origin cookies
-    SESSION_COOKIE_SECURE = True  # False for local dev (HTTP); True for production (HTTPS)
-    SESSION_COOKIE_HTTPONLY = True  # Ensure the cookie is not accessible via JavaScript
+    SESSION_COOKIE_SECURE = False  # False for local dev (HTTP); True for production (HTTPS)
+    SESSION_COOKIE_HTTPONLY = False  # Ensure the cookie is not accessible via JavaScript
     SESSION_COOKIE_NAME = 'sessionid'
 
     # CSRF Cookie Settings for Cross-Site Contexts
     CSRF_COOKIE_SAMESITE = 'None'  # Allow cross-origin CSRF cookies
-    CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
