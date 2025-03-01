@@ -33,6 +33,7 @@ urlpatterns = [
     path('delete-reminder/<int:id>/', patient_reminder_views.delete_reminder, name='delete_reminder'),
 
     # endpoints used by provider interface 
+    path('get-auth-status', provider_views.get_auth_status, name='get_auth_status'), 
     path('get-csrf-token/', provider_views.get_csrf_token, name='get_csrf_token'),
     path('register-provider/', provider_views.register_provider, name='register_provider'), 
     path('profile/', provider_views.profile_data, name='profile'),

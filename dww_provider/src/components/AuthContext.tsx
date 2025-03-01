@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -11,6 +11,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); 
+
+  useEffect(() => {
+    console.log('AuthContext: useEffect running...'); 
+    const checkAuthStatus = async () => {
+      try {
+        const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-auth-status`, {
+          method: "GET", 
+          credentials: 'include', 
+        }); 
+        if (res.ok) { setIsAuthenticated(true); } 
+        else        { setIsAuthenticated(false); } 
+      } catch (err) { setIsAuthenticated(false); }
+    }; 
+    checkAuthStatus(); 
+  }, []); 
 
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false); 
