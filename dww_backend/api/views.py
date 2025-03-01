@@ -404,7 +404,6 @@ def change_password(request):
 @permission_classes([IsAuthenticated])
 def patient_profile_data(request):
     user = request.user
-    print(request.user.password)
     return JsonResponse({
         'firstname': user.first_name,
         'lastname': user.last_name,
@@ -469,8 +468,15 @@ def record_weight(request):
 def delete_account(request):
     if request.method == "DELETE":
         user = request.user
+        DeactivatedUser.objects.create(
+            original_id = user.id,
+            firstname= user.first_name,
+            lastname= user.last_name,
+            email=user.email,
+            phone=user.phone
+        )
         user.delete()
-        return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+        return JsonResponse({'message': 'Successfully deactivated account'}, status=200)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
     
