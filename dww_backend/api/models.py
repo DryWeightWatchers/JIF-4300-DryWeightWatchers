@@ -115,7 +115,7 @@ class PatientReminder(models.Model):
     days = models.CharField(max_length=62)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-class DeactivatedUser(models.Model):
+class DeactivatedUsers(models.Model):
     original_id = models.IntegerField(unique=True)
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
