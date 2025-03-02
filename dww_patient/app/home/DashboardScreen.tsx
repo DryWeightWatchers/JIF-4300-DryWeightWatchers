@@ -123,7 +123,7 @@ const DashboardScreen = () => {
       </View>
 
       <View style={styles.chartContainer}>
-        {chart === 'chart' ? <Chart weightRecord={weightRecord} onDataPointSelect={handleDataPointSelect}/> : <Calendar/>}
+        {chart === 'chart' ? <Chart weightRecord={weightRecord} onDataPointSelect={handleDataPointSelect}/> : <Calendar onDataPointSelect={handleDataPointSelect}/>}
       </View>
 
       <ScrollView style={styles.noteContainer}>
