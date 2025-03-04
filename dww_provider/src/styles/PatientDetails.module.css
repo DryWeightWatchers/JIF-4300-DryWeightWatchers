@@ -30,6 +30,34 @@
     font-weight: bold;
 }
 
+.chart_slider_container {
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: white;
+}
+
+.chart_left_button {
+    padding: 12px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    max-width: 120px;
+    min-width: 100px;
+    align-items: center;
+    border: 1px solid #7B5CB8;
+}
+
+.chart_right_button {
+    padding: 12px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    max-width: 120px;
+    min-width: 100px;
+    align-items: center;
+    border: 1px solid #7B5CB8;
+}
+
 .weight-history {
     margin-top: 20px;
     padding: 15px;

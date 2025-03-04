@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 
 type ChartProps = {
-  weightRecord: Array<{ //weight data to draw chart
+  weightRecord: Array<{
     timestamp: Date;
     weight: number;
   }>;
-  onDataPointSelect: (selectedData: { //function to interact with selected days in screen
+  onDataPointSelect: (selectedData: { 
     day: Date;
   }) => void;
 };
@@ -25,28 +25,26 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
 
   const handleNextMonth = () => {
     let nextMonth = new Date(selectedMonth);
-    nextMonth.setMonth(nextMonth.getMonth() + 1); // cant do this in one-liner because .setMonth returns milliseconds and not a Date object (WHYYY)
-    setSelectedMonth(nextMonth); //we need to do setSelectedMonth to change state and re-render component, but we cant do one-liner because of the above.
+    nextMonth.setMonth(nextMonth.getMonth() + 1); 
+    setSelectedMonth(nextMonth); 
   }
 
   const handlePrevMonth = () => {
     let nextMonth = new Date(selectedMonth);
-    nextMonth.setMonth(nextMonth.getMonth() - 1); // x2
-    setSelectedMonth(nextMonth); //cant do setState( new Date(date.setMonth + 1) ) because it recalculates it a second time in UTC and add/removes excess hours. This would cause issues if the timestamp is near midnight.
+    nextMonth.setMonth(nextMonth.getMonth() - 1); 
+    setSelectedMonth(nextMonth); 
   }
 
-  //calc x coord for where a day should be.
-  // `day / days in month` for an 'index scale', like 1/31. Then multiply by chart width - 2margin to get where it should be in the graph. Margins included to give space for axis label
+  //point placement
   const xScale = (day: Date) => {
     return ((day.getDate()) / (new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate())) * (dimensions.width - MARGIN * 2) + MARGIN;
   };
 
-  //calc y coord for where height shoud be scaled to. Similar theory to xScale.
   const yScale = (weight: number) => {
     return dimensions.height - MARGIN - ((weight - minWeight) / (maxWeight - minWeight)) * (dimensions.height - MARGIN * 2);
   };
 
-  //generate 7 grid lines, range / 6 represents the spaces inbetween (grid lines - 1)
+  //gridline placement
   const generateYAxisGrid = () => {
     const range = maxWeight - minWeight;
     return Array.from({ length: 7 }, (_, i) => minWeight + i * (range / 6));
@@ -56,7 +54,6 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     return Array.from({ length: new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
   };
 
-  //selectedMonthRecord = filtered weight record for selectedMonth.
   useEffect(() => {
     const filteredData = weightRecord.filter((point) => {
       return (
@@ -77,22 +74,16 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
   
     updateDimensions();
   
-    // Add event listener to update dimensions on window resize
     window.addEventListener('resize', updateDimensions);
   
-    // Clean up event listener on component unmount
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  //some calculations used for yScale and yGrid
-  //basically it pads the y-dimension by a constant value of +-5lbs alongside the range of the patient's weight record, scaling the y-axis in case the patient sees a dramatic weight change
-  //theoretically this makes it so the graph doesn't look exceedingly goofy if the range of the patient's weight change is like >=10 lbs in one month. the line always takes the inner 1/3 of graph space
   const range = Math.max(...selectedMonthRecord.map(d => d.weight)) - Math.min(...selectedMonthRecord.map(d => d.weight));
   const padding = range + 5;
   const minWeight = Math.min(...selectedMonthRecord.map(d => d.weight)) - padding;
   const maxWeight = Math.max(...selectedMonthRecord.map(d => d.weight)) + padding;
 
-  //draw path, 'M' to move to first point location, then 'L' to move while drawing the line onwards.
   //TODO: special behavior for missing days while drawing?
   let path = '';
   selectedMonthRecord.forEach((point, index) => {
@@ -103,20 +94,20 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     }
   });
 
-  // draw axes (line x2), gridlines, line (path), then interactable points (circles)
+  //draw axes (line x2), gridlines (generated lines and text), line (path), then interactable points (circles)
   return (
     <div style={{ flex: 1 }}>
 
       <div style={styles.monthHeader}>
-        <button onClick={handlePrevMonth}>
+        <button onClick={handlePrevMonth} style={{ backgroundColor: '#7B5CB8' }}>
             &#9664;
         </button>
         
-        <text style={styles.monthText}>
+        <text style={{...styles.monthText, userSelect: 'none', pointerEvents: 'none'}}>
           {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </text>
         
-        <button onClick={handleNextMonth}>
+        <button onClick={handleNextMonth} style={{ backgroundColor: '#7B5CB8' }}>
             &#9654;
         </button>
       </div>
@@ -161,6 +152,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
                   textAnchor="end"
                   fill="#666"
                   fontSize="10"
+                  style={{ userSelect: 'none', pointerEvents: 'none' }}
                 >
                   {Math.round(gridValue)}
                 </text>
@@ -190,6 +182,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
                     textAnchor="middle"
                     fill="#666"
                     fontSize="10"
+                    style={{ userSelect: 'none', pointerEvents: 'none' }}
                   >
                     {`${selectedMonth.getMonth() + 1}/${day}`}
                   </text>
