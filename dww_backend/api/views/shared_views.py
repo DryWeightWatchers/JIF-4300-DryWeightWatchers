@@ -15,11 +15,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 
 
-
 @csrf_exempt
 def test(request: HttpRequest): 
     return HttpResponse("hello world") 
-
 
 @csrf_exempt
 @api_view(['POST'])
@@ -75,8 +73,15 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def delete_account(request):
     user = request.user
+    deactivated_user = DeactivatedUsers.objects.create(
+        original_id= user.id,
+        firstname= user.first_name,
+        lastname= user.last_name,
+        email= user.email,
+        phone= user.phone
+    )
     user.delete()
-    return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+    return JsonResponse({'message': 'Successfully deactivated account'}, status=200)
 
 
 @api_view(["DELETE"])
@@ -173,10 +178,10 @@ def change_password(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@api_view(["DELETE"])
-@authentication_classes([SessionAuthentication, JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def delete_account(request):
-    user = request.user
-    user.delete()
-    return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+# @api_view(["DELETE"])
+# @authentication_classes([SessionAuthentication, JWTAuthentication])
+# @permission_classes([IsAuthenticated])
+# def delete_account(request):
+#     user = request.user
+#     user.delete()
+#     return JsonResponse({'message': 'Successfully deleted account'}, status=200)
