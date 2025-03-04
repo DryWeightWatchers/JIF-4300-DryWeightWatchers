@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
-import Svg, { Text as SvgText, Rect, G } from 'react-native-svg';
+import Svg, { Text as SvgText, Rect, G, Circle } from 'react-native-svg';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 
 type CalendarProps = {
@@ -17,7 +17,6 @@ type WeightRecord = {
   timestamp: Date,
   weight: number,
 }
-
 
 const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -74,6 +73,7 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
         x: col * CELL_WIDTH + MARGIN,
         y: row * CELL_HEIGHT + CELL_HEIGHT, 
         timestamp: date ? new Date(year, month, date) : null,
+        hasWeightRecord: date ? selectedMonthRecord.some(record => record.timestamp.getDate() === date) : false,
       });
 
       if (!isEmpty) dayCounter++;
@@ -114,7 +114,6 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
               </SvgText>
             ))}
           </G>
-
           {grid.map((cell, index) => (
             <G key={index}>
               <Rect
@@ -132,16 +131,38 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
                   }
                 }}
               />
+              {cell.timestamp?.getTime() === selectedDay.getTime() && (
+                <Circle
+                  cx={cell.x + CELL_WIDTH / 2}
+                  cy={cell.y + CELL_HEIGHT / 2}
+                  r={12}
+                  fill="#7B5CB8"
+                />
+              )}
               <SvgText
                 x={cell.x + CELL_WIDTH / 2}
                 y={cell.y + CELL_HEIGHT / 2}
                 textAnchor="middle"
                 alignmentBaseline="central"
-                fill={cell.timestamp?.getTime() === selectedDay.getTime() ? '#7B5CB8' : '#333'}
+                fill={cell.timestamp?.getTime() === selectedDay.getTime() ? 'white' : '#333'}
                 fontWeight={cell.timestamp?.getTime() === selectedDay.getTime() ? 'bold' : 'normal'}
               >
                 {cell.timestamp?.getDate()}
               </SvgText>
+              {cell.hasWeightRecord && cell.timestamp?.getTime() != selectedDay.getTime() && (
+                <View style={styles.iconWrapper}>
+                  <Ionicons
+                    name="checkmark-sharp"
+                    size={12}
+                    color="#4f3582"
+                    style={{
+                      position: 'absolute',
+                      top: cell.y + CELL_HEIGHT - 16,
+                      left: cell.x + (CELL_WIDTH / 2) - 6,
+                    }}
+                  />
+                </View> 
+              )}
             </G>
           ))}
         </Svg>
@@ -171,6 +192,9 @@ const styles = StyleSheet.create({
     borderColor: '#7B5CB8',
     borderWidth: 1,
     flex: 1,
+  },
+  iconWrapper: {
+    position: 'absolute',
   },
 });
 
