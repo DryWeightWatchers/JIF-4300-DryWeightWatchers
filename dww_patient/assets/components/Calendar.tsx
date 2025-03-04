@@ -1,25 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import Svg, { Text as SvgText, Rect, G } from 'react-native-svg';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 
 type CalendarProps = {
+  weightRecord: Array<{ 
+    timestamp: Date;
+    weight: number;
+  }>;
   onDataPointSelect: (selectedData: {
     day: Date;
   }) => void;
 };
 
-const Calendar = ({ onDataPointSelect }: CalendarProps) => {
+type WeightRecord = {
+  timestamp: Date,
+  weight: number,
+}
+
+
+const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const CELL_SIZE = dimensions.width / 7;
+  const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const MARGIN = 16;
+  const CELL_WIDTH = (dimensions.width - MARGIN * 2) / 7;
+  const CELL_HEIGHT = (dimensions.height - MARGIN * 2) / 7;
   const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
 
   const onLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -38,19 +46,34 @@ const Calendar = ({ onDataPointSelect }: CalendarProps) => {
     setSelectedMonth(nextMonth); 
   }
 
+  useEffect(() => {
+    const filteredData = weightRecord.filter((point) => {
+      return (
+        point.timestamp.getFullYear() === selectedMonth.getFullYear() &&
+        point.timestamp.getMonth() === selectedMonth.getMonth()
+      );
+    });
+    setSelectedMonthRecord(filteredData);
+  }, [selectedMonth, weightRecord]);
+
+  //main calendar construction
   const grid = [];
   let dayCounter = 1;
 
+  const year = selectedMonth.getFullYear();
+  const month = selectedMonth.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 7; col++) {
-      const isFirstRow = row === 0;
       const isEmpty = (row === 0 && col < firstDayOfMonth) || dayCounter > daysInMonth;
       const date = isEmpty ? '' : dayCounter;
 
       grid.push({
-        x: col * CELL_SIZE,
-        y: row * CELL_SIZE + (isFirstRow ? CELL_SIZE : 0), 
-        date,
+        x: col * CELL_WIDTH + MARGIN,
+        y: row * CELL_HEIGHT + CELL_HEIGHT, 
+        timestamp: date ? new Date(year, month, date) : null,
       });
 
       if (!isEmpty) dayCounter++;
@@ -80,8 +103,8 @@ const Calendar = ({ onDataPointSelect }: CalendarProps) => {
             {DAYS.map((day, index) => (
               <SvgText
                 key={day}
-                x={index * CELL_SIZE + CELL_SIZE / 2}
-                y={CELL_SIZE / 2}
+                x={index * CELL_WIDTH + CELL_WIDTH / 2 + MARGIN}
+                y={CELL_HEIGHT / 2}
                 textAnchor="middle"
                 alignmentBaseline="central"
                 fill="#7B5CB8"
@@ -97,21 +120,27 @@ const Calendar = ({ onDataPointSelect }: CalendarProps) => {
               <Rect
                 x={cell.x}
                 y={cell.y}
-                width={CELL_SIZE}
-                height={CELL_SIZE}
+                width={CELL_WIDTH}
+                height={CELL_HEIGHT}
                 fill="white"
                 stroke="#F0F0F0"
                 strokeWidth={1}
+                onPress={() => { 
+                  if (cell.timestamp) {
+                    setSelectedDay(cell.timestamp); 
+                    onDataPointSelect({ day: cell.timestamp }); 
+                  }
+                }}
               />
               <SvgText
-                x={cell.x + CELL_SIZE / 2}
-                y={cell.y + CELL_SIZE / 2}
+                x={cell.x + CELL_WIDTH / 2}
+                y={cell.y + CELL_HEIGHT / 2}
                 textAnchor="middle"
                 alignmentBaseline="central"
-                fill={cell.date === today.getDate() ? '#7B5CB8' : '#333'}
-                fontWeight={cell.date === today.getDate() ? 'bold' : 'normal'}
+                fill={cell.timestamp?.getTime() === selectedDay.getTime() ? '#7B5CB8' : '#333'}
+                fontWeight={cell.timestamp?.getTime() === selectedDay.getTime() ? 'bold' : 'normal'}
               >
-                {cell.date}
+                {cell.timestamp?.getDate()}
               </SvgText>
             </G>
           ))}
