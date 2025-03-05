@@ -8,9 +8,7 @@ type CalendarProps = {
     timestamp: Date;
     weight: number;
   }>;
-  onDataPointSelect: (selectedData: {
-    day: Date;
-  }) => void;
+  onDataPointSelect: (day: Date) => void;
 };
 
 type WeightRecord = {
@@ -127,7 +125,7 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
                 onPress={() => { 
                   if (cell.timestamp) {
                     setSelectedDay(cell.timestamp); 
-                    onDataPointSelect({ day: cell.timestamp }); 
+                    onDataPointSelect(cell.timestamp); 
                   }
                 }}
               />
