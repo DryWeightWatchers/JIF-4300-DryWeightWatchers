@@ -5,9 +5,7 @@ type ChartProps = {
     timestamp: Date;
     weight: number;
   }>;
-  onDataPointSelect: (selectedData: { 
-    day: Date;
-  }) => void;
+  onDataPointSelect: (day: Date) => void;
 };
 
 type WeightRecord = {
@@ -55,13 +53,31 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
   };
 
   useEffect(() => {
-    const filteredData = weightRecord.filter((point) => {
+    let monthlyData = weightRecord.filter((point) => {
       return (
         point.timestamp.getFullYear() === selectedMonth.getFullYear() &&
         point.timestamp.getMonth() === selectedMonth.getMonth()
       );
     });
-    setSelectedMonthRecord(filteredData);
+    const aggregatedData = monthlyData.reduce((acc: { [key: string]: { timestamp: Date, weight: number, count: number } }, point) => {
+      const dateKey = point.timestamp.toDateString();
+      if (!acc[dateKey]) {
+        acc[dateKey] = { ...point, weight: 0, count: 0 };
+      }
+      acc[dateKey].weight += Number(point.weight);
+      acc[dateKey].count += 1;
+      return acc;
+    }, {});
+  
+    const result = Object.keys(aggregatedData).map((dateKey) => {
+      const { timestamp, weight, count } = aggregatedData[dateKey];
+      return {
+        timestamp,
+        weight: weight / count,
+      };
+    }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  
+    setSelectedMonthRecord(result);
   }, [selectedMonth, weightRecord]);
 
   useEffect(() => {
@@ -211,7 +227,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
                   cy={y}
                   r={isSelected ? "8" : "6"}
                   fill={isSelected ? "#4f3582" : "#7B5CB8"}
-                  onClick={() => { setSelectedDay(point.timestamp); onDataPointSelect({ day: point.timestamp }); }}
+                  onClick={() => { setSelectedDay(point.timestamp); onDataPointSelect(point.timestamp); }}
                 />
               </g>
             );

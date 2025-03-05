@@ -30,11 +30,7 @@ const PatientDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedDay, setSelectedDay] = useState<{
-    day: Date;
-    weight?: number;
-    notes?: string;
-  } | null>({ day: new Date() });
+  const [selectedDay, setSelectedDay] = useState(new Date());
   const [chart, setChart] = useState('chart');
   const navigate = useNavigate(); 
 
@@ -76,22 +72,10 @@ const PatientDetails: React.FC = () => {
     }
   };
 
-  const handleDataPointSelect = (selectedData: { day: Date }) => {
+  const handleDataPointSelect = (day: Date) => {
     if (!patient) return;
-  
-    const selectedWeightRecord = patient.weight_history?.find(record => 
-      new Date(record.timestamp).toDateString() === selectedData.day.toDateString()
-    );
-    
-    const selectedNotes = patient.notes_history?.filter(note =>
-      new Date(note.timestamp).toDateString() === selectedData.day.toDateString()
-    ).map(note => note.note).join('\n') || 'No notes for this day';
-  
-    setSelectedDay({
-      day: selectedData.day,
-      weight: selectedWeightRecord ? selectedWeightRecord.weight : undefined,
-      notes: selectedNotes,
-    });
+
+    setSelectedDay(day)
   };
   
 
@@ -191,15 +175,63 @@ const PatientDetails: React.FC = () => {
 
         <div className={styles.patient_info}>
           <p><span className={styles.label}>Selected Day: </span> 
-            {selectedDay!.day.toLocaleDateString('en-US', {
+            {selectedDay!.toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             })}
           </p>
-          <p><span className={styles.label}>Weight Recorded: </span> {selectedDay!.weight ? `${selectedDay!.weight} lbs` : "N/A"}</p>
-          <p><span className={styles.label}>Notes: </span> {selectedDay!.notes ? selectedDay!.notes : "No notes for this day"}</p>
+          {selectedDay && (
+            <div className={styles.noteSection}>
+              <text className={styles.label}>Weight Recorded:</text>
+              {patient?.weight_history?.filter(record => 
+                  new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
+                  new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
+                  new Date(record.timestamp).getDate() === selectedDay.getDate()
+                ).map((record, index) => (
+                  <div key={index} className={styles.noteItem}>
+                    <text className={styles.noteValue}>
+                      {record.weight} lbs
+                    </text>
+                    <text className={styles.noteTime}>
+                      {new Date(record.timestamp).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </text>
+                  </div>
+                ))}
+              {!patient?.weight_history?.some(record => 
+                new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
+                new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
+                new Date(record.timestamp).getDate() === selectedDay.getDate()
+              ) && (
+                <text>No weight records for this day</text>
+              )}
+              <text className={styles.label}>Notes:</text>
+              {patient?.notes_history?.filter(note => 
+                  note.timestamp.toDateString() === selectedDay.toDateString()
+                )
+                .map((note, index) => (
+                  <div key={index} className={styles.noteItem}>
+                    <text className={styles.noteText}>{note.note}</text>
+                    <text className={styles.noteTime}>
+                      {note.timestamp.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </text>
+                  </div>
+                ))}
+              
+              {!patient?.notes_history?.some(note => 
+                note.timestamp.toDateString() === selectedDay.toDateString()
+              ) && (
+                <text> No notes for this day</text>
+              )}
+            </div>
+          )}
         </div>
 
         <div className={styles.button_container}>
