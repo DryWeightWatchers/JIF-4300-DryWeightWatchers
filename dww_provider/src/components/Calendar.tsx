@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
-import Svg, { Text as SvgText, Rect, G, Circle } from 'react-native-svg';
-import Ionicons from '@expo/vector-icons/Ionicons'; 
+import { useState, useEffect, useRef } from 'react';
 
 type CalendarProps = {
   weightRecord: Array<{ 
@@ -23,15 +20,11 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
   const [selectedDay, setSelectedDay] = useState(new Date());
+  const chartContainerRef = useRef<HTMLDivElement>(null);
   const MARGIN = 16;
   const CELL_WIDTH = (dimensions.width - MARGIN * 2) / 7;
   const CELL_HEIGHT = (dimensions.height - MARGIN * 2) / 7;
   const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  const onLayout = (event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setDimensions({ width, height });
-  };
 
   const handleNextMonth = () => {
     let nextMonth = new Date(selectedMonth);
@@ -54,6 +47,21 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
     });
     setSelectedMonthRecord(filteredData);
   }, [selectedMonth, weightRecord]);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (chartContainerRef.current) {
+        const { width, height } = chartContainerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+  
+    updateDimensions();
+  
+    window.addEventListener('resize', updateDimensions);
+  
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   //main calendar construction
   const grid = [];
@@ -81,27 +89,27 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <div style={{ flex: 1 }}>
 
-      <View style={styles.monthHeader}>
-        <TouchableOpacity onPress={handlePrevMonth}>
-          <Ionicons name="chevron-back" size={24} color="#7B5CB8" />
-        </TouchableOpacity>
+      <div style={styles.monthHeader}>
+        <button onClick={handlePrevMonth} style={{ backgroundColor: '#7B5CB8' }}>
+            &#9664;
+        </button>
         
-        <Text style={styles.monthText}>
+        <text style={{...styles.monthText, userSelect: 'none', pointerEvents: 'none'}}>
           {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </Text>
+        </text>
         
-        <TouchableOpacity onPress={handleNextMonth}>
-          <Ionicons name="chevron-forward" size={24} color="#7B5CB8" />
-        </TouchableOpacity>
-      </View>
+        <button onClick={handleNextMonth} style={{ backgroundColor: '#7B5CB8' }}>
+            &#9654;
+        </button>
+      </div>
 
-      <View style={styles.chartContainer} onLayout={onLayout}>
-        <Svg width={dimensions.width} height={dimensions.height}>
-          <G>
+      <div style={styles.chartContainer} ref={chartContainerRef}>
+        <svg width={dimensions.width} height={dimensions.height}>
+          <g>
             {DAYS.map((day, index) => (
-              <SvgText
+              <text
                 key={day}
                 x={index * CELL_WIDTH + CELL_WIDTH / 2 + MARGIN}
                 y={CELL_HEIGHT / 2}
@@ -109,14 +117,15 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
                 alignmentBaseline="central"
                 fill="#7B5CB8"
                 fontSize={14}
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
               >
                 {day}
-              </SvgText>
+              </text>
             ))}
-          </G>
+          </g>
           {grid.map((cell, index) => (
-            <G key={index}>
-              <Rect
+            <g key={index}>
+              <rect
                 x={cell.x}
                 y={cell.y}
                 width={CELL_WIDTH}
@@ -124,7 +133,7 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
                 fill="white"
                 stroke="#F0F0F0"
                 strokeWidth={1}
-                onPress={() => { 
+                onClick={() => { 
                   if (cell.timestamp) {
                     setSelectedDay(cell.timestamp); 
                     onDataPointSelect({ day: cell.timestamp }); 
@@ -132,67 +141,62 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
                 }}
               />
               {cell.timestamp?.getTime() === selectedDay.getTime() && (
-                <Circle
+                <circle
                   cx={cell.x + CELL_WIDTH / 2}
                   cy={cell.y + CELL_HEIGHT / 2}
                   r={12}
                   fill="#7B5CB8"
                 />
               )}
-              <SvgText
+              <text
                 x={cell.x + CELL_WIDTH / 2}
                 y={cell.y + CELL_HEIGHT / 2}
                 textAnchor="middle"
                 alignmentBaseline="central"
                 fill={cell.timestamp?.getTime() === selectedDay.getTime() ? 'white' : '#333'}
                 fontWeight={cell.timestamp?.getTime() === selectedDay.getTime() ? 'bold' : 'normal'}
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
               >
                 {cell.timestamp?.getDate()}
-              </SvgText>
+              </text>
               {cell.hasWeightRecord && cell.timestamp?.getTime() != selectedDay.getTime() && (
-                <View style={{ position: 'absolute' }}>
-                  <Ionicons
-                    name="checkmark-sharp"
-                    size={12}
-                    color="#4f3582"
-                    style={{
-                      position: 'absolute',
-                      top: cell.y + CELL_HEIGHT - 16,
-                      left: cell.x + (CELL_WIDTH / 2) - 6,
-                    }}
-                  />
-                </View> 
+                <text
+                  x={cell.x + CELL_WIDTH / 2 - 6}
+                  y={cell.y + (CELL_HEIGHT / 2) + 22}
+                  fill="#7B5CB8"
+                  fontSize={14}
+                  style={{ userSelect: 'none', pointerEvents: 'none' }}
+                >
+                ✓
+                </text>
               )}
-            </G>
+            </g>
           ))}
-        </Svg>
-      </View>
-    </View>
+        </svg>
+      </div>
+    </div>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   monthHeader: {
-    flexDirection: 'row',
+    display: 'flex',
+    FlexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 5,
-    borderColor: '#7B5CB8',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    padding: '5px',
   },
   monthText: {
-    fontSize: 16,
+    fontSize: '16px',
     fontWeight: '600',
     color: '#4f3582',
   },
   chartContainer: {
     borderColor: '#7B5CB8',
-    borderWidth: 1,
+    borderWidth: '1px',
     flex: 1,
+    height: '400px'
   },
-});
+};
 
 export default Calendar;
