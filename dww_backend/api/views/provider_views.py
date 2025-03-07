@@ -123,3 +123,30 @@ def get_patient_data(request):
         return JsonResponse(response_data, safe=False)
     else:
         return JsonResponse({"error": "Patient not found"}, status=404)
+
+
+@api_view(['POST']) 
+@authentication_classes([SessionAuthentication]) 
+@permission_classes([IsAuthenticated]) 
+def add_patient_note(request): 
+    try: 
+        data = json.loads(request.body) 
+        patient_id = data.get('patient') 
+        note_type = data.get('note_type', PatientNote.GENERIC) 
+        timestamp = data.get('timestamp') 
+        note = data.get('note') 
+
+        try: 
+            patient = User.objects.get(id=patient_id, role=User.PATIENT) 
+        except User.DoesNotExist: 
+            return JsonResponse({'error': 'Invalid patient ID'}, status=400)
+    
+        PatientNote.objects.create(
+            patient=patient,
+            note_type=note_type,
+            note=note,
+            timestamp=timestamp
+        )
+
+    except json.JSONDecodeError: 
+        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
