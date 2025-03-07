@@ -89,9 +89,15 @@ class WeightRecord(models.Model):
 class PatientNote(models.Model):
     GENERIC = 'generic' 
     MEDICATION = 'medication' 
+    AGE = 'age' 
+    SEX = 'sex' 
+    HEIGHT = 'height '
     TYPE_CHOICES = [
         (GENERIC, 'Generic'),
         (MEDICATION, 'Medication'),
+        (AGE, 'Age'), 
+        (SEX, 'Sex'), 
+        (HEIGHT, 'Height') 
     ]
     patient = models.ForeignKey(
         User, 
@@ -101,7 +107,7 @@ class PatientNote(models.Model):
     )
     note_type = models.CharField(choices=TYPE_CHOICES, max_length=10, 
                                  blank=True, null=True, default=GENERIC)
-    timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    timestamp = models.DateTimeField(blank=True, null=True)
     note = models.TextField(blank=True)
 
 class PatientReminder(models.Model):
