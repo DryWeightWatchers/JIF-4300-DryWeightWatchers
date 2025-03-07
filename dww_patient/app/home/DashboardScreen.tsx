@@ -21,11 +21,7 @@ const DashboardScreen = () => {
   const navigation = useNavigation<HomeTabScreenProps<'Dashboard'>['navigation']>();
   const { accessToken, refreshAccessToken, logout } = useAuth();
   const [chart, setChart] = useState('chart');
-  const [selectedDay, setSelectedDay] = useState<{
-    day: Date;
-    weight?: number;
-    notes?: string;
-  } | null>({ day: new Date() });
+  const [selectedDay, setSelectedDay] = useState(new Date());
   const [weightRecord, setWeightRecord] = useState<WeightRecord[]>([]);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
 
@@ -89,6 +85,10 @@ const DashboardScreen = () => {
     }
   }
 
+  const handleDataPointSelect = (day: Date) => {
+    setSelectedDay(day);
+  };
+/*
   const handleDataPointSelect = (selectedData: { day: Date }) => {
     setSelectedDay({
       day: selectedData.day,
@@ -98,7 +98,7 @@ const DashboardScreen = () => {
         .map(note => note.note).join('\n') || 'No notes for this day',
     });
   };
-
+*/
   useFocusEffect(
     useCallback(() => {
       fetchWeightRecord();
@@ -133,7 +133,7 @@ const DashboardScreen = () => {
           <View style={styles.noteSection}>
             <Text style={styles.noteLabel}>Date:</Text>
             <Text style={styles.noteValue}>
-              {selectedDay.day.toLocaleDateString('en-US', {
+              {selectedDay.toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -142,20 +142,41 @@ const DashboardScreen = () => {
             </Text>
           </View>
 
-          {selectedDay.weight && (
-            <View style={styles.noteSection}>
-              <Text style={styles.noteLabel}>Weight Recorded:</Text>
-              <Text style={styles.noteValue}>
-                {selectedDay.weight} lbs
-              </Text>
-            </View>
-          )}
+          <View style={styles.noteSection}>
+            <Text style={styles.noteLabel}>Weight Recorded:</Text>
+            {weightRecord
+              .filter(record => 
+                record.timestamp.getFullYear() === selectedDay.getFullYear() &&
+                record.timestamp.getMonth() === selectedDay.getMonth() &&
+                record.timestamp.getDate() === selectedDay.getDate()
+              )
+              .map((record, index) => (
+                <View key={index} style={styles.noteItem}>
+                  <Text style={styles.noteValue}>
+                    {record.weight} lbs
+                  </Text>
+                  <Text style={styles.noteTime}>
+                    {record.timestamp.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </Text>
+                </View>
+              ))}
+            {!weightRecord.some(record => 
+              record.timestamp.getFullYear() === selectedDay.getFullYear() &&
+              record.timestamp.getMonth() === selectedDay.getMonth() &&
+              record.timestamp.getDate() === selectedDay.getDate()
+            ) && (
+              <Text style={styles.noText}>No weight records for this day</Text>
+            )}
+          </View>
 
           <View style={styles.noteSection}>
             <Text style={styles.noteLabel}>Notes:</Text>
             {patientNotes
               .filter(note => 
-                note.timestamp.toDateString() === selectedDay.day.toDateString()
+                note.timestamp.toDateString() === selectedDay.toDateString()
               )
               .map((note, index) => (
                 <View key={index} style={styles.noteItem}>
@@ -170,9 +191,9 @@ const DashboardScreen = () => {
               ))}
             
             {!patientNotes.some(note => 
-              note.timestamp.toDateString() === selectedDay.day.toDateString()
+              note.timestamp.toDateString() === selectedDay.toDateString()
             ) && (
-              <Text style={styles.noNotesText}>No notes for this day</Text>
+              <Text style={styles.noText}>No notes for this day</Text>
             )}
           </View>
         </View>
@@ -276,7 +297,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
-  noNotesText: {
+  noText: {
     fontStyle: 'italic',
     color: '#999',
     textAlign: 'center',
