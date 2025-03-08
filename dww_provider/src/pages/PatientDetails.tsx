@@ -93,6 +93,7 @@ const PatientDetails: React.FC = () => {
 
         const data = await res.json();
         setPatient(data);
+        console.log('patient data: ', data);           //         ----------------- temp 
       } catch (err: any) {
         setError(err.message);
       } finally {

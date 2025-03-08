@@ -110,19 +110,25 @@ def get_patient_data(request):
         patient_id=patient_id
     ).order_by('timestamp').values('weight', 'timestamp'))
 
-    patientInformation = User.objects.filter(id=patient_id, role='patient').annotate(
+    patient_info = User.objects.filter(id=patient_id, role='patient').annotate(
         latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                                .values('weight')[:1]),
         latest_weight_timestamp=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                                          .values('timestamp')[:1])
     ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
 
-    if patientInformation.exists():
-        response_data = dict(patientInformation[0])
-        response_data["weight_history"] = weight_history
-        return JsonResponse(response_data, safe=False)
-    else:
+    patient_notes = list(PatientNote.objects.filter(
+        patient_id=patient_id
+    ).order_by('-timestamp').values('id', 'note_type', 'timestamp', 'note'))
+
+    if not patient_info.exists(): 
         return JsonResponse({"error": "Patient not found"}, status=404)
+    
+    response_data = dict(patient_info[0])
+    response_data["weight_history"] = weight_history
+    response_data["notes"] = patient_notes 
+    return JsonResponse(response_data, safe=False)
+
 
 
 @api_view(['POST']) 
