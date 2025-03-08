@@ -65,7 +65,7 @@ class PatientInfo(models.Model):
         ('F', 'Female'),
         ('O', 'Other'),
     ]
-    patient_id = models.OneToOneField(
+    patient = models.OneToOneField(
         User, 
         on_delete=models.CASCADE,
         limit_choices_to={'role': 'PATIENT'},
