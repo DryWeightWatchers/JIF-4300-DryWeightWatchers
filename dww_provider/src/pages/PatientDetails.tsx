@@ -187,22 +187,22 @@ const PatientDetails: React.FC = () => {
           {selectedDay && (
             <>
               <div className={styles.noteSection}>
-                <text className={styles.label}>Weight Recorded:</text>
+                <span className={styles.label}>Weight Recorded:</span>
                 {patient?.weight_history?.filter(record => 
                     new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
                     new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
                     new Date(record.timestamp).getDate() === selectedDay.getDate()
                   ).map((record, index) => (
                     <div key={index} className={styles.noteItem}>
-                      <text className={styles.noteValue}>
+                      <span className={styles.noteValue}>
                         {record.weight} lbs
-                      </text>
-                      <text className={styles.noteTime}>
+                      </span>
+                      <span className={styles.noteTime}>
                         {new Date(record.timestamp).toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
-                      </text>
+                      </span>
                     </div>
                   ))}
                 {!patient?.weight_history?.some(record => 
@@ -210,31 +210,31 @@ const PatientDetails: React.FC = () => {
                   new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
                   new Date(record.timestamp).getDate() === selectedDay.getDate()
                 ) && (
-                  <text>No weight records for this day</text>
+                  <span>No weight records for this day</span>
                 )}
               </div>
 
               <div className={styles.noteSection}>
-                <text className={styles.label}>Notes:</text>
+                <span className={styles.label}>Notes:</span>
                 {patient?.notes_history?.filter(note => 
                     note.timestamp.toDateString() === selectedDay.toDateString()
                   )
                   .map((note, index) => (
                     <div key={index} className={styles.noteItem}>
-                      <text className={styles.noteText}>{note.note}</text>
-                      <text className={styles.noteTime}>
+                      <span className={styles.noteText}>{note.note}</span>
+                      <span className={styles.noteTime}>
                         {note.timestamp.toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
-                      </text>
+                      </span>
                     </div>
                   ))}
                 
                 {!patient?.notes_history?.some(note => 
                   note.timestamp.toDateString() === selectedDay.toDateString()
                 ) && (
-                  <text> No notes for this day</text>
+                  <span> No notes for this day</span>
                 )}
               </div>
             </>
