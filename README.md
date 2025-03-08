@@ -6,7 +6,7 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 # Release Notes
 
 <details>
-  <summary>Version 0.3.0: </summary>
+  <summary>Version 0.3.0: Weight Visualization and Provider Interface </summary>
   
   ### Features
   #### For patients on the mobile interface: 
