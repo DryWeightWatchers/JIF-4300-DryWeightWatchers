@@ -136,7 +136,7 @@ def get_patient_data(request):
 @permission_classes([IsAuthenticated]) 
 def add_patient_note(request): 
     try: 
-        data = json.loads(request.body) 
+        data = request.data
         patient_id = data.get('patient') 
         note_type = data.get('note_type', PatientNote.GENERIC) 
         timestamp = data.get('timestamp') 
@@ -153,6 +153,7 @@ def add_patient_note(request):
             note=note,
             timestamp=timestamp
         )
+        return JsonResponse({}, status=200)
 
     except json.JSONDecodeError: 
         return JsonResponse({'error': 'Invalid JSON'}, status=400) 
