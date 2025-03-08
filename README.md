@@ -6,6 +6,40 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 # Release Notes
 
 <details>
+  <summary>Version 0.3.0: Weight Visualization and Provider Interface </summary>
+  
+  ### Features
+  #### For patients on the mobile interface: 
+  - Patients can view a visualization of their weight record in one of two ways:
+    - a line graph on a chart showing change over time
+    - a calendar marking days with a successful weight record
+  - Patients may click on any point or day in the dashboard screen to view the exact weight record, day, and notes associated with that day.
+  - Patients may edit their account details in profile screen.
+  - Patients may add notes to each day for personal use.
+  #### For providers on the desktop interface: 
+  - Providers have the same data visualizations available to the patient, but are able to view individual patient details within the patient details screen.
+  - Provider may edit/change their account details.
+  - Large UI overhaul to look more modern.
+
+  ### Bug Fixes
+  - Account email, first, and last name are recorded upon account deletion instead of total deletion.
+  - Reminders now make a little noise.
+  - User sessions are correctly deleted routinely from database.
+
+  ### Known Issues
+  - Shareable ID input on mobile interface has autocorrect enabled.
+  - Shareable ID is not marked as required unique.
+  - Accounts screen contains a large number of account-related features. These features can likely be separated onto their own screens to reduce clutter.
+  - Patient log-in has a 'forgot password' option, but that feature is not planned in scope of the project.
+  - Patient log-in does not have an option to unhide password.
+  - Patient details screen can theoretically overflow with same-day weight records if too many exist on the same day.
+  - Patient home screen is functionally unnecessary. A mobile UI overhaul may remove it and default to Enter Data screen instead.
+  - Many error messages are mainly coded in console messages, leaving little information feedback to the typical user.
+  - Loading screens are only present in a few recent screens rather than universal/standardized.
+  - Various typescript errors due to unstrictly typed functions. Does not impede functionality.
+</details>
+
+<details>
   <summary>Version 0.2.0: Record Weight, Account Settings, Reminder Notifications</summary>
   
   ### Features
