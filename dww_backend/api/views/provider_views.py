@@ -130,7 +130,6 @@ def get_patient_data(request):
     return JsonResponse(response_data, safe=False)
 
 
-
 @api_view(['POST']) 
 @authentication_classes([SessionAuthentication]) 
 @permission_classes([IsAuthenticated]) 
@@ -154,6 +153,35 @@ def add_patient_note(request):
             timestamp=timestamp
         )
         return JsonResponse({}, status=200)
+
+    except json.JSONDecodeError: 
+        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+
+
+@api_view(['POST']) 
+@authentication_classes([SessionAuthentication]) 
+@permission_classes([IsAuthenticated]) 
+def add_patient_info(request): 
+    try: 
+        data = request.data 
+        patient_id = data.get('patient') 
+        date_of_birth = data.get('date_of_birth') 
+        height = data.get('height') 
+        sex = data.get('sex') 
+        medications = data.get('medications') 
+        other_info = data.get('other_info') 
+        try: 
+            patient = User.objects.get(id=patient_id, role=User.PATIENT) 
+        except User.DoesNotExist: 
+            return JsonResponse({'error': 'Invalid patient ID'}, status=400)
+
+        patient_info, _ = PatientInfo.objects.get_or_create(patient_id=patient_id)
+        patient_info.date_of_birth = date_of_birth
+        patient_info.height = height
+        patient_info.sex = sex
+        patient_info.medications = medications
+        patient_info.other_info = other_info
+        patient_info.save()
 
     except json.JSONDecodeError: 
         return JsonResponse({'error': 'Invalid JSON'}, status=400) 
