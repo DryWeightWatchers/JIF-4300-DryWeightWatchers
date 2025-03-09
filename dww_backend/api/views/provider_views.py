@@ -110,16 +110,78 @@ def get_patient_data(request):
         patient_id=patient_id
     ).order_by('timestamp').values('weight', 'timestamp'))
 
-    patientInformation = User.objects.filter(id=patient_id, role='patient').annotate(
+    patient_info = User.objects.filter(id=patient_id, role='patient').annotate(
         latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                                .values('weight')[:1]),
         latest_weight_timestamp=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                                          .values('timestamp')[:1])
     ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
 
-    if patientInformation.exists():
-        response_data = dict(patientInformation[0])
-        response_data["weight_history"] = weight_history
-        return JsonResponse(response_data, safe=False)
-    else:
+    patient_notes = list(PatientNote.objects.filter(
+        patient_id=patient_id
+    ).order_by('-timestamp').values('id', 'note_type', 'timestamp', 'note'))
+
+    if not patient_info.exists(): 
         return JsonResponse({"error": "Patient not found"}, status=404)
+    
+    response_data = dict(patient_info[0])
+    response_data["weight_history"] = weight_history
+    response_data["notes"] = patient_notes 
+    return JsonResponse(response_data, safe=False)
+
+
+@api_view(['POST']) 
+@authentication_classes([SessionAuthentication]) 
+@permission_classes([IsAuthenticated]) 
+def add_patient_note(request): 
+    try: 
+        data = request.data
+        patient_id = data.get('patient') 
+        note_type = data.get('note_type', PatientNote.GENERIC) 
+        timestamp = data.get('timestamp') 
+        note = data.get('note') 
+
+        try: 
+            patient = User.objects.get(id=patient_id, role=User.PATIENT) 
+        except User.DoesNotExist: 
+            return JsonResponse({'error': 'Invalid patient ID'}, status=400)
+    
+        PatientNote.objects.create(
+            patient=patient,
+            note_type=note_type,
+            note=note,
+            timestamp=timestamp
+        )
+        return JsonResponse({}, status=200)
+
+    except json.JSONDecodeError: 
+        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+
+
+@api_view(['POST']) 
+@authentication_classes([SessionAuthentication]) 
+@permission_classes([IsAuthenticated]) 
+def add_patient_info(request): 
+    try: 
+        data = request.data 
+        patient_id = data.get('patient') 
+        date_of_birth = data.get('date_of_birth') 
+        height = data.get('height') 
+        sex = data.get('sex') 
+        medications = data.get('medications') 
+        other_info = data.get('other_info') 
+        try: 
+            patient = User.objects.get(id=patient_id, role=User.PATIENT) 
+        except User.DoesNotExist: 
+            return JsonResponse({'error': 'Invalid patient ID'}, status=400)
+
+        patient_info, _ = PatientInfo.objects.get_or_create(patient_id=patient_id)
+        patient_info.date_of_birth = date_of_birth
+        patient_info.height = height
+        patient_info.sex = sex
+        patient_info.medications = medications
+        patient_info.other_info = other_info
+        patient_info.save()
+
+    except json.JSONDecodeError: 
+        return JsonResponse({'error': 'Invalid JSON'}, status=400) 

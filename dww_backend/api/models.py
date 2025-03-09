@@ -58,7 +58,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email}, ({self.role})"
-    
+
+class PatientInfo(models.Model):
+    SEX_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    patient = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'PATIENT'},
+        related_name='patient_info'
+    )
+    height = models.DecimalField(max_digits=5, decimal_places=2)  # in cm 
+    date_of_birth = models.DateField()  # for keeping track of age 
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
+    medications = models.TextField(blank=True)
+    other_info = models.TextField(blank=True) 
+    last_updated = models.DateTimeField(auto_now=True)
 
 # Other tables/fields with many-to-one relations to a patient profile.
 
@@ -87,21 +105,13 @@ class WeightRecord(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
 class PatientNote(models.Model):
-    GENERIC = 'generic' 
-    MEDICATION = 'medication' 
-    TYPE_CHOICES = [
-        (GENERIC, 'Generic'),
-        (MEDICATION, 'Medication'),
-    ]
     patient = models.ForeignKey(
         User, 
         limit_choices_to={'role': User.PATIENT}, 
         on_delete=models.CASCADE, 
         related_name='patient_notes'
     )
-    note_type = models.CharField(choices=TYPE_CHOICES, max_length=10, 
-                                 blank=True, null=True, default=GENERIC)
-    timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    timestamp = models.DateTimeField(blank=True, null=True)
     note = models.TextField(blank=True)
 
 class PatientReminder(models.Model):

@@ -22,7 +22,7 @@ type Patient = {
   latest_weight: number | null;
   latest_weight_timestamp: string | null;
   weight_history?: WeightRecord[];
-  notes_history?: PatientNote[];
+  notes?: PatientNote[];
 };
 
 const PatientDetails: React.FC = () => {
@@ -32,6 +32,8 @@ const PatientDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [chart, setChart] = useState('chart');
+  const [addNoteText, setAddNoteText] = useState<string>(''); 
+  const [refresh, setRefresh] = useState<boolean>(false); 
   const navigate = useNavigate(); 
 
   const getCSRFToken = async () => {
@@ -74,8 +76,40 @@ const PatientDetails: React.FC = () => {
 
   const handleDataPointSelect = (day: Date) => {
     if (!patient) return;
-
     setSelectedDay(day)
+  };
+
+  const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey) { return; } 
+    event.preventDefault();  // don't type a newline 
+    const csrfToken = await getCSRFToken(); 
+    try {
+      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-note`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken, 
+        }, 
+        credentials: "include", 
+        body: JSON.stringify({
+          patient: id, 
+          note_type: "generic", 
+          timestamp: selectedDay, 
+          note: addNoteText
+        }),
+      });
+
+      if (response.ok) {
+        console.log("New note added");
+        setAddNoteText(""); 
+        setRefresh(!refresh); 
+      } else {
+        console.error("Failed to add note");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
   };
   
 
@@ -90,9 +124,18 @@ const PatientDetails: React.FC = () => {
         if (!res.ok) {
           throw new Error(`HTTP error: ${res.status}`);
         }
-
         const data = await res.json();
+
+        // convert timestamps in notes to Date objects
+        if (data.notes) {
+          data.notes = data.notes.map((note: PatientNote) => ({
+            ...note,
+            timestamp: new Date(note.timestamp),
+          }));
+        }
+
         setPatient(data);
+        console.log('patient data: ', data);           //         ----------------- temp 
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -101,7 +144,7 @@ const PatientDetails: React.FC = () => {
     };
 
     getPatientData();
-  }, [id]);
+  }, [id, refresh]);
 
 
   if (loading) {
@@ -174,63 +217,76 @@ const PatientDetails: React.FC = () => {
         </div>
 
         <div className={styles.patient_info}>
-          <p><span className={styles.label}>Selected Day: </span> 
+          <div className={styles.noteSection}>
+            <span className={styles.label}>Selected Day: </span> 
             {selectedDay!.toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             })}
-          </p>
+          </div>
           {selectedDay && (
-            <div className={styles.noteSection}>
-              <text className={styles.label}>Weight Recorded:</text>
-              {patient?.weight_history?.filter(record => 
+            <>
+              <div className={styles.noteSection}>
+                <span className={styles.label}>Weight Recorded: </span>
+                {patient?.weight_history?.filter(record => 
+                    new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
+                    new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
+                    new Date(record.timestamp).getDate() === selectedDay.getDate()
+                  ).map((record, index) => (
+                    <div key={index} className={styles.noteItem}>
+                      <span className={styles.noteValue}>
+                        {record.weight} lbs
+                      </span>
+                      <span className={styles.noteTime}>
+                        {new Date(record.timestamp).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  ))}
+                {!patient?.weight_history?.some(record => 
                   new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
                   new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
                   new Date(record.timestamp).getDate() === selectedDay.getDate()
-                ).map((record, index) => (
-                  <div key={index} className={styles.noteItem}>
-                    <text className={styles.noteValue}>
-                      {record.weight} lbs
-                    </text>
-                    <text className={styles.noteTime}>
-                      {new Date(record.timestamp).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </text>
-                  </div>
-                ))}
-              {!patient?.weight_history?.some(record => 
-                new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
-                new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
-                new Date(record.timestamp).getDate() === selectedDay.getDate()
-              ) && (
-                <text>No weight records for this day</text>
-              )}
-              <text className={styles.label}>Notes:</text>
-              {patient?.notes_history?.filter(note => 
+                ) && (
+                  <span>No weight records for this day</span>
+                )}
+              </div>
+
+              <div className={styles.noteSection}>
+                <span className={styles.label}>Notes: </span>
+                {patient?.notes?.filter(note => 
+                    note.timestamp.toDateString() === selectedDay.toDateString()
+                  )
+                  .map((note, index) => (
+                    <div key={index} className={styles.noteItem}>
+                      <span className={styles.noteText}>{note.note}</span>
+                      <span className={styles.noteTime}>
+                        {note.timestamp.toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  ))}
+                
+                {!patient?.notes?.some(note => 
                   note.timestamp.toDateString() === selectedDay.toDateString()
-                )
-                .map((note, index) => (
-                  <div key={index} className={styles.noteItem}>
-                    <text className={styles.noteText}>{note.note}</text>
-                    <text className={styles.noteTime}>
-                      {note.timestamp.toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </text>
-                  </div>
-                ))}
-              
-              {!patient?.notes_history?.some(note => 
-                note.timestamp.toDateString() === selectedDay.toDateString()
-              ) && (
-                <text> No notes for this day</text>
-              )}
-            </div>
+                ) && (
+                  <span> No notes for this day</span>
+                )}
+              </div>
+              <textarea 
+                  value={addNoteText} 
+                  onChange={e => setAddNoteText(e.target.value)} 
+                  onKeyDown={handleKeyDown}
+                  className={styles.addNoteText} 
+                  placeholder="Type a note and press Enter..."
+              />
+            </>
           )}
         </div>
 
