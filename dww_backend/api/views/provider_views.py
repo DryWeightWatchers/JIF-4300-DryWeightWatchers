@@ -119,7 +119,7 @@ def get_patient_data(request):
 
     patient_notes = list(PatientNote.objects.filter(
         patient_id=patient_id
-    ).order_by('-timestamp').values('id', 'note_type', 'timestamp', 'note'))
+    ).order_by('-timestamp').values('id', 'timestamp', 'note'))
 
     if not patient_info.exists(): 
         return JsonResponse({"error": "Patient not found"}, status=404)
@@ -137,7 +137,6 @@ def add_patient_note(request):
     try: 
         data = request.data
         patient_id = data.get('patient') 
-        note_type = data.get('note_type', PatientNote.GENERIC) 
         timestamp = data.get('timestamp') 
         note = data.get('note') 
 
@@ -148,7 +147,6 @@ def add_patient_note(request):
     
         PatientNote.objects.create(
             patient=patient,
-            note_type=note_type,
             note=note,
             timestamp=timestamp
         )
