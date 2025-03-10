@@ -133,7 +133,7 @@ def get_patient_data(request):
     ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
     ).first() or {} 
     default_patient_info = {
-        'id': patient_id, 
+        'patient': patient_id, 
         'height': '',
         'date_of_birth': '',
         'sex': '',
@@ -181,22 +181,24 @@ def add_patient_note(request):
 @authentication_classes([SessionAuthentication]) 
 @permission_classes([IsAuthenticated]) 
 def add_patient_info(request):
-    serializer = PatientInfoSerializer(data=request.data)
+    data = request.data.copy()
+    for key, value in data.items():
+        if value == "": data[key] = None
+    
+    print(f'add_patient_info: {data}') 
+
+    try:
+        patient = User.objects.get(id=data['patient'], role=User.PATIENT)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'Invalid patient ID'}, status=400)
+
+    patient_info, _ = PatientInfo.objects.get_or_create(patient=patient)
+
+    serializer = PatientInfoSerializer(patient_info, data=data, partial=True)
     if serializer.is_valid():
-        patient_id = serializer.validated_data['patient'].id
-        
-        try:
-            patient = User.objects.get(id=patient_id, role=User.PATIENT)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'Invalid patient ID'}, status=400)
-
-        patient_info, _ = PatientInfo.objects.get_or_create(patient=patient)
-        for attr, value in serializer.validated_data.items():
-            setattr(patient_info, attr, value)
-        patient_info.last_updated = timezone.now()
-        patient_info.save()
-
+        serializer.save(last_updated=timezone.now())  
         return JsonResponse({}, status=200)
     
+    print(f'Serializer errors: {serializer.errors}')
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 

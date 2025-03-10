@@ -4,7 +4,7 @@ import styles from '../styles/PatientInfoSection.module.css';
 
 
 interface PatientInfo {
-  id?: number; 
+  patient?: number; 
   date_of_birth?: string;
   sex?: string;
   height?: string;
@@ -25,6 +25,8 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
 
   const handleEditClick = async () => {
     if (isEditing) {
+      let request_fields = fields; 
+      delete request_fields.last_updated; 
       try {
         const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-info`, {
           method: 'POST',
@@ -33,7 +35,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             'X-CSRFToken': csrfToken
           }, 
           credentials: 'include', 
-          body: JSON.stringify(fields)
+          body: JSON.stringify(request_fields)
         });
         if (!response.ok) {
           console.error('Error updating patient field data');
@@ -63,9 +65,13 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
           <input
             type="text"
             value={fields.date_of_birth || ''}
-            onChange={(event) =>
-              setFields((prev) => ({ ...prev, date_of_birth: event.target.value }))
-            }
+            placeholder="YYYY-MM-DD"
+            onChange={(event) => {
+              const value = event.target.value;
+              if (/^\d{0,4}(-\d{0,2})?(-\d{0,2})?$/.test(value)) {
+                setFields((prev) => ({ ...prev, date_of_birth: value }));
+              }
+            }}
           />
         ) : (
           <span> {fields.date_of_birth || 'N/A'}</span>
@@ -75,13 +81,17 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
       <div>
         <strong>Sex: </strong>
         {isEditing ? (
-          <input
-            type="text"
+          <select
             value={fields.sex || ''}
             onChange={(event) =>
               setFields((prev) => ({ ...prev, sex: event.target.value }))
             }
-          />
+          >
+            <option value="">Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="O">Intersex / Other</option>
+          </select>
         ) : (
           <span> {fields.sex || 'N/A'}</span>
         )}
@@ -91,14 +101,14 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
         <strong>Height: </strong>
         {isEditing ? (
           <input
-            type="text"
+            type="number"
             value={fields.height || ''}
             onChange={(event) =>
               setFields((prev) => ({ ...prev, height: event.target.value }))
             }
-          />
+          /> 
         ) : (
-          <span> {fields.height || 'N/A'}</span>
+          <span> {fields.height || 'N/A'} cm</span>
         )}
       </div>
   

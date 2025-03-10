@@ -71,11 +71,11 @@ class PatientInfo(models.Model):
         limit_choices_to={'role': 'PATIENT'},
         related_name='patient_info'
     )
-    height = models.DecimalField(max_digits=5, decimal_places=2)  # in cm 
-    date_of_birth = models.DateField()  # for keeping track of age 
-    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
-    medications = models.TextField(blank=True)
-    other_info = models.TextField(blank=True) 
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # in cm 
+    date_of_birth = models.DateField(null=True, blank=True)  # for keeping track of age 
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES, null=True, blank=True)
+    medications = models.TextField(null=True, blank=True)
+    other_info = models.TextField(null=True, blank=True) 
     last_updated = models.DateTimeField(auto_now=True)
 
 # Other tables/fields with many-to-one relations to a patient profile.

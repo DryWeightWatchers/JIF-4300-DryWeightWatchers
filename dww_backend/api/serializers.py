@@ -25,6 +25,11 @@ class ReminderSerializer(serializers.ModelSerializer):
         return ", ".join(value)
 
 class PatientInfoSerializer(serializers.ModelSerializer):
+    height = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+    date_of_birth = serializers.DateField(required=False, allow_null=True)
+    sex = serializers.ChoiceField(choices=PatientInfo.SEX_CHOICES, required=False, allow_null=True)
+    medications = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    other_info = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     class Meta:
         model = PatientInfo
         fields = ['patient', 'height', 'date_of_birth', 'sex', 'medications', 'other_info']
