@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styles from "../styles/PatientDetails.module.css";
 import Chart from '../components/Chart';
 import Calendar from '../components/Calendar';
+import PatientInfoSection from '../components/PatientInfoSection';
 
 type WeightRecord = {
   weight: number;
@@ -14,6 +15,14 @@ type PatientNote = {
   note: string,
 }
 
+interface PatientInfo {
+  date_of_birth?: string;
+  sex?: string;
+  height?: string;
+  medications?: string;
+  other_info?: string;
+}
+
 type Patient = {
   id: number;
   first_name: string;
@@ -23,6 +32,7 @@ type Patient = {
   latest_weight_timestamp: string | null;
   weight_history?: WeightRecord[];
   notes?: PatientNote[];
+  patient_info?: PatientInfo; 
 };
 
 const PatientDetails: React.FC = () => {
@@ -34,18 +44,10 @@ const PatientDetails: React.FC = () => {
   const [chart, setChart] = useState('chart');
   const [addNoteText, setAddNoteText] = useState<string>(''); 
   const [refresh, setRefresh] = useState<boolean>(false); 
+  const [csrfToken, setCsrfToken] = useState<string>(''); 
   const navigate = useNavigate(); 
 
-  const getCSRFToken = async () => {
-    const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
-      credentials: 'include',
-    });
-    const data = await response.json();
-    return data.csrfToken;
-  };
-
   const handleRemovePatientRelationship = async () => {
-    const csrfToken = await getCSRFToken();
     const confirmDelete = window.confirm(
       "Are you sure you want to remove this patient from your account?"
     );
@@ -82,7 +84,6 @@ const PatientDetails: React.FC = () => {
   const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key !== "Enter" || event.shiftKey) { return; } 
     event.preventDefault();  // don't type a newline 
-    const csrfToken = await getCSRFToken(); 
     try {
       const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-note`, {
         method: "POST",
@@ -111,7 +112,17 @@ const PatientDetails: React.FC = () => {
     }
 
   };
-  
+
+  useEffect(() => {
+    const getCSRFToken = async () => {
+      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setCsrfToken(data.csrfToken); 
+    };
+    getCSRFToken(); 
+  }, []);
 
   useEffect(() => {
     const getPatientData = async () => {
@@ -160,6 +171,8 @@ const PatientDetails: React.FC = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>{patient!.first_name} {patient!.last_name}</h1>
+
+      <PatientInfoSection patientInfo={patient!.patient_info} csrfToken={csrfToken}/>
 
       <div className={styles.details_container}>
         <div className={styles.patient_info}>

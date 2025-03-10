@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, logout, login as django_login
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import OuterRef, Subquery
+from django.utils import timezone
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -110,7 +111,7 @@ def get_patient_data(request):
         patient_id=patient_id
     ).order_by('timestamp').values('weight', 'timestamp'))
 
-    patient_info = User.objects.filter(id=patient_id, role='patient').annotate(
+    patient = User.objects.filter(id=patient_id, role='patient').annotate(
         latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                                .values('weight')[:1]),
         latest_weight_timestamp=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
@@ -121,12 +122,28 @@ def get_patient_data(request):
         patient_id=patient_id
     ).order_by('-timestamp').values('id', 'timestamp', 'note'))
 
-    if not patient_info.exists(): 
+    if not patient.exists(): 
         return JsonResponse({"error": "Patient not found"}, status=404)
     
-    response_data = dict(patient_info[0])
+    patient_info = PatientInfo.objects.filter(
+        id=patient_id
+    ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
+    ).first() or {} 
+
+    default_patient_info = {
+        'height': '',
+        'date_of_birth': '',
+        'sex': '',
+        'medications': '',
+        'other_info': '',
+        'last_updated': None 
+    }
+    patient_info = {**default_patient_info, **patient_info}  # merging db data (if exists) into default object 
+    
+    response_data = dict(patient[0])
     response_data["weight_history"] = weight_history
     response_data["notes"] = patient_notes 
+    response_data["patient_info"] = patient_info
     return JsonResponse(response_data, safe=False)
 
 
@@ -179,6 +196,7 @@ def add_patient_info(request):
         patient_info.sex = sex
         patient_info.medications = medications
         patient_info.other_info = other_info
+        patient_info.last_updated = timezone.now() 
         patient_info.save()
 
     except json.JSONDecodeError: 
