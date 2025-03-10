@@ -107,30 +107,33 @@ def dashboard(request):
 def get_patient_data(request):
     patient_id = request.GET.get("id")
 
+    # get weight records 
     weight_history = list(WeightRecord.objects.filter(
         patient_id=patient_id
     ).order_by('timestamp').values('weight', 'timestamp'))
 
+    # get account info and last weight record for convenience 
     patient = User.objects.filter(id=patient_id, role='patient').annotate(
         latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
-                               .values('weight')[:1]),
+                .values('weight')[:1]),
         latest_weight_timestamp=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
-                                         .values('timestamp')[:1])
+                .values('timestamp')[:1])
     ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
+    if not patient.exists(): 
+        return JsonResponse({"error": "Patient not found"}, status=404)
 
+    # get all timestamped notes 
     patient_notes = list(PatientNote.objects.filter(
         patient_id=patient_id
     ).order_by('-timestamp').values('id', 'timestamp', 'note'))
 
-    if not patient.exists(): 
-        return JsonResponse({"error": "Patient not found"}, status=404)
-    
+    # get patient fields 
     patient_info = PatientInfo.objects.filter(
         id=patient_id
     ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
     ).first() or {} 
-
     default_patient_info = {
+        'id': patient_id, 
         'height': '',
         'date_of_birth': '',
         'sex': '',
@@ -140,6 +143,7 @@ def get_patient_data(request):
     }
     patient_info = {**default_patient_info, **patient_info}  # merging db data (if exists) into default object 
     
+    # construct and send response 
     response_data = dict(patient[0])
     response_data["weight_history"] = weight_history
     response_data["notes"] = patient_notes 
@@ -176,28 +180,23 @@ def add_patient_note(request):
 @api_view(['POST']) 
 @authentication_classes([SessionAuthentication]) 
 @permission_classes([IsAuthenticated]) 
-def add_patient_info(request): 
-    try: 
-        data = request.data 
-        patient_id = data.get('patient') 
-        date_of_birth = data.get('date_of_birth') 
-        height = data.get('height') 
-        sex = data.get('sex') 
-        medications = data.get('medications') 
-        other_info = data.get('other_info') 
-        try: 
-            patient = User.objects.get(id=patient_id, role=User.PATIENT) 
-        except User.DoesNotExist: 
+def add_patient_info(request):
+    serializer = PatientInfoSerializer(data=request.data)
+    if serializer.is_valid():
+        patient_id = serializer.validated_data['patient'].id
+        
+        try:
+            patient = User.objects.get(id=patient_id, role=User.PATIENT)
+        except User.DoesNotExist:
             return JsonResponse({'error': 'Invalid patient ID'}, status=400)
 
-        patient_info, _ = PatientInfo.objects.get_or_create(patient_id=patient_id)
-        patient_info.date_of_birth = date_of_birth
-        patient_info.height = height
-        patient_info.sex = sex
-        patient_info.medications = medications
-        patient_info.other_info = other_info
-        patient_info.last_updated = timezone.now() 
+        patient_info, _ = PatientInfo.objects.get_or_create(patient=patient)
+        for attr, value in serializer.validated_data.items():
+            setattr(patient_info, attr, value)
+        patient_info.last_updated = timezone.now()
         patient_info.save()
 
-    except json.JSONDecodeError: 
-        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+        return JsonResponse({}, status=200)
+    
+    return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+

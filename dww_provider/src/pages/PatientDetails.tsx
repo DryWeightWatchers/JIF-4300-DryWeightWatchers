@@ -16,11 +16,13 @@ type PatientNote = {
 }
 
 interface PatientInfo {
+  id?: number; 
   date_of_birth?: string;
   sex?: string;
   height?: string;
   medications?: string;
   other_info?: string;
+  last_updated?: string; 
 }
 
 type Patient = {
