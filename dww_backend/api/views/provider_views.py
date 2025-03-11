@@ -129,7 +129,7 @@ def get_patient_data(request):
 
     # get patient fields 
     patient_info = PatientInfo.objects.filter(
-        id=patient_id
+        patient_id=patient_id
     ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
     ).first() or {} 
     default_patient_info = {
