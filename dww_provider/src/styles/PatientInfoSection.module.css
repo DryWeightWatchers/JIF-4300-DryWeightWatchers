@@ -1,0 +1,12 @@
+
+.basicInfoHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.updateSaveText {
+    color: blue; 
+    text-decoration: underline;
+    cursor: pointer; 
+}
