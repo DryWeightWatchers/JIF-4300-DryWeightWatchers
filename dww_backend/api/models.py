@@ -38,7 +38,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=50) 
     phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
-    shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None) 
+    shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None, unique=True) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
 
     username = None
@@ -48,8 +48,11 @@ class User(AbstractUser):
 
     def generate_shareable_id(self): 
         alphabet = string.ascii_uppercase + string.digits  # A-Z, 0-9 
-        random_id = ''.join(random.choices(alphabet, k=8)) 
-        return '-'.join([random_id[:4], random_id[4:]]) 
+        while True:
+            random_id = ''.join(random.choices(alphabet, k=8)) 
+            formatted_id = '-'.join([random_id[:4], random_id[4:]])
+            if not User.objects.filter(shareable_id=formatted_id).exists():
+                return formatted_id
     
     def save(self, *args, **kwargs): 
         if self.role == self.PROVIDER and not self.shareable_id: 

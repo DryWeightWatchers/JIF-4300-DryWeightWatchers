@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
 import { useAuth } from '../components/AuthContext.tsx'
 import { useNavigate } from 'react-router-dom';
+import { formatPhoneNumber } from '../utils/formatting.ts';
 
 type ProfileData = {
   firstname: string,
@@ -220,7 +221,7 @@ const Profile = () => {
             </>
           ) : (
             <>
-              <p>{profileData?.phone}</p>
+              <p>{formatPhoneNumber(profileData?.phone)}</p>
               <a href="#" onClick={() => { setEditingField('phone'); setTempValue(profileData?.phone || '') }}>Change phone</a>
             </>
           )}
