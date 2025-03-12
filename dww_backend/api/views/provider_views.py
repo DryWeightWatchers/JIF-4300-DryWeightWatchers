@@ -1,10 +1,13 @@
 
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, logout, login as django_login
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from django.conf import settings
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -12,6 +15,16 @@ import json
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Optional: configure logging if not already done in settings.py
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s %(message)s',
+)
+
 
 """
 Note: All provider-facing APIs should use Django's built-in (session-based) authentication 
@@ -55,6 +68,8 @@ def register_provider(request):
             user.role = User.PROVIDER 
             user.set_password(form.cleaned_data['password'])
             user.save()
+            logger.info(user)
+            send_verification_email(user)
         except Exception as e: 
             return error_response('An unexpected error occurred', status=500) 
         return JsonResponse({}, status=201)
@@ -202,3 +217,40 @@ def add_patient_info(request):
     print(f'Serializer errors: {serializer.errors}')
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 
+def send_verification_email(user):
+    logger.info("HERE")
+    token = get_random_string(50)
+    logger.info(f"Assigning verification token to {user.email}")
+    user.verification_token = token
+    user.save()
+
+    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+
+    try:
+        logger.info(f"Sending verification email to {user.email}")
+        logger.debug(f"Verification URL: {verification_url}")
+
+        send_mail(
+            'Verify Your Email',
+            f'Click the link below to verify your email:\n{verification_url}',
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+
+        logger.info(f"Verification email successfully sent to {user.email}")
+
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}", exc_info=True)
+        raise
+
+
+def verify_email(request):
+    token = request.GET.get('token')
+    user = get_object_or_404(User, verification_token=token)
+
+    user.is_verified = True
+    user.verification_token = None
+    user.save()
+
+    return JsonResponse({'message': 'Email verified successfully'})
