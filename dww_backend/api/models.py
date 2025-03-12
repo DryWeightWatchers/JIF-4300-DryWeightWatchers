@@ -38,7 +38,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=50) 
     phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
-    shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None) 
+    shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None, unique=True) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
 
     username = None
@@ -48,8 +48,11 @@ class User(AbstractUser):
 
     def generate_shareable_id(self): 
         alphabet = string.ascii_uppercase + string.digits  # A-Z, 0-9 
-        random_id = ''.join(random.choices(alphabet, k=8)) 
-        return '-'.join([random_id[:4], random_id[4:]]) 
+        while True:
+            random_id = ''.join(random.choices(alphabet, k=8)) 
+            formatted_id = '-'.join([random_id[:4], random_id[4:]])
+            if not User.objects.filter(shareable_id=formatted_id).exists():
+                return formatted_id
     
     def save(self, *args, **kwargs): 
         if self.role == self.PROVIDER and not self.shareable_id: 
@@ -58,7 +61,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email}, ({self.role})"
-    
+
+class PatientInfo(models.Model):
+    SEX_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    patient = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'PATIENT'},
+        related_name='patient_info'
+    )
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # in cm 
+    date_of_birth = models.DateField(null=True, blank=True)  # for keeping track of age 
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES, null=True, blank=True)
+    medications = models.TextField(null=True, blank=True)
+    other_info = models.TextField(null=True, blank=True) 
+    last_updated = models.DateTimeField(auto_now=True)
 
 # Other tables/fields with many-to-one relations to a patient profile.
 
@@ -87,21 +108,13 @@ class WeightRecord(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
 class PatientNote(models.Model):
-    GENERIC = 'generic' 
-    MEDICATION = 'medication' 
-    TYPE_CHOICES = [
-        (GENERIC, 'Generic'),
-        (MEDICATION, 'Medication'),
-    ]
     patient = models.ForeignKey(
         User, 
         limit_choices_to={'role': User.PATIENT}, 
         on_delete=models.CASCADE, 
         related_name='patient_notes'
     )
-    note_type = models.CharField(choices=TYPE_CHOICES, max_length=10, 
-                                 blank=True, null=True, default=GENERIC)
-    timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    timestamp = models.DateTimeField(blank=True, null=True)
     note = models.TextField(blank=True)
 
 class PatientReminder(models.Model):
@@ -114,3 +127,11 @@ class PatientReminder(models.Model):
     time = models.TimeField()
     days = models.CharField(max_length=62)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+class DeactivatedUsers(models.Model):
+    original_id = models.IntegerField(unique=True)
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    deactivated_at = models.DateTimeField(auto_now_add=True)

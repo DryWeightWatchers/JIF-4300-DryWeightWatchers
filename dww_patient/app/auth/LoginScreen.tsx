@@ -33,7 +33,7 @@ const LoginScreen = () => {
 
       } else {
         const errorData = await response.json();
-        Alert.alert('Error', errorData.message);
+        Alert.alert(`Error ${response.status}: ${errorData.message}`);
       }
   } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again later.');
@@ -67,10 +67,6 @@ const LoginScreen = () => {
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity>
-        <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
       <View style={styles.signupContainer}>
@@ -129,11 +125,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
-  },
-  forgotPassword: {
-    marginTop: 16,
-    color: '#007AFF',
-    fontSize: 14,
   },
   signupContainer: {
     flexDirection: 'row',

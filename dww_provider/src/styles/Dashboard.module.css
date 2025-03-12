@@ -1,46 +1,83 @@
 .dashboard {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  .title {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 1rem;
-  }
-  
-  .tableContainer {
-    overflow-x: auto;
-  }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fafafa;
-  }
-  
-  .table th, 
-  .table td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #bbb;
-  }
-  
-  .table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
-  
-  .table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .table tbody tr:hover {
-    background-color: #d9e0ef;
-    cursor: pointer; 
-  }
-  
+  padding: 20px;
+}
+
+.title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #444;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.patientCard {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  width: 220px;
+  height: 130px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.patientCard:hover {
+  transform: scale(1.05);
+}
+
+.patientInfo h3 {
+  font-size: 16px;
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.patientInfo p {
+  font-size: 12px;
+  color: #666;
+}
+
+.weightInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.weightLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.weightValue {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #888;
+}
+
+.atRiskWeight .weightValue {
+  color: red;
+}
+
+.greatWeight .weightValue {
+  color: green;
+}
+
+.neutralWeight .weightValue {
+  color: black;
+}
