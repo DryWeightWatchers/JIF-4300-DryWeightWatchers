@@ -41,5 +41,5 @@ urlpatterns = [
     path('get-patient-data/', provider_views.get_patient_data, name='get_patient_data'),
     path('add-patient-note', provider_views.add_patient_note, name='add_patient_note'), 
     path('add-patient-info', provider_views.add_patient_info, name='add_patient_info'), 
-    path('verify-email', provider_views.verify_email, name='verify_email'), 
+    path('verify-email/', provider_views.verify_email, name='verify_email'), 
 ]

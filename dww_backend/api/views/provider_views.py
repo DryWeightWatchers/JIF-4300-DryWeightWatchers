@@ -15,16 +15,6 @@ import json
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
-import logging
-
-logger = logging.getLogger(__name__)
-
-# Optional: configure logging if not already done in settings.py
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s %(message)s',
-)
-
 
 """
 Note: All provider-facing APIs should use Django's built-in (session-based) authentication 
@@ -68,7 +58,6 @@ def register_provider(request):
             user.role = User.PROVIDER 
             user.set_password(form.cleaned_data['password'])
             user.save()
-            logger.info(user)
             send_verification_email(user)
         except Exception as e: 
             return error_response('An unexpected error occurred', status=500) 
@@ -218,17 +207,13 @@ def add_patient_info(request):
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 
 def send_verification_email(user):
-    logger.info("HERE")
     token = get_random_string(50)
-    logger.info(f"Assigning verification token to {user.email}")
     user.verification_token = token
     user.save()
 
     verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
 
     try:
-        logger.info(f"Sending verification email to {user.email}")
-        logger.debug(f"Verification URL: {verification_url}")
 
         send_mail(
             'Verify Your Email',
@@ -238,13 +223,12 @@ def send_verification_email(user):
             fail_silently=False,
         )
 
-        logger.info(f"Verification email successfully sent to {user.email}")
 
     except Exception as e:
-        logger.error(f"Failed to send verification email to {user.email}: {e}", exc_info=True)
         raise
 
 
+@api_view(['GET'])
 def verify_email(request):
     token = request.GET.get('token')
     user = get_object_or_404(User, verification_token=token)
