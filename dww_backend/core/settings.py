@@ -40,12 +40,13 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
+# for local run: python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST = 'localhost' # in prod smtp.gmail.com
+EMAIL_PORT = 1025 # in prod 587
+EMAIL_USE_TLS = False # in prod True
+EMAIL_HOST_USER = os.getenv("PROD_EMAIL_HOST_USER", "") # in prod dryweightwatchers email (add it to .env)
+EMAIL_HOST_PASSWORD = os.getenv("PROD_EMAIL_HOST_PASSWORD", "") # in prod the password (not gmail one, but generated one, also in .env)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
