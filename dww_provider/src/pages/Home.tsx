@@ -129,7 +129,7 @@ const Home = () => {
         </div>
 
         <div className={styles.notifications}>
-          <h3>🔔 Recent Notifications</h3>
+          <h3>🔔 Unread Notifications</h3>
           <div className={styles.scrollableNotifications}>
             {notifications.length > 0 ? (
               notifications.map((notification) => (
