@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import PatientDetails from './pages/PatientDetails';
 import MainLayout from './components/MainLayout';
 import { AuthProvider } from './components/AuthContext';
+import VerifyEmail from './pages/VerifyEmail';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
           <Route path="/patients/:id" element={<MainLayout><PatientDetails /></MainLayout>} />
           <Route path="/delete" element={<MainLayout><Profile /></MainLayout>} />
+          <Route path="/verify-email" element={<MainLayout><VerifyEmail /></MainLayout>} />
         </Routes>
       </Router>
     </AuthProvider>

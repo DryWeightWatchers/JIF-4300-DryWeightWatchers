@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import FormErrorDisplay, { ErrorObject } from '../components/FormErrorDisplay'; 
-import styles from '../styles/auth-forms.module.css'; 
-import { useAuth } from '../components/AuthContext'; 
+import { useNavigate } from 'react-router-dom';
+import FormErrorDisplay, { ErrorObject } from '../components/FormErrorDisplay';
+import styles from '../styles/auth-forms.module.css';
+import { useAuth } from '../components/AuthContext';
 
 const Register: React.FC = () => {
-
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -15,15 +13,16 @@ const Register: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
-  const [response, setResponse] = useState<ErrorObject|null>(null); 
-  const navigate = useNavigate(); 
+  const [response, setResponse] = useState<ErrorObject | null>(null);
+  const navigate = useNavigate();
   const { getCSRFToken } = useAuth();
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
+  const [showPopup, setShowPopup] = useState(false); // Popup state
 
   useEffect(() => {
     const fetchCsrfToken = async () => {
       const token = await getCSRFToken();
-      setCsrfToken(token); 
+      setCsrfToken(token);
     };
     fetchCsrfToken();
   }, []);
@@ -35,102 +34,116 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    console.log('csrfToken: ', csrfToken); 
-
     try {
       const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/register-provider/`, {
-        method: 'POST', 
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json', 
-          "X-CSRFToken": csrfToken || "",
-        }, 
-        credentials: 'include', 
-        body: JSON.stringify(formData)
-      }); 
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken || '',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
 
-      if (!res.ok) { 
-        const errorData = await res.json(); // Parse JSON error response
-        setResponse(errorData.error); 
+      if (!res.ok) {
+        const errorData = await res.json();
+        setResponse(errorData.error);
       } else {
-        setResponse(null); 
-        navigate('/login'); 
+        setResponse(null);
+        setShowPopup(true);
       }
-
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setResponse({ message: error.message }); 
+        setResponse({ message: error.message });
       }
     }
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    navigate('/login');
   };
 
   return (
     <div className={styles.authFormContainer}>
       <h1>Create Account</h1>
       <form onSubmit={handleSubmit}>
-          <label htmlFor="first_name" className={styles.requiredInput}>First Name:</label>
-          <input
-            type="text"
-            id="first_name"
-            name="first_name" 
-            value={formData.first_name}
-            onChange={handleChange}
-            required
-          />
+        <label htmlFor="first_name" className={styles.requiredInput}>First Name:</label>
+        <input
+          type="text"
+          id="first_name"
+          name="first_name"
+          value={formData.first_name}
+          onChange={handleChange}
+          required
+        />
 
-          <label htmlFor="last_name" className={styles.requiredInput}>Last Name:</label>
-          <input
-            type="text"
-            id="last_name"
-            name="last_name"
-            value={formData.last_name}
-            onChange={handleChange}
-            required
-          />
+        <label htmlFor="last_name" className={styles.requiredInput}>Last Name:</label>
+        <input
+          type="text"
+          id="last_name"
+          name="last_name"
+          value={formData.last_name}
+          onChange={handleChange}
+          required
+        />
 
-          <label htmlFor="email" className={styles.requiredInput}>Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <label htmlFor="email" className={styles.requiredInput}>Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-          <label htmlFor="phone">Phone:</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="(123) 456-7890"
-            value={formData.phone}
-            onChange={handleChange}
-          />
+        <label htmlFor="phone">Phone:</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="(123) 456-7890"
+          value={formData.phone}
+          onChange={handleChange}
+        />
 
-          <label htmlFor="password" className={styles.requiredInput}>Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+        <label htmlFor="password" className={styles.requiredInput}>Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
 
-          <label htmlFor="confirmPassword" className={styles.requiredInput}>Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+        <label htmlFor="confirmPassword" className={styles.requiredInput}>Confirm Password:</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+        />
 
         <button type="submit">Create Account</button>
       </form>
       <FormErrorDisplay error={response} />
+
+      {showPopup && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popup}>
+            <h2>Email Verification Sent!</h2>
+            <p>
+              An email has been sent to <strong>{formData.email}</strong>.  
+              Please check your inbox and follow the instructions to verify your email address.
+            </p>
+            <button onClick={handleClosePopup}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

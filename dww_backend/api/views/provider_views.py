@@ -1,10 +1,13 @@
 
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, logout, login as django_login
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from django.conf import settings
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -55,6 +58,7 @@ def register_provider(request):
             user.role = User.PROVIDER 
             user.set_password(form.cleaned_data['password'])
             user.save()
+            send_verification_email(user)
         except Exception as e: 
             return error_response('An unexpected error occurred', status=500) 
         return JsonResponse({}, status=201)
@@ -72,7 +76,8 @@ def profile_data(request):
         'lastname': user.last_name,
         'shareable_id': user.shareable_id,
         'email': user.email,
-        'phone': str(user.phone)
+        'phone': str(user.phone),
+        'is_verified': user.is_verified
     })
 
 
@@ -202,3 +207,68 @@ def add_patient_info(request):
     print(f'Serializer errors: {serializer.errors}')
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 
+def send_verification_email(user):
+    token = get_random_string(50)
+    user.verification_token = token
+    user.save()
+
+    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+
+    subject = 'Verify Your Email'
+    
+    # Create HTML content
+    html_message = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Welcome to Dry Weight Watchers!</h1>
+              <p style="color: #555; font-size: 16px;">Please verify your email address to activate your account.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding: 20px;">
+              <a href="{verification_url}" target="_blank" 
+                 style="display: inline-block; padding: 12px 24px; font-size: 16px; color: #ffffff; background-color: #007bff; 
+                        text-decoration: none; border-radius: 4px; font-weight: bold;">
+                Verify Email
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              If you didn't create an account, you can ignore this email.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+
+    try:
+        send_mail(
+            subject,
+            '',
+            from_email,
+            recipient_list,
+            html_message=html_message,
+            fail_silently=False,
+        )
+    except Exception as e:
+        raise e
+
+
+@api_view(['GET'])
+def verify_email(request):
+    token = request.GET.get('token')
+    user = get_object_or_404(User, verification_token=token)
+
+    user.is_verified = True
+    user.verification_token = None
+    user.save()
+
+    return JsonResponse({'message': 'Email verified successfully'})

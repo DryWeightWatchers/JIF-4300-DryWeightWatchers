@@ -40,6 +40,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None, unique=True) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     username = None
     USERNAME_FIELD = 'email'
