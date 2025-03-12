@@ -32,14 +32,12 @@
     color: #999;
 }
 
-/* Grid Layout */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-/* Patients and Notifications */
 .patients,
 .notifications {
     background-color: #ffffff;
@@ -48,16 +46,23 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Patient Card Layout */
+.scrollablePatients {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.scrollableNotifications {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
 .patientCard {
+    display: flex;
+    justify-content: space-between;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
     margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: box-shadow 0.2s;
     cursor: pointer;
 }
 
@@ -65,25 +70,24 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Patient Information on Left */
-.patientInfo {
-    display: flex;
-    flex-direction: column;
-}
-
-.patientWeight {
-    text-align: right;
-}
-
 .alert {
     color: red;
     font-weight: bold;
-    font-size: 25px;
 }
 
 .noData {
     color: #999;
     font-weight: 500;
+}
+
+.notificationItem {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.notificationTime {
+    font-size: 0.8rem;
+    color: #999;
 }
 
 .viewDashboard {
@@ -93,17 +97,9 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin-top: 10px;
     width: 100%;
-    font-size: 1rem;
-    transition: background-color 0.2s;
 }
 
-.viewDashboard:hover {
-    background-color: #6b5b95;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: 1fr;

@@ -19,12 +19,18 @@ type Patient = {
   latest_weight_timestamp: string | null;
 };
 
+type Notification = {
+  id: number;
+  message: string;
+  timestamp: string;
+};
+
 const Home = () => {
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const navigate = useNavigate();
 
-  // Fetch user profile data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -45,7 +51,6 @@ const Home = () => {
     fetchUserData();
   }, []);
 
-  // Fetch patients data
   useEffect(() => {
     const fetchPatients = async () => {
       try {
@@ -66,48 +71,77 @@ const Home = () => {
     fetchPatients();
   }, []);
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/notifications`, {
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setNotifications(data.notifications);
+        } else {
+          console.error('Failed to load notifications');
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
   return (
     <div className={styles.container}>
-      {/* Welcome Section */}
       <div className={styles.welcome}>
         <div>
           <h2>Welcome back {userData?.firstname} {userData?.lastname}!</h2>
-          <p>Email Address: {userData?.email}</p>
+          <p>{userData?.email}</p>
         </div>
         <span className={styles.editIcon} onClick={() => navigate(`/profile`)}>✎</span>
       </div>
 
-      {/* Main Content */}
       <div className={styles.grid}>
-        {/* Patients Above Threshold */}
         <div className={styles.patients}>
           <h3>⚠️ Patients Above Threshold</h3>
-          {patients.length > 0 ? (
-            patients.map((patient) => (
-              <div key={patient.id} className={styles.patientCard} onClick={() => navigate(`/patients/${patient.id}`)}>
-                <div className={styles.patientInfo}>
-                  <p><strong>{patient.first_name} {patient.last_name}</strong></p>
-                  <p>Contact: {patient.email}</p>
+          <div className={styles.scrollablePatients}>
+            {patients.length > 0 ? (
+              patients.map((patient) => (
+                <div key={patient.id} className={styles.patientCard} onClick={() => navigate(`/patients/${patient.id}`)}>
+                  <div className={styles.patientInfo}>
+                    <p><strong>{patient.first_name} {patient.last_name}</strong></p>
+                    <p>Contact: {patient.email}</p>
+                  </div>
+                  <div className={styles.patientWeight}>
+                    {patient.latest_weight ? (
+                      <p className={styles.alert}>Weight: {patient.latest_weight}</p>
+                    ) : (
+                      <p className={styles.noData}>No data</p>
+                    )}
+                  </div>
                 </div>
-                <div className={styles.patientWeight}>
-                  {patient.latest_weight ? (
-                    <p className={styles.alert}>Weight: {patient.latest_weight} lbs</p>
-                  ) : (
-                    <p className={styles.noData}>No data</p>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>No patients above threshold.</p>
-          )}
+              ))
+            ) : (
+              <p>No patients above threshold.</p>
+            )}
+          </div>
           <button className={styles.viewDashboard} onClick={() => navigate(`/dashboard`)}>View Patient Dashboard</button>
         </div>
 
-        {/* Recent Notifications */}
         <div className={styles.notifications}>
           <h3>🔔 Recent Notifications</h3>
-          <p>No new notifications</p>
+          <div className={styles.scrollableNotifications}>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <div key={notification.id} className={styles.notificationItem}>
+                  <p>{notification.message}</p>
+                  <span className={styles.notificationTime}>{new Date(notification.timestamp).toLocaleString()}</span>
+                </div>
+              ))
+            ) : (
+              <p>No new notifications</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
