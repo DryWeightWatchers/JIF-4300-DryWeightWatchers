@@ -76,7 +76,8 @@ def profile_data(request):
         'lastname': user.last_name,
         'shareable_id': user.shareable_id,
         'email': user.email,
-        'phone': str(user.phone)
+        'phone': str(user.phone),
+        'is_verified': user.is_verified
     })
 
 
@@ -213,19 +214,52 @@ def send_verification_email(user):
 
     verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
 
-    try:
+    subject = 'Verify Your Email'
+    
+    # Create HTML content
+    html_message = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Welcome to Dry Weight Watchers!</h1>
+              <p style="color: #555; font-size: 16px;">Please verify your email address to activate your account.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding: 20px;">
+              <a href="{verification_url}" target="_blank" 
+                 style="display: inline-block; padding: 12px 24px; font-size: 16px; color: #ffffff; background-color: #007bff; 
+                        text-decoration: none; border-radius: 4px; font-weight: bold;">
+                Verify Email
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              If you didn't create an account, you can ignore this email.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
 
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+
+    try:
         send_mail(
-            'Verify Your Email',
-            f'Click the link below to verify your email:\n{verification_url}',
-            settings.EMAIL_HOST_USER,
-            [user.email],
+            subject,
+            '',
+            from_email,
+            recipient_list,
+            html_message=html_message,
             fail_silently=False,
         )
-
-
     except Exception as e:
-        raise
+        raise e
 
 
 @api_view(['GET'])

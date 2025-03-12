@@ -47,8 +47,8 @@ def login_view(request):
         
         # use Django's built-in session-based auth for providers 
         elif user.role == User.PROVIDER: 
-            if not user.is_verified:
-                return JsonResponse({'message': 'Account is not verified. Please check your email and verify your account.'}, status=403)
+            # if not user.is_verified:
+            #     return JsonResponse({'message': 'Account is not verified. Please check your email and verify your account.'}, status=403)
             print('views.py: login: provider'); 
             django_login(request, user) 
             request.session.save()
