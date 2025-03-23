@@ -10,7 +10,7 @@ interface PatientInfo {
   height?: string;
   medications?: string;
   other_info?: string;
-  last_updated?: string; 
+  last_updated?: Date; 
 }
 
 interface PatientInfoSectionProps {
@@ -37,6 +37,12 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
           credentials: 'include', 
           body: JSON.stringify(request_fields)
         });
+
+        setFields((prev) => ({
+          ...prev,
+          last_updated: new Date(),
+        }));
+
         if (!response.ok) {
           console.error('Error updating patient field data');
         }
@@ -52,7 +58,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
       <div className={styles.basicInfoHeader}>
         <span>
           <strong>Basic Information</strong>&nbsp; 
-          (last updated {fields.last_updated ? new Date(fields.last_updated).toLocaleString() : 'N/A'}):
+          (last updated {fields.last_updated ? new Date(fields.last_updated).toLocaleDateString() : 'N/A'}):
         </span>
         <span onClick={handleEditClick} className={styles.updateSaveText}>
           {isEditing ? 'Save' : 'Update'}
@@ -74,7 +80,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             }}
           />
         ) : (
-          <span> {fields.date_of_birth || 'N/A'}</span>
+          <span> {fields.date_of_birth || 'None'}</span>
         )}
       </div>
   
@@ -93,7 +99,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             <option value="O">Intersex / Other</option>
           </select>
         ) : (
-          <span> {fields.sex || 'N/A'}</span>
+          <span> {fields.sex || 'None'}</span>
         )}
       </div>
   
@@ -108,7 +114,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             }
           /> 
         ) : (
-          <span> {fields.height || 'N/A'} cm</span>
+          <span>{fields.height ? `${fields.height} cm` : 'None'}</span>
         )}
       </div>
   
@@ -123,7 +129,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             }
           />
         ) : (
-          <span> {fields.medications || 'N/A'}</span>
+          <span> {fields.medications || 'None'}</span>
         )}
       </div>
   
@@ -138,7 +144,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             }
           />
         ) : (
-          <span> {fields.other_info || 'N/A'}</span>
+          <span> {fields.other_info || 'None'}</span>
         )}
       </div>
     </div>

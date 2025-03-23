@@ -22,7 +22,7 @@ interface PatientInfo {
   height?: string;
   medications?: string;
   other_info?: string;
-  last_updated?: string; 
+  last_updated?: Date; 
 }
 
 type Patient = {
@@ -145,6 +145,10 @@ const PatientDetails: React.FC = () => {
             ...note,
             timestamp: new Date(note.timestamp),
           }));
+        }
+
+        if (data.patient_info?.last_updated) {
+          data.patient_info.last_updated = new Date(data.patient_info.last_updated);
         }
 
         setPatient(data);
