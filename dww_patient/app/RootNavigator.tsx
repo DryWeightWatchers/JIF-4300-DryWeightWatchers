@@ -28,6 +28,7 @@ function HomeTabNavigator() {
   return (
     <HomeTabs.Navigator
       screenOptions={({ route }) => ({
+        lazy: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any;
 
@@ -50,15 +51,14 @@ function HomeTabNavigator() {
       <HomeTabs.Screen name="Home" component={HomeScreen} />
       <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
       <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
-      <HomeTabs.Screen name="Settings" component={SettingsScreensStack} />
+      <HomeTabs.Screen name="Settings" component={SettingsScreensStack}/>
     </HomeTabs.Navigator>
   );
 }
 
-
 function SettingsScreensStack() {
   return (
-    <SettingsStack.Navigator>
+    <SettingsStack.Navigator initialRouteName='Settings'>
       <SettingsStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
@@ -88,7 +88,7 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
-        <RootStack.Screen name="HomeTabs" component={HomeTabNavigator} />
+        <RootStack.Screen name="HomeTabs" component={HomeTabNavigator}/>
       ) : (
         <>
           <RootStack.Screen name="Login" component={LoginScreen} />
