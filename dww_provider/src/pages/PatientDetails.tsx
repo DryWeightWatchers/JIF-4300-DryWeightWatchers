@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../components/AuthContext';
 import styles from "../styles/PatientDetails.module.css";
 import PatientInfoSection from '../components/PatientInfoSection';
 import PatientNotesSection from '../components/PatientNotesSection';
@@ -38,16 +39,18 @@ type Patient = {
 };
 
 const PatientDetails: React.FC = () => {
+  const navigate = useNavigate(); 
+  const { getCSRFToken } = useAuth();
+  const [csrfToken, setCsrfToken] = useState<string>(''); 
   const { id } = useParams<{ id: string }>();
+  
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedDay, setSelectedDay] = useState(new Date());
-  const [chart, setChart] = useState('chart');
   const [addNoteText, setAddNoteText] = useState<string>(''); 
   const [refresh, setRefresh] = useState<boolean>(false); 
-  const [csrfToken, setCsrfToken] = useState<string>(''); 
-  const navigate = useNavigate(); 
+
 
   const handleRemovePatientRelationship = async () => {
     const confirmDelete = window.confirm(
@@ -116,15 +119,12 @@ const PatientDetails: React.FC = () => {
   };
 
   useEffect(() => {
-    const getCSRFToken = async () => {
-      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
-        credentials: 'include',
-      });
-      const data = await response.json();
-      setCsrfToken(data.csrfToken); 
+    const fetchToken = async () => {
+      const token = await getCSRFToken();
+      setCsrfToken(token);
     };
-    getCSRFToken(); 
-  }, []);
+    fetchToken();
+  }, [getCSRFToken]);
 
   useEffect(() => {
     const getPatientData = async () => {
@@ -178,7 +178,13 @@ const PatientDetails: React.FC = () => {
     <div className={styles.container}>
       <h1 className={styles.header}>{patient!.first_name} {patient!.last_name}</h1>
 
-      <PatientInfoSection patientInfo={patient!.patient_info} csrfToken={csrfToken}/>
+      <PatientInfoSection 
+        patientInfo={patient!.patient_info} 
+        csrfToken={csrfToken}
+        email={patient!.email} 
+        latestWeight={patient!.latest_weight}
+        weightLastUpdated={patient!.latest_weight_timestamp}
+      />
 
       <div className={styles.details_container}>
         <div className={styles.patient_info}>

@@ -16,6 +16,9 @@ interface PatientInfo {
 interface PatientInfoSectionProps {
   patientInfo?: PatientInfo;
   csrfToken: string;
+  email: string; 
+  latestWeight?: number; 
+  weightLastUpdated?: Date; 
 }
 
 
