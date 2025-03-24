@@ -1,4 +1,3 @@
-// src/components/PatientNotesSection.tsx
 
 import { useState } from "react";
 import styles from "../styles/PatientDetails.module.css";

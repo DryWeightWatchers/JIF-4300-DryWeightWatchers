@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from "../styles/PatientDetails.module.css";
-import Chart from '../components/Chart';
-import Calendar from '../components/Calendar';
 import PatientInfoSection from '../components/PatientInfoSection';
 import PatientNotesSection from '../components/PatientNotesSection';
+import ChartCalendarViz from '../components/ChartCalendarViz';
 
 type WeightRecord = {
   weight: number;
@@ -188,53 +187,10 @@ const PatientDetails: React.FC = () => {
           <p><span className={styles.label}>Last Weight Update:</span> {patient!.latest_weight_timestamp ? new Date(patient!.latest_weight_timestamp).toLocaleString() : "N/A"}</p>
         </div>
 
-        <div className={styles.weight_history}>
-          <h2 className={styles.weight_history_title}>Weight History</h2>
-          <div className={styles.chart_slider_container}>
-            <button
-              className={styles.chart_left_button}
-              style={{
-                backgroundColor: chart === 'chart' ? '#7B5CB8' : 'white',
-                color: chart === 'chart' ? 'white' : 'gray'
-              }}
-              onClick={() => setChart('chart')}
-            >
-              Chart
-            </button>
-            <button
-              className={styles.chart_right_button}
-              style={{
-                backgroundColor: chart === 'calendar' ? '#7B5CB8' : 'white',
-                color: chart === 'calendar' ? 'white' : 'gray'
-              }}
-              onClick={() => setChart('calendar')}
-            >
-              Calendar
-            </button>
-          </div>
-          {weightHistory.length > 0 ? (
-            <div className={styles.chart_container}>
-              {chart === 'chart' ? 
-                <Chart
-                  weightRecord={weightHistory.map(r => ({
-                    timestamp: new Date(r.timestamp),
-                    weight: r.weight
-                  }))}
-                  onDataPointSelect={handleDataPointSelect}
-                /> : 
-                <Calendar
-                  weightRecord={weightHistory.map(r => ({
-                    timestamp: new Date(r.timestamp),
-                    weight: r.weight
-                  }))}
-                  onDataPointSelect={handleDataPointSelect}
-                />
-              }
-            </div>
-          ) : (
-            <p>No weight history available.</p>
-          )}
-        </div>
+        <ChartCalendarViz 
+          weightHistory={weightHistory} 
+          onDataPointSelect={handleDataPointSelect} 
+        />
 
         {selectedDay && (
           <PatientNotesSection
