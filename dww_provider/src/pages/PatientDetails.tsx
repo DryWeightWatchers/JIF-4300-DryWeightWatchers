@@ -4,6 +4,7 @@ import styles from "../styles/PatientDetails.module.css";
 import Chart from '../components/Chart';
 import Calendar from '../components/Calendar';
 import PatientInfoSection from '../components/PatientInfoSection';
+import PatientNotesSection from '../components/PatientNotesSection';
 
 type WeightRecord = {
   weight: number;
@@ -235,79 +236,16 @@ const PatientDetails: React.FC = () => {
           )}
         </div>
 
-        <div className={styles.patient_info}>
-          <div className={styles.noteSection}>
-            <span className={styles.label}>Selected Day: </span> 
-            {selectedDay!.toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </div>
-          {selectedDay && (
-            <>
-              <div className={styles.noteSection}>
-                <span className={styles.label}>Weight Recorded: </span>
-                {patient?.weight_history?.filter(record => 
-                    new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
-                    new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
-                    new Date(record.timestamp).getDate() === selectedDay.getDate()
-                  ).map((record, index) => (
-                    <div key={index} className={styles.noteItem}>
-                      <span className={styles.noteValue}>
-                        {record.weight} lbs
-                      </span>
-                      <span className={styles.noteTime}>
-                        {new Date(record.timestamp).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                    </div>
-                  ))}
-                {!patient?.weight_history?.some(record => 
-                  new Date(record.timestamp).getFullYear() === selectedDay.getFullYear() &&
-                  new Date(record.timestamp).getMonth() === selectedDay.getMonth() &&
-                  new Date(record.timestamp).getDate() === selectedDay.getDate()
-                ) && (
-                  <span>No weight records for this day</span>
-                )}
-              </div>
-
-              <div className={styles.noteSection}>
-                <span className={styles.label}>Notes: </span>
-                {patient?.notes?.filter(note => 
-                    note.timestamp.toDateString() === selectedDay.toDateString()
-                  )
-                  .map((note, index) => (
-                    <div key={index} className={styles.noteItem}>
-                      <span className={styles.noteText}>{note.note}</span>
-                      <span className={styles.noteTime}>
-                        {note.timestamp.toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                    </div>
-                  ))}
-                
-                {!patient?.notes?.some(note => 
-                  note.timestamp.toDateString() === selectedDay.toDateString()
-                ) && (
-                  <span> No notes for this day</span>
-                )}
-              </div>
-              <textarea 
-                  value={addNoteText} 
-                  onChange={e => setAddNoteText(e.target.value)} 
-                  onKeyDown={handleKeyDown}
-                  className={styles.addNoteText} 
-                  placeholder="Type a note and press Enter..."
-              />
-            </>
-          )}
-        </div>
+        {selectedDay && (
+          <PatientNotesSection
+            selectedDay={selectedDay}
+            weightHistory={patient?.weight_history}
+            notes={patient?.notes}
+            addNoteText={addNoteText}
+            setAddNoteText={setAddNoteText}
+            handleKeyDown={handleKeyDown}
+          />
+        )}
 
         <div className={styles.button_container}>
           <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
