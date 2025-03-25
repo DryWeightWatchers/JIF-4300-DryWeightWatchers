@@ -43,8 +43,8 @@ export type Patient = {
     first_name: string;
     last_name: string;
     email: string;
-    latest_weight: number | null;
-    latest_weight_timestamp: string | null;
+    latest_weight: number;
+    latest_weight_timestamp: Date;
     weight_history?: WeightRecord[];
     notes?: PatientNote[];
     patient_info?: PatientInfo; 

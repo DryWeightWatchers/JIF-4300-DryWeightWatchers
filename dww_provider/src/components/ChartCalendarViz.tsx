@@ -18,7 +18,7 @@ const ChartCalendarViz: React.FC<ChartCalendarVizProps> = ({ weightHistory, onDa
   return (
     <div className={styles.weight_history}>
       <h2 className={styles.weight_history_title}>Weight History</h2>
-      <div className={styles.chart_slider_container}>
+      <div className={styles.chart_button_container}>
         <button
           className={styles.chart_left_button}
           style={{

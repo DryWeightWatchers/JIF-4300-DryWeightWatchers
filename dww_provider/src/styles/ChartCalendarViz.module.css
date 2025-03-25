@@ -1,8 +1,7 @@
-.weight-history {
+
+.weight_history {
     margin-top: 20px;
     padding: 15px;
-    background-color: #e7f5ff;
-    border-radius: 8px;
 }
 
 .weight_history_title {
@@ -12,8 +11,8 @@
     font-weight: bold;
 }
 
-.chart_slider_container {
-    padding: 10px;
+.chart_button_container {
+    padding: 1px 10px 10px 10px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -40,8 +39,7 @@
     border: 1px solid #7B5CB8;
 }
 
-.chart-container {
-    margin-top: 20px;
+.chart_container {
     background-color: #ffffff;
     padding: 15px;
     border-radius: 8px;

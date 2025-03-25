@@ -108,88 +108,61 @@ const PatientDetails: React.FC = () => {
           credentials: "include",
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP error: ${res.status}`);
-        }
+        if (!res.ok) { throw new Error(`HTTP error: ${res.status}`); }
         const data = await res.json();
 
         // convert timestamps to Date objects
-        if (data.notes) {
-          data.notes = data.notes.map((note: PatientNote) => ({
-            ...note,
-            timestamp: new Date(note.timestamp),
-          }));
-        }
-        if (data.weight_history) {
-          data.weight_history = data.weight_history.map((record: any) => ({
-            ...record,
-            timestamp: new Date(record.timestamp),
-          }));
-        }
-        if (data.patient_info?.last_updated) {
-          data.patient_info.last_updated = new Date(data.patient_info.last_updated);
-        }
+        data.notes = data.notes.map((note: PatientNote) => ({
+          ...note,
+          timestamp: new Date(note.timestamp),
+        }));
+        data.weight_history = data.weight_history.map((record: any) => ({
+          ...record,
+          timestamp: new Date(record.timestamp),
+        }));
+        data.patient_info.last_updated = new Date(data.patient_info.last_updated);
 
         setPatient(data);
         console.log('patient data: ', data);           //         ----------------- temp 
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err: any) { setError(err.message);
+      } finally { setLoading(false); }
     };
 
     getPatientData();
   }, [id, refresh]);
 
 
-  if (loading) {
-    return <div className={styles.loading}>Loading patient data…</div>;
-  }
-
-  if (error) {
-    return <div className={styles.error}>Error: {error}</div>;
-  }
+  if (loading) { return <div className={styles.loading}>Loading patient data…</div>; }
+  if (error) { return <div className={styles.error}>Error: {error}</div>; }
 
   const weightHistory = patient!.weight_history || [];
 
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>{patient!.first_name} {patient!.last_name}</h1>
-
       <PatientInfoSection 
         patientInfo={patient!.patient_info} 
         csrfToken={csrfToken}
         email={patient!.email} 
+        latestWeight={patient!.latest_weight} 
+        weightLastUpdated={patient!.latest_weight_timestamp}
       />
-
-      <div className={styles.details_container}>
-        <div className={styles.patient_info}>
-          <p><span className={styles.label}>Email:</span> {patient!.email}</p>
-          <p><span className={styles.label}>Latest Weight:</span> {patient!.latest_weight ? `${patient!.latest_weight} lbs` : "N/A"}</p>
-          <p><span className={styles.label}>Last Weight Update:</span> {patient!.latest_weight_timestamp ? new Date(patient!.latest_weight_timestamp).toLocaleString() : "N/A"}</p>
-        </div>
-
-        <ChartCalendarViz 
-          weightHistory={weightHistory} 
-          onDataPointSelect={handleDataPointSelect} 
+      <ChartCalendarViz 
+        weightHistory={weightHistory} 
+        onDataPointSelect={handleDataPointSelect} 
+      />
+      {selectedDay && (
+        <PatientNotesSection
+          selectedDay={selectedDay}
+          weightHistory={patient?.weight_history}
+          notes={patient?.notes}
+          addNoteText={addNoteText}
+          setAddNoteText={setAddNoteText}
+          handleKeyDown={handleKeyDown}
         />
-
-        {selectedDay && (
-          <PatientNotesSection
-            selectedDay={selectedDay}
-            weightHistory={patient?.weight_history}
-            notes={patient?.notes}
-            addNoteText={addNoteText}
-            setAddNoteText={setAddNoteText}
-            handleKeyDown={handleKeyDown}
-          />
-        )}
-
-        <div className={styles.button_container}>
-          <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
-        </div>
-
+      )}
+      <div className={styles.button_container}>
+        <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
       </div>
     </div>
   );
