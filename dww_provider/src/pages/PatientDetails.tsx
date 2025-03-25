@@ -1,49 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
+import { PatientNote, Patient } from '../utils/types'; 
+
 import styles from "../styles/PatientDetails.module.css";
+
 import PatientInfoSection from '../components/PatientInfoSection';
 import PatientNotesSection from '../components/PatientNotesSection';
 import ChartCalendarViz from '../components/ChartCalendarViz';
 
-type WeightRecord = {
-  weight: number;
-  timestamp: string;
-}
 
-type PatientNote = {
-  timestamp: Date,
-  note: string,
-}
-
-interface PatientInfo {
-  patient?: number; 
-  date_of_birth?: string;
-  sex?: string;
-  height?: string;
-  medications?: string;
-  other_info?: string;
-  last_updated?: Date; 
-}
-
-type Patient = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  latest_weight: number | null;
-  latest_weight_timestamp: string | null;
-  weight_history?: WeightRecord[];
-  notes?: PatientNote[];
-  patient_info?: PatientInfo; 
-};
 
 const PatientDetails: React.FC = () => {
+
   const navigate = useNavigate(); 
   const { getCSRFToken } = useAuth();
   const [csrfToken, setCsrfToken] = useState<string>(''); 
   const { id } = useParams<{ id: string }>();
-  
+
   const [error, setError] = useState<string | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -139,14 +113,19 @@ const PatientDetails: React.FC = () => {
         }
         const data = await res.json();
 
-        // convert timestamps in notes to Date objects
+        // convert timestamps to Date objects
         if (data.notes) {
           data.notes = data.notes.map((note: PatientNote) => ({
             ...note,
             timestamp: new Date(note.timestamp),
           }));
         }
-
+        if (data.weight_history) {
+          data.weight_history = data.weight_history.map((record: any) => ({
+            ...record,
+            timestamp: new Date(record.timestamp),
+          }));
+        }
         if (data.patient_info?.last_updated) {
           data.patient_info.last_updated = new Date(data.patient_info.last_updated);
         }
@@ -182,8 +161,6 @@ const PatientDetails: React.FC = () => {
         patientInfo={patient!.patient_info} 
         csrfToken={csrfToken}
         email={patient!.email} 
-        latestWeight={patient!.latest_weight}
-        weightLastUpdated={patient!.latest_weight_timestamp}
       />
 
       <div className={styles.details_container}>

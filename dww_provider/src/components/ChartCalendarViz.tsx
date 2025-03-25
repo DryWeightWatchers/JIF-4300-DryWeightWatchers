@@ -3,18 +3,11 @@ import { useState } from 'react';
 import Chart from './Chart';
 import Calendar from './Calendar';
 import styles from '../styles/ChartCalendarViz.module.css';
+import { WeightRecord, ChartCalendarVizProps } from '../utils/types'; 
 
-type WeightRecord = {
-  weight: number;
-  timestamp: string;
-};
 
-interface Props {
-  weightHistory: WeightRecord[];
-  onDataPointSelect: (day: Date) => void;
-}
 
-const ChartCalendarViz: React.FC<Props> = ({ weightHistory, onDataPointSelect }) => {
+const ChartCalendarViz: React.FC<ChartCalendarVizProps> = ({ weightHistory, onDataPointSelect }) => {
   const [chartView, setChartView] = useState<'chart' | 'calendar'>('chart');
 
   const formattedRecords = weightHistory.map(r => ({

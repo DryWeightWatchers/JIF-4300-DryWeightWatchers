@@ -1,25 +1,8 @@
 
 import React, { useState } from 'react';
 import styles from '../styles/PatientInfoSection.module.css';
+import { PatientInfo, PatientInfoSectionProps } from '../utils/types'; 
 
-
-interface PatientInfo {
-  patient?: number; 
-  date_of_birth?: string;
-  sex?: string;
-  height?: string;
-  medications?: string;
-  other_info?: string;
-  last_updated?: Date; 
-}
-
-interface PatientInfoSectionProps {
-  patientInfo?: PatientInfo;
-  csrfToken: string;
-  email: string; 
-  latestWeight?: number; 
-  weightLastUpdated?: Date; 
-}
 
 
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, csrfToken }) => {

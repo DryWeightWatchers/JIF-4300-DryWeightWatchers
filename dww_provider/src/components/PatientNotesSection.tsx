@@ -1,25 +1,9 @@
 
 import { useState } from "react";
 import styles from "../styles/PatientDetails.module.css";
+import { PatientNotesSectionProps } from '../utils/types'; 
 
-type WeightRecord = {
-  weight: number;
-  timestamp: string;
-};
 
-type PatientNote = {
-  timestamp: Date;
-  note: string;
-};
-
-type PatientNotesSectionProps = {
-  selectedDay: Date;
-  weightHistory?: WeightRecord[];
-  notes?: PatientNote[];
-  addNoteText: string;
-  setAddNoteText: (text: string) => void;
-  handleKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-};
 
 const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
   selectedDay,
@@ -29,6 +13,7 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
   setAddNoteText,
   handleKeyDown,
 }) => {
+
   const weightRecordsForDay = weightHistory.filter((record) => {
     const ts = new Date(record.timestamp);
     return (
