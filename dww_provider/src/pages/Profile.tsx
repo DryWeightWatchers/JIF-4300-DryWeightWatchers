@@ -9,7 +9,8 @@ type ProfileData = {
   lastname: string,
   shareable_id: string,
   email: string,
-  phone: string
+  phone: string,
+  is_verified: boolean,
 }
 
 const Profile = () => {
@@ -41,6 +42,7 @@ const Profile = () => {
         return;
       }
       const data = await res.json();
+      console.log(data);
       setProfileData(data);
     } catch (err: any) {
       setError(err.message);
@@ -186,7 +188,7 @@ const Profile = () => {
 
       <div>
         <label>Email:</label>
-        <div>
+        <div className={styles.emailContainer}>
           {editingField === 'email' ? (
             <>
               <input
@@ -200,6 +202,12 @@ const Profile = () => {
           ) : (
             <>
               <p>{profileData?.email}</p>
+              {!profileData?.is_verified && (
+                <div className={styles.warningTooltip}>
+                  <span className={styles.warningIcon}>⚠️</span>
+                  <span className={styles.tooltipText}>Email not verified.</span>
+                </div>
+              )}
               <a href="#" onClick={() => { setEditingField('email'); setTempValue(profileData?.email || '') }}>Change email</a>
             </>
           )}
