@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity} from 'react-native';
+import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity, SafeAreaView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
+import { Ionicons } from '@expo/vector-icons';
 
 
 
@@ -84,7 +85,7 @@ const ProviderListScreen = () => {
 
 
   return (
-    <View style={{ padding: 20 }}>
+    <SafeAreaView style={{ padding: 20 }}>
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Registered Providers</Text>
 
       {providers.length === 0 ? (
@@ -107,7 +108,11 @@ const ProviderListScreen = () => {
           )}
         />
       )}
-    </View>
+      <TouchableOpacity style={styles.addButton}>
+        <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
+        <Text style={styles.addButtonText}>Add Provider</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
@@ -124,6 +129,19 @@ const styles = StyleSheet.create({
       paddingVertical: 10,
       paddingHorizontal: 20,
       borderRadius: 5,
+    },
+    addButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      alignSelf: 'center',
+      padding: 10,
+      borderRadius: 25,
+      marginTop: 30,
+    },
+    addButtonText: {
+      color: '#7B5CB8',
+      fontSize: 12,
+      marginTop: 4,
     },
   });
 

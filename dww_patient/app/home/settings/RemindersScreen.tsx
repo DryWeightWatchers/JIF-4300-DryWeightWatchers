@@ -196,11 +196,12 @@ const RemindersScreen = () => {
           <Text style={styles.emptyText}>No reminders set</Text>
         )}
 
-        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-          <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
-          <Text style={styles.addButtonText}>Add Reminder</Text>
-        </TouchableOpacity>
       </ScrollView>
+
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
+        <Text style={styles.addButtonText}>Add Reminder</Text>
+      </TouchableOpacity>
 
       <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => resetStates()}>
         <Pressable style={styles.modalTop} onPress={() => setModalVisible(false)}/>

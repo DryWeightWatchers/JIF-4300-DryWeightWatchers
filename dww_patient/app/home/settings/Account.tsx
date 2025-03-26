@@ -160,6 +160,8 @@ const AccountScreen = () => {
                   maxLength={1}
                   keyboardType="default"
                   autoCapitalize="characters"
+                  autoComplete="off"
+                  autoCorrect={false}
                   returnKeyType="next"
                 />
                 {index === 3 && <Text style={styles.hyphen}>-</Text>}
