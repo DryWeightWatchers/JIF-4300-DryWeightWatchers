@@ -1,6 +1,5 @@
 
-import { useState } from "react";
-import styles from "../styles/PatientDetails.module.css";
+import styles from "../styles/PatientNotesSection.module.css";
 import { PatientNotesSectionProps } from '../utils/types'; 
 
 
@@ -28,7 +27,7 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
   );
 
   return (
-    <div className={styles.patient_info}>
+    <div className={styles.notes_container}>
       <div className={styles.noteSection}>
         <span className={styles.label}>Selected Day: </span>
         {selectedDay.toLocaleDateString("en-US", {
