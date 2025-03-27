@@ -15,6 +15,7 @@ import RemindersScreen from './home/settings/RemindersScreen';
 import ProviderListScreen from './home/settings/ProviderList';
 import ProfileScreen from './home/settings/ProfileScreen';
 import ChangePasswordScreen from './home/settings/ChangePasswordScreen';
+import AddProviderScreen from './home/settings/AddProviderScreen';
 
 import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation'; 
 import { useAuth } from './auth/AuthProvider';
@@ -65,6 +66,7 @@ function SettingsScreensStack() {
       <SettingsStack.Screen name="ProviderList" component={ProviderListScreen} />
       <SettingsStack.Screen name="Profile" component={ProfileScreen} />
       <SettingsStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <SettingsStack.Screen name="AddProvider" component={AddProviderScreen} />
     </SettingsStack.Navigator>
   );
 }

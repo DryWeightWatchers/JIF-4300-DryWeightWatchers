@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Text, StyleSheet, View, TextInput, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Alert, Button, Text, StyleSheet, View, TextInput, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
@@ -125,8 +125,8 @@ const ProfileScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 60}
       >
-        <ScrollView>
-          <TouchableWithoutFeedback>
+        <ScrollView style={{ marginTop: 20 }}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView style={styles.container}>
               <View style={styles.row}>
               <Text style={styles.label}>{"Name"}:</Text>
