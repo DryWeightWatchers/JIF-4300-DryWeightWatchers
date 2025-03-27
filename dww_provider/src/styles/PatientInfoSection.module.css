@@ -1,12 +1,76 @@
-
 .basicInfoHeader {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+    font-size: 1.1rem;
+}
+
+.lastUpdatedText {
+    font-size: 0.9rem;
+    color: #222;
+    margin-top: 2px;
+  }
+
+.updateSaveText {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.infoRow {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.infoRow strong {
     margin-bottom: 4px;
 }
 
-.updateSaveText {
-    color: blue; 
-    text-decoration: underline;
-    cursor: pointer; 
+.infoRow input,
+.infoRow select {
+    padding: 4px;
+    font-size: 1rem;
+    max-width: 250px;
+}
+
+.latestWeight {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+    font-weight: 500;
+}
+
+.medicationsTextarea {
+    font-family: inherit; 
+    width: 100%;
+    max-width: 400px;
+    resize: vertical;
+    padding: 2px 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.otherInfoTextarea {
+    font-family: inherit; 
+    width: 100%;
+    max-width: 400px;
+    min-height: 5rem;
+    resize: vertical;
+    padding: 2px 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.textBlock {
+    display: block;
+    max-width: 400px;
+    white-space: pre-wrap; /* preserves line breaks if any */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: justify;
 }

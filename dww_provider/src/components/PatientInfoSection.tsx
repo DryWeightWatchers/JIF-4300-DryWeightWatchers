@@ -1,25 +1,14 @@
 
 import React, { useState } from 'react';
 import styles from '../styles/PatientInfoSection.module.css';
+import { PatientInfo, PatientInfoSectionProps } from '../utils/types'; 
 
 
-interface PatientInfo {
-  patient?: number; 
-  date_of_birth?: string;
-  sex?: string;
-  height?: string;
-  medications?: string;
-  other_info?: string;
-  last_updated?: string; 
-}
 
-interface PatientInfoSectionProps {
-  patientInfo?: PatientInfo;
-  csrfToken: string;
-}
+const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ 
+  patientInfo, csrfToken, email, latestWeight, weightLastUpdated 
+}) => {
 
-
-const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, csrfToken }) => {
   const [fields, setFields] = useState<PatientInfo>(patientInfo ?? {});
   const [isEditing, setIsEditing] = useState(false);
 
@@ -37,6 +26,12 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
           credentials: 'include', 
           body: JSON.stringify(request_fields)
         });
+
+        setFields((prev) => ({
+          ...prev,
+          last_updated: new Date(),
+        }));
+
         if (!response.ok) {
           console.error('Error updating patient field data');
         }
@@ -50,17 +45,24 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
   return (
     <div>
       <div className={styles.basicInfoHeader}>
-        <span>
-          <strong>Basic Information</strong>&nbsp; 
-          (last updated {fields.last_updated ? new Date(fields.last_updated).toLocaleString() : 'N/A'}):
-        </span>
+        <div>
+          <strong>Basic Information</strong> &nbsp;
+          <span className={styles.lastUpdatedText}>
+            (last updated {fields.last_updated ? new Date(fields.last_updated).toLocaleDateString() : 'N/A'})
+          </span>
+        </div>
         <span onClick={handleEditClick} className={styles.updateSaveText}>
           {isEditing ? 'Save' : 'Update'}
         </span>
       </div>
   
-      <div>
-        <strong>Date of Birth: </strong>
+      <div className={styles.infoRow}>
+        <strong>Email:</strong>
+        <span>{email}</span>
+      </div>
+  
+      <div className={styles.infoRow}>
+        <strong>Date of Birth:</strong>
         {isEditing ? (
           <input
             type="text"
@@ -74,12 +76,12 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             }}
           />
         ) : (
-          <span> {fields.date_of_birth || 'N/A'}</span>
+          <span>{fields.date_of_birth || 'None'}</span>
         )}
       </div>
   
-      <div>
-        <strong>Sex: </strong>
+      <div className={styles.infoRow}>
+        <strong>Sex:</strong>
         {isEditing ? (
           <select
             value={fields.sex || ''}
@@ -93,12 +95,12 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             <option value="O">Intersex / Other</option>
           </select>
         ) : (
-          <span> {fields.sex || 'N/A'}</span>
+          <span>{fields.sex || 'None'}</span>
         )}
       </div>
   
-      <div>
-        <strong>Height: </strong>
+      <div className={styles.infoRow}>
+        <strong>Height:</strong>
         {isEditing ? (
           <input
             type="number"
@@ -106,39 +108,54 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ patientInfo, cs
             onChange={(event) =>
               setFields((prev) => ({ ...prev, height: event.target.value }))
             }
-          /> 
+          />
         ) : (
-          <span> {fields.height || 'N/A'} cm</span>
+          <span>{fields.height ? `${fields.height} cm` : 'None'}</span>
         )}
       </div>
   
-      <div>
-        <strong>Medications: </strong>
+      <div className={styles.infoRow}>
+        <strong>Medications:</strong>
         {isEditing ? (
-          <input
-            type="text"
+          <textarea
+            className={styles.medicationsTextarea}
             value={fields.medications || ''}
             onChange={(event) =>
               setFields((prev) => ({ ...prev, medications: event.target.value }))
             }
           />
         ) : (
-          <span> {fields.medications || 'N/A'}</span>
+          <span className={styles.textBlock}>{fields.medications || 'None'}</span>
         )}
       </div>
-  
-      <div>
-        <strong>Other Information: </strong>
+
+      <div className={styles.infoRow}>
+        <strong>Other Information:</strong>
         {isEditing ? (
-          <input
-            type="text"
+          <textarea 
+            className={styles.otherInfoTextarea}
             value={fields.other_info || ''}
             onChange={(event) =>
               setFields((prev) => ({ ...prev, other_info: event.target.value }))
             }
           />
         ) : (
-          <span> {fields.other_info || 'N/A'}</span>
+          <span className={styles.textBlock}>{fields.other_info || 'None'}</span>
+        )}
+      </div>
+  
+      <div className={styles.latestWeight}>
+        <strong>Latest Weight:</strong>&nbsp;
+        {latestWeight !== undefined ? (
+          <span>
+            {latestWeight} lbs &nbsp;&nbsp;
+            {weightLastUpdated && 
+              <span className={styles.lastUpdatedText}>
+                (last measured ${new Date(weightLastUpdated).toLocaleString()})`
+              </span>}
+          </span>
+        ) : (
+          <span>Not available</span>
         )}
       </div>
     </div>
