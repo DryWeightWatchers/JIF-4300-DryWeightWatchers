@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from api.views.shared_views import send_verification_email
+from api.views.shared_views import send_verification_email, check_and_notify_weight_change
 
 """
 Note: All patient-facing APIs should use rest_framework's JWT authentication
@@ -164,23 +164,34 @@ def get_weight_record(request):
 @permission_classes([IsAuthenticated])
 def record_weight(request):
     try:
-        print('Authenticated User:', request.user)
-        print('Received Token:', request.headers.get('Authorization'))
-
         user = request.user
         weight = request.data.get('weight')
 
+        # Get the patient's most recent weight record
+        previous_weight_record = WeightRecord.objects.filter(patient=user).order_by('-timestamp').first()
+
+        # If a previous record exists, compare the weight change
+        if previous_weight_record:
+            previous_weight = previous_weight_record.weight
+        else:
+            # No previous weight, assume it's the first record
+            previous_weight = weight
+
+        # Record the new weight
         serializer = WeightRecordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response({'error': serializer.errors}, status=400)
 
-        if not weight:
-            return JsonResponse({'error': 'Weight field is required'}, status=400)
         WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
 
+        # After the new weight is saved, check for drastic changes and notify providers
+        check_and_notify_weight_change(user, previous_weight, weight)
+
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
+    
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
     
 
 @api_view(['GET'])

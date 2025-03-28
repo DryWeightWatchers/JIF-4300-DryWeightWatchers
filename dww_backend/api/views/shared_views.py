@@ -17,6 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
+from views.provider_views import send_weight_change_notification
 
 
 @csrf_exempt
@@ -256,3 +257,25 @@ def verify_email(request):
     user.save()
 
     return JsonResponse({'message': 'Email verified successfully'})
+
+
+def check_and_notify_weight_change(patient, previous_weight, new_weight):
+    weight_change = new_weight - previous_weight
+
+    # Check if the weight change is drastic (you can define your own threshold)
+    if abs(weight_change) > 5:  # Example threshold: 5kg or more
+        # Fetch the patient's providers (assume you have a relationship between patient and providers)
+        providers = get_patient_providers(patient)
+
+        # Prepare the weight change data to send
+        weight_change_data = {
+            "previous_weight": previous_weight,
+            "new_weight": new_weight,
+            "change": weight_change
+        }
+
+        # Send the notification
+        send_weight_change_notification(patient, weight_change_data, providers)
+
+def get_patient_providers(patient):
+    return User.objects.filter(patientrelationship__patient=patient, role=User.PROVIDER)
