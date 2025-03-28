@@ -183,7 +183,7 @@ def record_weight(request):
         treatment_relationships = TreatmentRelationship.objects.filter(patient=user)
         providers = [relationship.provider for relationship in treatment_relationships]
 
-        check_and_notify_weight_change(user, previous_weight, weight, providers)
+        response = check_and_notify_weight_change(user, previous_weight, weight, providers)
 
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
     

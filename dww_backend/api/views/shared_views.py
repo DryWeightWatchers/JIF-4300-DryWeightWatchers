@@ -270,7 +270,7 @@ def check_and_notify_weight_change(patient, previous_weight, new_weight, provide
         send_weight_change_notification(patient, weight_change_data, providers)
 
 def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
-    subject = f"Alert: Drastic Weight Change for {patient.first_name} {patient.last_name}"
+    subject = f"Alert: Drastic Weight Change Detected"
 
     message_content = f"""
     <html>
@@ -279,9 +279,7 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
           <tr>
             <td style="text-align: center; padding-bottom: 20px;">
               <h1 style="color: #333; font-size: 24px;">Weight Change Alert</h1>
-              <p style="color: #555; font-size: 16px;">Patient {patient.first_name} {patient.last_name} has experienced a significant weight change.</p>
-              <p style="color: #555; font-size: 16px;">Previous Weight: {weight_change['previous_weight']} lbs</p>
-              <p style="color: #555; font-size: 16px;">New Weight: {weight_change['new_weight']} lbs</p>
+              <p style="color: #555; font-size: 16px;">Patient One of your patients experienced a significant weight change.</p>
               <p style="color: #555; font-size: 16px;">Change: {weight_change['change']} lbs</p>
             </td>
           </tr>
@@ -295,7 +293,14 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
     </html>
     """
 
+    message = f"Patient {patient.first_name} {patient.last_name} has expirienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
+
     provider_emails = [provider.email for provider in providers]
+    for provider in providers:
+        ProviderNotification.objects.create(
+            provider=provider,
+            message=message
+        )
 
     from_email = settings.EMAIL_HOST_USER
 
