@@ -279,7 +279,7 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
           <tr>
             <td style="text-align: center; padding-bottom: 20px;">
               <h1 style="color: #333; font-size: 24px;">Weight Change Alert</h1>
-              <p style="color: #555; font-size: 16px;">Patient One of your patients experienced a significant weight change.</p>
+              <p style="color: #555; font-size: 16px;">One of your patients has experienced a significant weight change.</p>
               <p style="color: #555; font-size: 16px;">Change: {weight_change['change']} lbs</p>
             </td>
           </tr>
@@ -293,7 +293,7 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
     </html>
     """
 
-    message = f"Patient {patient.first_name} {patient.last_name} has expirienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
+    message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
     provider_emails = [provider.email for provider in providers]
     for provider in providers:
