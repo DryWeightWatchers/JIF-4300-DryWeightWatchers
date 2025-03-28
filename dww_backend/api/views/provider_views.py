@@ -207,3 +207,35 @@ def add_patient_info(request):
     
     print(f'Serializer errors: {serializer.errors}')
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_provider_notifications(request):
+    user = request.user
+    if user.role != User.PROVIDER:
+        return JsonResponse({'error': 'Only providers can access this'}, status=403)
+
+    notifications = ProviderNotification.objects.filter(provider=user).order_by('-created_at')
+    data = [
+        {
+            'message': n.message,
+            'created_at': n.created_at.isoformat(),
+            'is_read': n.is_read,
+            'id': n.id
+        }
+        for n in notifications
+    ]
+    return JsonResponse({'notifications': data}, status=200)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def mark_notification_as_read(request, id):
+    try:
+        notification = ProviderNotification.objects.get(id=id)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'message': 'Marked as read'}, status=200)
+    except ProviderNotification.DoesNotExist:
+        return JsonResponse({'error': 'Notification not found'}, status=404)

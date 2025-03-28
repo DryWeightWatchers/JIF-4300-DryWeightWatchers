@@ -22,7 +22,8 @@ type Patient = {
 type Notification = {
   id: number;
   message: string;
-  timestamp: string;
+  created_at: string;
+  is_read: boolean;
 };
 
 const Home = () => {
@@ -74,12 +75,13 @@ const Home = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/notifications`, {
+        const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-provider-notifications/`, {
           credentials: 'include'
         });
         if (res.ok) {
           const data = await res.json();
           setNotifications(data.notifications);
+          console.log(data.notifications);
         } else {
           console.error('Failed to load notifications');
         }
@@ -90,6 +92,37 @@ const Home = () => {
 
     fetchNotifications();
   }, []);
+
+  const getCSRFToken = async () => {
+    const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-csrf-token/`, {
+      credentials: 'include',
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  };
+
+  const markNotificationAsRead = async (id: number) => {
+    const csrfToken = await getCSRFToken();
+    try {
+      const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/mark-notification-as-read/${id}/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          "X-CSRFToken": csrfToken,
+        }
+      });
+
+      if (res.ok) {
+        setNotifications(prev =>
+          prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+        );
+      } else {
+        console.error('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -129,17 +162,41 @@ const Home = () => {
         </div>
 
         <div className={styles.notifications}>
-          <h3>🔔 Unread Notifications</h3>
+          <h3>🔔 Notifications</h3>
           <div className={styles.scrollableNotifications}>
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div key={notification.id} className={styles.notificationItem}>
-                  <p>{notification.message}</p>
-                  <span className={styles.notificationTime}>{new Date(notification.timestamp).toLocaleString()}</span>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {!notification.is_read && (
+                      <span style={{
+                        height: 10,
+                        width: 10,
+                        backgroundColor: '#007bff',
+                        borderRadius: '50%',
+                        display: 'inline-block',
+                        marginRight: 8
+                      }}></span>
+                    )}
+                    <p style={{ margin: 0 }}>{notification.message}</p>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className={styles.notificationTime}>
+                      {new Date(notification.created_at).toLocaleString()}
+                    </span>
+                    {!notification.is_read && (
+                      <button
+                        className={styles.markAsReadBtn}
+                        onClick={() => markNotificationAsRead(notification.id)}
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
-              <p>No new notifications</p>
+              <p>No notifications</p>
             )}
           </div>
         </div>

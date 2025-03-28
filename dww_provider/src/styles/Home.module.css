@@ -106,3 +106,19 @@
         grid-template-columns: 1fr;
     }
 }
+
+.markAsReadBtn {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.markAsReadBtn:hover {
+    background-color: #007bff;
+    color: white;
+}
