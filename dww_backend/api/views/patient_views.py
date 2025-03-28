@@ -167,25 +167,23 @@ def record_weight(request):
         user = request.user
         weight = request.data.get('weight')
 
-        # Get the patient's most recent weight record
         previous_weight_record = WeightRecord.objects.filter(patient=user).order_by('-timestamp').first()
 
-        # If a previous record exists, compare the weight change
         if previous_weight_record:
             previous_weight = previous_weight_record.weight
         else:
-            # No previous weight, assume it's the first record
             previous_weight = weight
 
-        # Record the new weight
         serializer = WeightRecordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response({'error': serializer.errors}, status=400)
 
         WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
 
-        # After the new weight is saved, check for drastic changes and notify providers
-        check_and_notify_weight_change(user, previous_weight, weight)
+        treatment_relationships = TreatmentRelationship.objects.filter(patient=user)
+        providers = [relationship.provider for relationship in treatment_relationships]
+
+        check_and_notify_weight_change(user, previous_weight, weight, providers)
 
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
     

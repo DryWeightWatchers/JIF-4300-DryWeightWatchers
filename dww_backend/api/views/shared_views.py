@@ -17,7 +17,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
-from views.provider_views import send_weight_change_notification
 
 
 @csrf_exempt
@@ -259,23 +258,55 @@ def verify_email(request):
     return JsonResponse({'message': 'Email verified successfully'})
 
 
-def check_and_notify_weight_change(patient, previous_weight, new_weight):
+def check_and_notify_weight_change(patient, previous_weight, new_weight, providers):
     weight_change = new_weight - previous_weight
-
-    # Check if the weight change is drastic (you can define your own threshold)
-    if abs(weight_change) > 5:  # Example threshold: 5kg or more
-        # Fetch the patient's providers (assume you have a relationship between patient and providers)
-        providers = get_patient_providers(patient)
-
-        # Prepare the weight change data to send
+    if abs(weight_change) > 5:  # Example threshold: 5lbs or more
         weight_change_data = {
             "previous_weight": previous_weight,
             "new_weight": new_weight,
             "change": weight_change
         }
 
-        # Send the notification
         send_weight_change_notification(patient, weight_change_data, providers)
 
-def get_patient_providers(patient):
-    return User.objects.filter(patientrelationship__patient=patient, role=User.PROVIDER)
+def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
+    subject = f"Alert: Drastic Weight Change for {patient.first_name} {patient.last_name}"
+
+    message_content = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Weight Change Alert</h1>
+              <p style="color: #555; font-size: 16px;">Patient {patient.first_name} {patient.last_name} has experienced a significant weight change.</p>
+              <p style="color: #555; font-size: 16px;">Previous Weight: {weight_change['previous_weight']} lbs</p>
+              <p style="color: #555; font-size: 16px;">New Weight: {weight_change['new_weight']} lbs</p>
+              <p style="color: #555; font-size: 16px;">Change: {weight_change['change']} lbs</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              Please review the patient's data and take appropriate action if needed.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+
+    provider_emails = [provider.email for provider in providers]
+
+    from_email = settings.EMAIL_HOST_USER
+
+    try:
+        send_mail(
+            subject,
+            '',
+            from_email,
+            provider_emails,
+            html_message=message_content,
+            fail_silently=False,
+        )
+    except Exception as e:
+        raise e
