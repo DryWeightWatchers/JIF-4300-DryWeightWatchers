@@ -7,6 +7,7 @@ urlpatterns = [
     path('test/', shared_views.test, name='test'), 
     path('login/', shared_views.login_view, name='login'),
     path('logout/', shared_views.logout_view, name='logout'), 
+    path('verify-email/', shared_views.verify_email, name='verify_email'), 
     ## account management 
     path('delete-account/', shared_views.delete_account, name='delete_account'),
     path('delete-relationship/', shared_views.delete_relationship, name='delete_provider'),
@@ -41,5 +42,4 @@ urlpatterns = [
     path('get-patient-data/', provider_views.get_patient_data, name='get_patient_data'),
     path('add-patient-note', provider_views.add_patient_note, name='add_patient_note'), 
     path('add-patient-info', provider_views.add_patient_info, name='add_patient_info'), 
-    path('verify-email/', provider_views.verify_email, name='verify_email'), 
 ]
