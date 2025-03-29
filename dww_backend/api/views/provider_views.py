@@ -177,6 +177,28 @@ def add_patient_note(request):
         return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 
 
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_patient_note(request):
+    try:
+        data = request.data
+        note_id = data.get('note_id')
+        if not note_id:
+            return JsonResponse({'error': 'Missing note_id'}, status=400)
+
+        try:
+            note = PatientNote.objects.get(id=note_id)
+        except PatientNote.DoesNotExist:
+            return JsonResponse({'error': 'Note not found'}, status=404)
+
+        note.delete()
+        return JsonResponse({'message': 'Note deleted successfully'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
 @api_view(['POST']) 
 @authentication_classes([SessionAuthentication]) 
 @permission_classes([IsAuthenticated]) 

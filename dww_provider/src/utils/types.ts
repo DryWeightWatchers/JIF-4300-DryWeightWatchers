@@ -8,6 +8,7 @@ export type WeightRecord = {
 }; 
 
 export type PatientNote = {
+    id: string; 
     timestamp: Date; 
     note: string; 
 }; 
