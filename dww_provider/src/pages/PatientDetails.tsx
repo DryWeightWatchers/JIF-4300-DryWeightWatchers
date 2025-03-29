@@ -19,11 +19,13 @@ const PatientDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const [error, setError] = useState<string | null>(null);
-  const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedDay, setSelectedDay] = useState(new Date());
-  const [addNoteText, setAddNoteText] = useState<string>(''); 
   const [refresh, setRefresh] = useState<boolean>(false); 
+
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [newNoteText, setNewNoteText] = useState<string>(''); 
 
 
   const handleRemovePatientRelationship = async () => {
@@ -60,37 +62,65 @@ const PatientDetails: React.FC = () => {
     setSelectedDay(day)
   };
 
-  const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== "Enter" || event.shiftKey) { return; } 
-    event.preventDefault();  // don't type a newline 
+
+  const handleAddOrUpdateNote = async (noteId: string | null, noteText: string, day: Date) => {
     try {
-      const response = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-note`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken, 
-        }, 
-        credentials: "include", 
-        body: JSON.stringify({
-          patient: id, 
-          note_type: "generic", 
-          timestamp: selectedDay, 
-          note: addNoteText
-        }),
-      });
+      const response = await fetch(
+        `${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-note`, {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            note_id: noteId, 
+            patient: id, 
+            timestamp: day, 
+            note: noteText, 
+          }),
+        }
+      );
 
-      if (response.ok) {
-        console.log("New note added");
-        setAddNoteText(""); 
-        setRefresh(!refresh); 
-      } else {
-        console.error("Failed to add note");
+      if (!response.ok) {
+        console.error("Failed to add/update note");
+        return;
       }
-    } catch (error) {
-      console.error("Error:", error);
-    }
+  
+      setNewNoteText('');
+      setEditingNoteId(null);
+      setRefresh(!refresh);
 
+    } catch (error) {
+      console.error("Error in handleAddOrUpdateNote:", error);
+    }
   };
+
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.VITE_PUBLIC_DEV_SERVER_URL}/delete-patient-note`, 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify({ note_id: noteId }),
+        }
+      );
+      if (!response.ok) {
+        console.error("Failed to delete note:", await response.text());
+        return;
+      }
+
+      setRefresh(!refresh);
+    } catch (error) {
+      console.error("Error in handleDeleteNote:", error);
+    }
+  };
+
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -156,9 +186,12 @@ const PatientDetails: React.FC = () => {
           selectedDay={selectedDay}
           weightHistory={patient?.weight_history}
           notes={patient?.notes}
-          addNoteText={addNoteText}
-          setAddNoteText={setAddNoteText}
-          handleKeyDown={handleKeyDown}
+          newNoteText={newNoteText}
+          setNewNoteText={setNewNoteText}
+          editingNoteId={editingNoteId}
+          setEditingNoteId={setEditingNoteId}
+          onAddOrUpdateNote={handleAddOrUpdateNote}
+          onDeleteNote={handleDeleteNote}
         />
       )}
       <div className={styles.button_container}>

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Chart from './Chart';
 import Calendar from './Calendar';
 import styles from '../styles/ChartCalendarViz.module.css';
-import { WeightRecord, ChartCalendarVizProps } from '../utils/types'; 
+import { ChartCalendarVizProps } from '../utils/types'; 
 
 
 
@@ -16,7 +16,7 @@ const ChartCalendarViz: React.FC<ChartCalendarVizProps> = ({ weightHistory, onDa
   }));
 
   return (
-    <div className={styles.weight_history}>
+    <div className={styles.viz_container}>
       <h2 className={styles.weight_history_title}>Weight History</h2>
       <div className={styles.chart_button_container}>
         <button

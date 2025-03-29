@@ -1,6 +1,5 @@
-
-import { useState } from "react";
-import styles from "../styles/PatientDetails.module.css";
+import { useState, useEffect } from 'react'; 
+import styles from "../styles/PatientNotesSection.module.css";
 import { PatientNotesSectionProps } from '../utils/types'; 
 
 
@@ -9,9 +8,12 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
   selectedDay,
   weightHistory = [],
   notes = [],
-  addNoteText,
-  setAddNoteText,
-  handleKeyDown,
+  newNoteText,
+  setNewNoteText,
+  editingNoteId, 
+  setEditingNoteId, 
+  onAddOrUpdateNote, 
+  onDeleteNote
 }) => {
 
   const weightRecordsForDay = weightHistory.filter((record) => {
@@ -27,8 +29,30 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
     (note) => note.timestamp.toDateString() === selectedDay.toDateString()
   );
 
+  const handleEditClick = (noteId: string, noteText: string) => {
+    setEditingNoteId(noteId);
+    setNewNoteText(noteText);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingNoteId !== null && newNoteText.trim()) {
+      onAddOrUpdateNote(editingNoteId, newNoteText.trim(), selectedDay);
+      setEditingNoteId(null);
+      setNewNoteText('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      onAddOrUpdateNote(editingNoteId, newNoteText.trim(), selectedDay);
+      setEditingNoteId(null);
+      setNewNoteText('');
+    }
+  };
+
   return (
-    <div className={styles.patient_info}>
+    <div className={styles.notes_container}>
       <div className={styles.noteSection}>
         <span className={styles.label}>Selected Day: </span>
         {selectedDay.toLocaleDateString("en-US", {
@@ -62,13 +86,28 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
         <span className={styles.label}>Notes: </span>
         {notesForDay.length > 0 ? (
           notesForDay.map((note, index) => (
-            <div key={index} className={styles.noteItem}>
+            <div 
+              key={index}
+              className={`${styles.noteItem} ${editingNoteId === note.id ? styles.editing : ''}`}
+            >
               <span className={styles.noteText}>{note.note}</span>
-              <span className={styles.noteTime}>
-                {note.timestamp.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+              <span className={styles.editDeleteGroup}>
+                <span 
+                  className={styles.editDeleteText}
+                  onClick={() => {
+                    editingNoteId === note.id 
+                    ? handleSaveEdit() 
+                    : handleEditClick(note.id, note.note)
+                  }}
+                >
+                  {editingNoteId === note.id ? "Save" : "Edit"}
+                </span>
+                <span 
+                  className={styles.editDeleteText} 
+                  onClick={() => onDeleteNote(note.id)}
+                >
+                  Delete
+                </span> 
               </span>
             </div>
           ))
@@ -78,8 +117,8 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
       </div>
 
       <textarea
-        value={addNoteText}
-        onChange={(e) => setAddNoteText(e.target.value)}
+        value={newNoteText}
+        onChange={(e) => setNewNoteText(e.target.value)}
         onKeyDown={handleKeyDown}
         className={styles.addNoteText}
         placeholder="Type a note and press Enter..."

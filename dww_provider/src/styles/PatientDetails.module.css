@@ -1,11 +1,11 @@
+
 .container {
-    max-width: 800px;
+    max-width: 600px;
     margin: 40px auto;
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
-
 .header {
     text-align: center;
     color: #444;
@@ -16,19 +16,6 @@
     padding-bottom: 10px;
 }
 
-.patient-info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-size: 16px;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #f1faff;
-}
-
-.label {
-    font-weight: bold;
-}
 
 .error {
     text-align: center;
@@ -36,8 +23,6 @@
     color: red;
     margin-top: 20px;
 }
-
-
 .loading {
     text-align: center;
     font-size: 18px;
@@ -45,64 +30,13 @@
     margin-top: 20px;
 }
 
-.noteContent {
-    padding: 16px;
-  }
-  
-.noteSection {
-    margin-bottom: 8px;
-}
 
-.noteLabel {
-    font-size: 16px;
-    font-weight: 600;
-    color: #4f3582;
-    margin-bottom: 8px;
-}
-
-.noteValue {
-    font-size: 16px;
-    color: #333;
-}
-
-.noteItem {
-    background-color: #F5F9FF;
-    border-radius: 8px;
-    padding: 8px;
-    margin: 4px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.noteItem:hover {
-    background-color: #e4e4ff;
-}
-
-.noteText {
-    font-size: 14px;
-    color: #333;
-}
-
-.noteTime {
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
-}   
-
-.addNoteText {
-    width: 100%;
-    height: 6rem;
-    resize: vertical; 
-    font-size: 1.1em;
-    margin: 8px 0px;
-}
-  
+/* Remove Patient Button */ 
 .button_container {
     display: flex;
     justify-content: center;
     margin-top: 2.5rem;
 }
-
 .remove_patient_btn {
     background-color: #dc3545;
     color: white;
@@ -113,11 +47,9 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 }
-
 .remove_patient_btn:hover {
     background-color: #c82333;
 }
-
 .remove_patient_btn:active {
     background-color: #a71d2a;
 }

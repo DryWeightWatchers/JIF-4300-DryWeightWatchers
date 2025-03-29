@@ -41,5 +41,6 @@ urlpatterns = [
     path('dashboard/', provider_views.dashboard, name='dashboard'), 
     path('get-patient-data/', provider_views.get_patient_data, name='get_patient_data'),
     path('add-patient-note', provider_views.add_patient_note, name='add_patient_note'), 
+    path('delete-patient-note', provider_views.delete_patient_note, name='delete_patient_note'), 
     path('add-patient-info', provider_views.add_patient_info, name='add_patient_info'), 
 ]

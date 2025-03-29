@@ -163,6 +163,7 @@ def get_patient_data(request):
 def add_patient_note(request): 
     try: 
         data = request.data
+        note_id = data.get('note_id') 
         patient_id = data.get('patient') 
         timestamp = data.get('timestamp') 
         note = data.get('note') 
@@ -172,15 +173,47 @@ def add_patient_note(request):
         except User.DoesNotExist: 
             return JsonResponse({'error': 'Invalid patient ID'}, status=400)
     
-        PatientNote.objects.create(
-            patient=patient,
-            note=note,
-            timestamp=timestamp
-        )
-        return JsonResponse({}, status=200)
+        if note_id is not None:
+            try:
+                patient_note = PatientNote.objects.get(id=note_id, patient=patient)
+                patient_note.note = note
+                patient_note.timestamp = timestamp
+                patient_note.save()
+                return JsonResponse({'updated': True}, status=200)
+            except PatientNote.DoesNotExist:
+                return JsonResponse({'error': 'Note not found for update'}, status=404)
+        else:
+            PatientNote.objects.create(
+                patient=patient,
+                note=note,
+                timestamp=timestamp
+            )
+            return JsonResponse({'created': True}, status=201)
 
-    except json.JSONDecodeError: 
-        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_patient_note(request):
+    try:
+        data = request.data
+        note_id = data.get('note_id')
+        if not note_id:
+            return JsonResponse({'error': 'Missing note_id'}, status=400)
+
+        try:
+            note = PatientNote.objects.get(id=note_id)
+        except PatientNote.DoesNotExist:
+            return JsonResponse({'error': 'Note not found'}, status=404)
+
+        note.delete()
+        return JsonResponse({'message': 'Note deleted successfully'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
 
 @api_view(['POST']) 
