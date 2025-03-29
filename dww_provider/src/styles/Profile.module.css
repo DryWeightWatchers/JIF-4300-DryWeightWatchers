@@ -120,6 +120,10 @@ button:active {
   background-color: #a71d2a;
 }
 
+.errorMessage {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
 .emailContainer {
   display: flex;
   align-items: center;

@@ -61,7 +61,7 @@ const ProfileScreen = () => {
         }
     
         try {
-          const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/update-${field}/`, {
+          const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-${field}/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
