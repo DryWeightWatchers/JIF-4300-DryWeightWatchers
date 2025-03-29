@@ -47,6 +47,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("PROD_EMAIL_HOST_USER", "") # dryweightwatchers email (add it to .env)
 EMAIL_HOST_PASSWORD = os.getenv("PROD_EMAIL_HOST_PASSWORD", "") # the app password (not gmail one, but generated one, also in .env)
 
+TWILIO_SID = os.environ.get('TWILIO_SID')
+TWILIO_TOKEN = os.environ.get('TWILIO_TOKEN')
+TWILIO_PHONE = os.environ.get('TWILIO_PHONE')
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

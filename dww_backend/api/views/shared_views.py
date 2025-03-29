@@ -268,7 +268,6 @@ def check_and_notify_weight_change(patient, previous_weight, new_weight, provide
         }
 
         send_weight_change_notification(patient, weight_change_data, providers)
-        send_text_notification(providers)
 
 def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
     subject = f"Alert: Drastic Weight Change Detected"
@@ -296,7 +295,7 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
 
     message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
-    provider_emails = [provider.email for provider in providers]
+    provider_emails = [provider.email for provider in providers] #NOTE FOR LATER, ADD PREFERENTIAL LOGIC
     for provider in providers:
         ProviderNotification.objects.create(
             provider=provider,
@@ -320,12 +319,15 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
     provider_phones = [provider.phone for provider in providers if provider.phone]
 
     try:
-        client = Client(os.environ.get('TWILIO_EMAIL'), os.environ.get('TWILIO_TOKEN'))
+        client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
         for phone in provider_phones:
-            message = client.messages.create(
-                body=message,
-                from_=os.environ.get('TWILIO_PHONE'),
-                to=phone
-            )
+            try:
+                message = client.messages.create(
+                    body=message,
+                    from_=settings.TWILIO_PHONE,
+                    to=phone
+                )
+            except Exception as e:
+                continue #pseudo-fail silently, otherwise a failed twilio thing may break an otherwise valid weight record?
     except Exception as e:
         raise e
