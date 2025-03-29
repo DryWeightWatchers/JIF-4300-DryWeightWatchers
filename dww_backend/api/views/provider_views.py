@@ -163,6 +163,7 @@ def get_patient_data(request):
 def add_patient_note(request): 
     try: 
         data = request.data
+        note_id = data.get('note_id') 
         patient_id = data.get('patient') 
         timestamp = data.get('timestamp') 
         note = data.get('note') 
@@ -172,15 +173,47 @@ def add_patient_note(request):
         except User.DoesNotExist: 
             return JsonResponse({'error': 'Invalid patient ID'}, status=400)
     
-        PatientNote.objects.create(
-            patient=patient,
-            note=note,
-            timestamp=timestamp
-        )
-        return JsonResponse({}, status=200)
+        if note_id is not None:
+            try:
+                patient_note = PatientNote.objects.get(id=note_id, patient=patient)
+                patient_note.note = note
+                patient_note.timestamp = timestamp
+                patient_note.save()
+                return JsonResponse({'updated': True}, status=200)
+            except PatientNote.DoesNotExist:
+                return JsonResponse({'error': 'Note not found for update'}, status=404)
+        else:
+            PatientNote.objects.create(
+                patient=patient,
+                note=note,
+                timestamp=timestamp
+            )
+            return JsonResponse({'created': True}, status=201)
 
-    except json.JSONDecodeError: 
-        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_patient_note(request):
+    try:
+        data = request.data
+        note_id = data.get('note_id')
+        if not note_id:
+            return JsonResponse({'error': 'Missing note_id'}, status=400)
+
+        try:
+            note = PatientNote.objects.get(id=note_id)
+        except PatientNote.DoesNotExist:
+            return JsonResponse({'error': 'Note not found'}, status=404)
+
+        note.delete()
+        return JsonResponse({'message': 'Note deleted successfully'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
 
 @api_view(['POST']) 
@@ -220,20 +253,20 @@ def get_provider_notifications(request):
     data = [
         {
             'message': n.message,
-            'created_at': n.created_at,
-            'is_read': n.is_read
+            'created_at': n.created_at.isoformat(),
+            'is_read': n.is_read,
+            'id': n.id
         }
         for n in notifications
     ]
-    return JsonResponse(data, status=200)
+    return JsonResponse({'notifications': data}, status=200)
 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
-def mark_notification_as_read(request):
-    notification_id = request.data.get('id')
+def mark_notification_as_read(request, id):
     try:
-        notification = ProviderNotification.objects.get(id=notification_id, provider=request.user)
+        notification = ProviderNotification.objects.get(id=id)
         notification.is_read = True
         notification.save()
         return JsonResponse({'message': 'Marked as read'}, status=200)
