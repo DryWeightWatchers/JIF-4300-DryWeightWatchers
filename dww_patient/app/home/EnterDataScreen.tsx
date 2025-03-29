@@ -30,7 +30,7 @@ const EnterDataScreen = () => {
       if (response.ok) {
         const data = await response.json(); 
         console.log('weight input successful:', data);
-        alert(`Weight reported: ${weight}kg`);
+        alert(`Weight reported: ${weight} lbs`);
         setWeight(''); 
 
       } else {
