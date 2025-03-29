@@ -102,7 +102,7 @@ const Profile = () => {
 
     try {
       const csrfToken = await getCSRFToken();
-      const response = await fetch(`${serverUrl}/update-${field}/`, {
+      const response = await fetch(`${serverUrl}/change-${field}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
