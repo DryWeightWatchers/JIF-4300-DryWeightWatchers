@@ -61,13 +61,11 @@ const Profile = () => {
     return data.csrfToken;
   };
 
-  // Email validation function
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Phone validation function (simple example)
   const isValidPhone = (phone: string) => {
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     return phoneRegex.test(phone);
@@ -112,13 +110,11 @@ const Profile = () => {
       return;
     }
 
-    // Validate email format
     if (field === 'email' && !isValidEmail(tempValue)) {
       setMessage("Please enter a valid email address.");
       return;
     }
 
-    // Validate phone format
     if (field === 'phone' && !isValidPhone(tempValue)) {
       setMessage("Please enter a valid phone number.");
       return;
