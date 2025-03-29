@@ -295,7 +295,7 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
 
     message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
-    provider_emails = [provider.email for provider in providers] #NOTE FOR LATER, ADD PREFERENTIAL LOGIC
+    provider_emails = [provider.email for provider in providers if provider.notification_preference and provider.notification_preference.email_notifications]
     for provider in providers:
         ProviderNotification.objects.create(
             provider=provider,
@@ -316,7 +316,8 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
     except Exception as e:
         raise e
     
-    provider_phones = [provider.phone for provider in providers if provider.phone]
+    provider_phones = [provider.phone for provider in providers if provider.phone and provider.notification_preference and provider.notification_preference.text_notifications]
+
 
     try:
         client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)

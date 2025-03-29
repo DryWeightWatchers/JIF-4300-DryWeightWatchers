@@ -222,7 +222,6 @@ const Profile = () => {
     changePreferences(changedPreferences);  
   };  
 
-
   if (isLoading) {
     return <p>Loading...</p>
   }
