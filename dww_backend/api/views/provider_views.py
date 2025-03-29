@@ -157,7 +157,7 @@ def get_patient_data(request):
 def add_patient_note(request): 
     try: 
         data = request.data
-        note_id = data.get('id') 
+        note_id = data.get('note_id') 
         patient_id = data.get('patient') 
         timestamp = data.get('timestamp') 
         note = data.get('note') 

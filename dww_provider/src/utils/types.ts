@@ -67,9 +67,12 @@ export type PatientNotesSectionProps = {
     selectedDay: Date;
     weightHistory?: WeightRecord[];
     notes?: PatientNote[];
-    addNoteText: string;
-    setAddNoteText: (text: string) => void;
-    handleKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+    newNoteText: string;
+    setNewNoteText: React.Dispatch<React.SetStateAction<string>>;
+    editingNoteId: string | null; 
+    setEditingNoteId: React.Dispatch<React.SetStateAction<string | null>>;
+    onAddOrUpdateNote: (noteId: string | null, noteText: string, day: Date) => void;
+    onDeleteNote: (noteId: string) => void;
 };
 
 export type ChartCalendarVizProps = {
