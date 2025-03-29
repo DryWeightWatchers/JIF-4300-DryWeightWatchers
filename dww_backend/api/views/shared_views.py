@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from api.models import *
 from api.forms import *
 from api.serializers import *
-import json
+import json, os
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
-
+from twilio import Client
 
 @csrf_exempt
 def test(request: HttpRequest): 
@@ -268,6 +268,7 @@ def check_and_notify_weight_change(patient, previous_weight, new_weight, provide
         }
 
         send_weight_change_notification(patient, weight_change_data, providers)
+        send_text_notification(providers)
 
 def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
     subject = f"Alert: Drastic Weight Change Detected"
@@ -313,5 +314,18 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
             html_message=message_content,
             fail_silently=False,
         )
+    except Exception as e:
+        raise e
+    
+    provider_phones = [provider.phone for provider in providers if provider.phone]
+
+    try:
+        client = Client(os.environ.get('TWILIO_EMAIL'), os.environ.get('TWILIO_TOKEN'))
+        for phone in provider_phones:
+            message = client.messages.create(
+                body=message,
+                from_=os.environ.get('TWILIO_PHONE'),
+                to=phone
+            )
     except Exception as e:
         raise e
