@@ -256,3 +256,62 @@ def verify_email(request):
     user.save()
 
     return JsonResponse({'message': 'Email verified successfully'})
+
+
+def check_and_notify_weight_change(patient, previous_weight, new_weight, providers):
+    weight_change = new_weight - previous_weight
+    if abs(weight_change) > 5:  # Example threshold: 5lbs or more
+        weight_change_data = {
+            "previous_weight": previous_weight,
+            "new_weight": new_weight,
+            "change": weight_change
+        }
+
+        send_weight_change_notification(patient, weight_change_data, providers)
+
+def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
+    subject = f"Alert: Drastic Weight Change Detected"
+
+    message_content = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Weight Change Alert</h1>
+              <p style="color: #555; font-size: 16px;">One of your patients has experienced a significant weight change.</p>
+              <p style="color: #555; font-size: 16px;">Change: {weight_change['change']} lbs</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              Please review the patient's data and take appropriate action if needed.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+
+    message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
+
+    provider_emails = [provider.email for provider in providers]
+    for provider in providers:
+        ProviderNotification.objects.create(
+            provider=provider,
+            message=message
+        )
+
+    from_email = settings.EMAIL_HOST_USER
+
+    try:
+        send_mail(
+            subject,
+            '',
+            from_email,
+            provider_emails,
+            html_message=message_content,
+            fail_silently=False,
+        )
+    except Exception as e:
+        raise e
