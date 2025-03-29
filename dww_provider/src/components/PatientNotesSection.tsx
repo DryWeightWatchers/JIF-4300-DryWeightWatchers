@@ -86,7 +86,10 @@ const PatientNotesSection: React.FC<PatientNotesSectionProps> = ({
         <span className={styles.label}>Notes: </span>
         {notesForDay.length > 0 ? (
           notesForDay.map((note, index) => (
-            <div key={index} className={styles.noteItem}>
+            <div 
+              key={index}
+              className={`${styles.noteItem} ${editingNoteId === note.id ? styles.editing : ''}`}
+            >
               <span className={styles.noteText}>{note.note}</span>
               <span className={styles.editDeleteGroup}>
                 <span 
