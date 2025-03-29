@@ -80,6 +80,7 @@ class PatientInfo(models.Model):
     medications = models.TextField(null=True, blank=True)
     other_info = models.TextField(null=True, blank=True) 
     last_updated = models.DateTimeField(auto_now=True)
+    alarm_threshold = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True) 
 
 # Other tables/fields with many-to-one relations to a patient profile.
 
