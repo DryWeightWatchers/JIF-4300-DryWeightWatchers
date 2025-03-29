@@ -17,7 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
-from twilio import Client
+from twilio.rest import Client
 
 @csrf_exempt
 def test(request: HttpRequest): 
@@ -331,3 +331,25 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
                 continue #pseudo-fail silently, otherwise a failed twilio thing may break an otherwise valid weight record?
     except Exception as e:
         raise e
+    
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_notification_preferences(request):
+    user = request.user
+    notification_preference, created = NotificationPreference.objects.get_or_create(patient=user)
+    data = request.data
+    if 'email_notifications' in data:
+        notification_preference.email_notifications = bool(data.get('email_notifications'))
+    if 'text_notifications' in data:
+        notification_preference.text_notifications = bool(data.get('text_notifications'))
+    if 'push_notifications' in data:
+        notification_preference.push_notifications = bool(data.get('push_notifications'))
+
+    notification_preference.save()
+
+    return JsonResponse({
+        'email_notifications': notification_preference.email_notifications,
+        'text_notifications': notification_preference.text_notifications,
+        'push_notifications': notification_preference.push_notifications,
+    })

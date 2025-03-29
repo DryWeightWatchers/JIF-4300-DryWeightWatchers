@@ -72,13 +72,20 @@ def register_provider(request):
 @permission_classes([IsAuthenticated])
 def profile_data(request):
     user = request.user
+    notification_pref = getattr(user, 'notification_preference', None)
+    notification_data = {
+        'push_notifications': notification_pref.push_notifications if notification_pref else False,
+        'email_notifications': notification_pref.email_notifications if notification_pref else False,
+        'text_notifications': notification_pref.text_notifications if notification_pref else False,
+    }
     return JsonResponse({
         'firstname': user.first_name,
         'lastname': user.last_name,
         'shareable_id': user.shareable_id,
         'email': user.email,
         'phone': str(user.phone),
-        'is_verified': user.is_verified
+        'is_verified': user.is_verified,
+        'notification_preference': notification_data,
     })
 
 
