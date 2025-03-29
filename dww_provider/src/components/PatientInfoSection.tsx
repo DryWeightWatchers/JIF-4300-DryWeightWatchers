@@ -8,8 +8,11 @@ import { PatientInfo, PatientInfoSectionProps } from '../utils/types';
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ 
   patientInfo, csrfToken, email, latestWeight, weightLastUpdated 
 }) => {
-
-  const [fields, setFields] = useState<PatientInfo>(patientInfo ?? {});
+  const DEFAULT_ALARM_THRESHOLD = 2.0; 
+  const [fields, setFields] = useState<PatientInfo>({
+    alarm_threshold: patientInfo?.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD,
+    ...patientInfo,
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEditClick = async () => {
@@ -46,7 +49,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
     <div>
       <div className={styles.basicInfoHeader}>
         <div>
-          <strong>Basic Information</strong> &nbsp;
+          <strong>Patient Information</strong> &nbsp;
           <span className={styles.lastUpdatedText}>
             (last updated {fields.last_updated ? new Date(fields.last_updated).toLocaleDateString() : 'N/A'})
           </span>
@@ -143,6 +146,27 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
           <span className={styles.textBlock}>{fields.other_info || 'None'}</span>
         )}
       </div>
+
+      <div className={styles.infoRow}>
+        <strong>Weight Alarm Threshold:</strong>
+        {isEditing ? (
+          <input
+            type="number"
+            step="0.1"
+            value={fields.alarm_threshold ?? 2.0}
+            onChange={(event) => setFields((prev) => ({
+              ...prev,
+              alarm_threshold: parseFloat(event.target.value),
+            }))}
+          />
+        ) : (
+          <span>
+            {fields.alarm_threshold !== undefined
+              ? `${fields.alarm_threshold} lbs`
+              : '2.0 lbs (default)'}
+          </span>
+        )}
+      </div>
   
       <div className={styles.latestWeight}>
         <strong>Latest Weight:</strong>&nbsp;
@@ -151,7 +175,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
             {latestWeight} lbs &nbsp;&nbsp;
             {weightLastUpdated && 
               <span className={styles.lastUpdatedText}>
-                (last measured ${new Date(weightLastUpdated).toLocaleString()})`
+                (last measured {new Date(weightLastUpdated).toLocaleString()})
               </span>}
           </span>
         ) : (

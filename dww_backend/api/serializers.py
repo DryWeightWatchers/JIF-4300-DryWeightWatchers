@@ -33,7 +33,7 @@ class PatientInfoSerializer(serializers.ModelSerializer):
     alarm_threshold = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True) 
     class Meta:
         model = PatientInfo
-        fields = ['patient', 'height', 'date_of_birth', 'sex', 'medications', 'other_info']
+        fields = ['patient', 'height', 'date_of_birth', 'sex', 'medications', 'other_info', 'alarm_threshold']
       
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

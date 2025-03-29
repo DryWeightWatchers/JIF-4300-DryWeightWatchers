@@ -21,6 +21,7 @@ export type PatientInfo = {
     medications?: string;
     other_info?: string;
     last_updated?: Date | null;
+    alarm_threshold?: number; 
 };
 
 
