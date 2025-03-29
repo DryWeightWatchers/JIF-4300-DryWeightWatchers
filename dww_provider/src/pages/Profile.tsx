@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
-import { useAuth } from '../components/AuthContext.tsx'
+import { useAuth } from '../components/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
 import { formatPhoneNumber } from '../utils/formatting.ts';
 
@@ -61,6 +61,18 @@ const Profile = () => {
     return data.csrfToken;
   };
 
+  // Email validation function
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Phone validation function (simple example)
+  const isValidPhone = (phone: string) => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleDeleteAccount = async () => {
     const csrfToken = await getCSRFToken();
 
@@ -97,6 +109,18 @@ const Profile = () => {
   const handleUpdate = async (field: 'email' | 'phone') => {
     if (!tempValue) {
       setMessage(`Please enter a valid ${field}.`);
+      return;
+    }
+
+    // Validate email format
+    if (field === 'email' && !isValidEmail(tempValue)) {
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    // Validate phone format
+    if (field === 'phone' && !isValidPhone(tempValue)) {
+      setMessage("Please enter a valid phone number.");
       return;
     }
 
@@ -170,6 +194,7 @@ const Profile = () => {
   return (
     <div className={styles.profileContainer}>
       <h1>Profile / Settings</h1>
+      {message && <p className={styles.errorMessage}>{message}</p>} {/* Display the error or success message */}
       <div>
         <label>Full Name:</label>
         <div>

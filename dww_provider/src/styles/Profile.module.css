@@ -119,3 +119,9 @@ button:active {
 .deleteAccountBtn:active {
   background-color: #a71d2a;
 }
+
+.errorMessage {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
