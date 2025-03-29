@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { Alert, Button, Text, StyleSheet, View, TextInput, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
@@ -120,94 +120,103 @@ const ProfileScreen = () => {
       };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.row}>
-            <Text style={styles.label}>{"Name"}:</Text>
-            <Text style={styles.value}>{`${profileData?.firstname} ${profileData?.lastname}`}</Text>
-            </View>
-            <View style={styles.row}>
-            <Text style={styles.label}>Email:</Text>
-            {editingField === "email" ? (
-                <TextInput
-                    style={styles.input}
-                    value={tempValue}
-                    onChangeText={setTempValue}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                />
-        ) : (
-          <Text style={styles.value}>{profileData?.email}</Text>
-        )}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => {
-            if (editingField === 'email') {
-                handleUpdate("email")
-            } else {
-                setEditingField("email");
-                setTempValue(profileData.email);
-            }
-          }}
-        >
-          <Text style={styles.editText}>{editingField === "email" ? "Save" : "Edit"}</Text>
-        </TouchableOpacity>
-        {editingField === "email" && (
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingField(null)}>
-            <Text style={styles.cancelText}>Cancel</Text>
+      <KeyboardAvoidingView
+        style={styles.mainContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 60}
+      >
+        <ScrollView style={{ marginTop: 20 }}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <SafeAreaView style={styles.container}>
+              <View style={styles.row}>
+              <Text style={styles.label}>{"Name"}:</Text>
+              <Text style={styles.value}>{`${profileData?.firstname} ${profileData?.lastname}`}</Text>
+              </View>
+              <View style={styles.row}>
+              <Text style={styles.label}>Email:</Text>
+              {editingField === "email" ? (
+                  <TextInput
+                      style={styles.input}
+                      value={tempValue}
+                      onChangeText={setTempValue}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                  />
+          ) : (
+            <Text style={styles.value}>{profileData?.email}</Text>
+          )}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => {
+              if (editingField === 'email') {
+                  handleUpdate("email")
+              } else {
+                  setEditingField("email");
+                  setTempValue(profileData.email);
+              }
+            }}
+          >
+            <Text style={styles.editText}>{editingField === "email" ? "Save" : "Edit"}</Text>
           </TouchableOpacity>
-        )}
-      </View>
-
-
-
-
-
-
-      <View style={styles.row}>
-            <Text style={styles.label}>Phone:</Text>
-            {editingField === "phone" ? (
-                <TextInput
-                    style={styles.input}
-                    value={tempValue}
-                    onChangeText={setTempValue}
-                    autoCapitalize="none"
-                    keyboardType="phone-pad"
-                />
-        ) : (
-          <Text style={styles.value}>{profileData?.phone || "Not provided"}</Text>
-        )}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => {
-            if (editingField === 'phone') {
-                handleUpdate("phone")
-            } else {
-                setEditingField("phone");
-                setTempValue(profileData.phone);
-            }
-          }}
-        >
-          <Text style={styles.editText}>{editingField === "phone" ? "Save" : "Edit"}</Text>
-        </TouchableOpacity>
-        {editingField === "phone" && (
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingField(null)}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
-        )}
+          {editingField === "email" && (
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingField(null)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          )}
         </View>
+
         <View style={styles.row}>
-            <Text style={styles.label}>Password:</Text>
-            <Text style={styles.value}>{"********"}</Text>
-        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ChangePassword')}>
-                    <Text style={styles.editText}>Edit</Text>
-                  </TouchableOpacity>
-            </View>
-    </View>
+              <Text style={styles.label}>Phone:</Text>
+              {editingField === "phone" ? (
+                  <TextInput
+                      style={styles.input}
+                      value={tempValue}
+                      onChangeText={setTempValue}
+                      autoCapitalize="none"
+                      keyboardType="phone-pad"
+                  />
+          ) : (
+            <Text style={styles.value}>{profileData?.phone || "Not provided"}</Text>
+          )}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => {
+              if (editingField === 'phone') {
+                  handleUpdate("phone")
+              } else {
+                  setEditingField("phone");
+                  setTempValue(profileData.phone);
+              }
+            }}
+          >
+            <Text style={styles.editText}>{editingField === "phone" ? "Save" : "Edit"}</Text>
+          </TouchableOpacity>
+          {editingField === "phone" && (
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingField(null)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          )}
+          </View>
+          <View style={styles.row}>
+              <Text style={styles.label}>Password:</Text>
+              <Text style={styles.value}>{"********"}</Text>
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ChangePassword')}>
+                      <Text style={styles.editText}>Edit</Text>
+                    </TouchableOpacity>
+              </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
     );
 
 };
 
 const styles = StyleSheet.create({
+    mainContainer: {
+      flex: 1,
+      backgroundColor: '#F5F9FF',
+    },
     container: {
       flex: 1,
       justifyContent: 'space-between',

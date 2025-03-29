@@ -24,6 +24,7 @@ export type SettingsStackParamList = {
   ProviderList: undefined;
   Profile: undefined;
   ChangePassword: undefined;
+  AddProvider: undefined;
 };
   
 declare global {
