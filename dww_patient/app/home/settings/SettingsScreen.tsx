@@ -13,19 +13,19 @@ const SettingsScreen = () => {
       title: 'Account Settings', //TODO: Split 'Account.tsx' into profile, shareable id, delete account screens. Add all resultant screens to this section, should be easily modular.
       data: [
         {
+          title: 'Profile',
+          icon: <Ionicons name='person-circle-outline'/>,
+          screen: 'Profile',
+        },
+        {
           title: 'Account',
           icon: <Ionicons name='person'/>,
           screen: 'Account',
         },
         {
-          title: 'Provider List',
+          title: 'Healthcare Provider',
           icon: <Ionicons name='list-outline'/>,
-          screen: 'ProviderList' as const,
-        },
-        {
-          title: 'Profile',
-          icon: <Ionicons name='person-circle-outline'/>,
-          screen: 'Profile' as const,
+          screen: 'ProviderList',
         },
       ],
     },

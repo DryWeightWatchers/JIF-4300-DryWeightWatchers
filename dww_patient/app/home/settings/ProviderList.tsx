@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useCallback } from 'react';
+import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity, SafeAreaView} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
+import { Ionicons } from '@expo/vector-icons';
+import { SettingsStackScreenProps } from '@/app/types/navigation';
 
-
-
-const ProviderListScreen = () => {
-  const navigation = useNavigation();
-  const [message, setMessage] = useState('');
+const ProviderList = () => {
+  const navigation = useNavigation<SettingsStackScreenProps<'ProviderList'>['navigation']>();
   const [providers, setProviders] = useState([]); 
   const {accessToken, refreshAccessToken, logout} = useAuth();
-  const [code, setCode] = useState(new Array(8).fill(''));
 
-  useEffect(() => {
-    handleGetProviders();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetProviders();
+    }, [accessToken])
+  );
 
-  const handleGetProviders= async () => {
+  const handleGetProviders = async () => {
     try {
         if (!accessToken) {
             console.log("No access token available, trying to refresh...");
@@ -47,8 +47,6 @@ const ProviderListScreen = () => {
     }
   }
 
-  const doNothing = () => {};
-
   const handleDeleteProvider= async (shareable_id) => {
     try {
         if (!accessToken) {
@@ -57,7 +55,7 @@ const ProviderListScreen = () => {
         }
         // const shareableId = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
         const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-relationship/`, 
-            accessToken, refreshAccessToken, logout, {
+          accessToken, refreshAccessToken, logout, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -82,9 +80,8 @@ const ProviderListScreen = () => {
     }
   }
 
-
   return (
-    <View style={{ padding: 20 }}>
+    <SafeAreaView style={{ padding: 20, flex: 1 }}>
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Registered Providers</Text>
 
       {providers.length === 0 ? (
@@ -101,30 +98,35 @@ const ProviderListScreen = () => {
               <Button
                     title="Remove Provider"
                     onPress={() => handleDeleteProvider(item.shareable_id)} 
-                    color='red'  
+                    color='red'
                 />
             </View>
           )}
         />
       )}
-    </View>
+
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddProvider')}>
+        <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
+        <Text style={styles.addButtonText}>Add Provider</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-    logoutText: {
-      color: '#FFFFFF',
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    deleteButton: {
-      marginTop: 20,
+    addButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
       alignSelf: 'center',
-      backgroundColor: '#FF4D4D',
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      borderRadius: 5,
+      padding: 10,
+      borderRadius: 25,
+      marginTop: 30,
+    },
+    addButtonText: {
+      color: '#7B5CB8',
+      fontSize: 12,
+      marginTop: 4,
     },
   });
 
-export default ProviderListScreen;
+export default ProviderList;

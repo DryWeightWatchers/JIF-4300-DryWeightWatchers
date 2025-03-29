@@ -15,6 +15,7 @@ import RemindersScreen from './home/settings/RemindersScreen';
 import ProviderListScreen from './home/settings/ProviderList';
 import ProfileScreen from './home/settings/ProfileScreen';
 import ChangePasswordScreen from './home/settings/ChangePasswordScreen';
+import AddProviderScreen from './home/settings/AddProviderScreen';
 
 import { HomeTabParamList, RootStackParamList, SettingsStackParamList } from './types/navigation'; 
 import { useAuth } from './auth/AuthProvider';
@@ -28,6 +29,7 @@ function HomeTabNavigator() {
   return (
     <HomeTabs.Navigator
       screenOptions={({ route }) => ({
+        lazy: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any;
 
@@ -50,21 +52,21 @@ function HomeTabNavigator() {
       <HomeTabs.Screen name="Home" component={HomeScreen} />
       <HomeTabs.Screen name="EnterData" component={EnterDataScreen} />
       <HomeTabs.Screen name="Dashboard" component={DashboardScreen} />
-      <HomeTabs.Screen name="Settings" component={SettingsScreensStack} />
+      <HomeTabs.Screen name="Settings" component={SettingsScreensStack}/>
     </HomeTabs.Navigator>
   );
 }
 
-
 function SettingsScreensStack() {
   return (
-    <SettingsStack.Navigator>
+    <SettingsStack.Navigator initialRouteName='Settings'>
       <SettingsStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
       <SettingsStack.Screen name="Account" component={AccountScreen} />
       <SettingsStack.Screen name="Reminders" component={RemindersScreen} />
       <SettingsStack.Screen name="ProviderList" component={ProviderListScreen} />
       <SettingsStack.Screen name="Profile" component={ProfileScreen} />
       <SettingsStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <SettingsStack.Screen name="AddProvider" component={AddProviderScreen} />
     </SettingsStack.Navigator>
   );
 }
@@ -88,7 +90,7 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
-        <RootStack.Screen name="HomeTabs" component={HomeTabNavigator} />
+        <RootStack.Screen name="HomeTabs" component={HomeTabNavigator}/>
       ) : (
         <>
           <RootStack.Screen name="Login" component={LoginScreen} />

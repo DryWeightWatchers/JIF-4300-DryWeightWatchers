@@ -20,7 +20,6 @@ type WeightRecord = {
   weight: number,
 }
 
-
 const HomeScreen = () => {
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);

@@ -24,7 +24,6 @@ export const authFetch = async (
         // if no access token, logout
         if (!accessToken) {
             await logout(); 
-            alert("No access token available. Please log in again."); 
         }
 
         const headers = {
@@ -41,7 +40,6 @@ export const authFetch = async (
 
             if (!newAccessToken) {
                 await logout(); // If refresh fails, log out
-                alert("Session expired. Please log in again.");
             }
 
             // Retry the request with new token
