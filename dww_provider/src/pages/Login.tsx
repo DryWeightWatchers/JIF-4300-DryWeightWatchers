@@ -44,7 +44,7 @@ const Login: React.FC = () => {
         }
         localStorage.setItem('authToken', data.access);
         login();
-        navigate('/dashboard');
+        navigate('/');
       } else {
         const errorData = await response.json();
         console.log(errorData); 
