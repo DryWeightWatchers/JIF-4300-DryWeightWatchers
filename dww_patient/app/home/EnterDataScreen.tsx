@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, Keyboard, 
-         TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import { useAuth } from '../auth/AuthProvider'; 
-import { authFetch } from '../../utils/authFetch'; 
+import {
+  Text, StyleSheet, View, TextInput, Keyboard,
+  TouchableWithoutFeedback, TouchableOpacity
+} from 'react-native';
+import { useAuth } from '../auth/AuthProvider';
+import { authFetch } from '../../utils/authFetch';
+import { ActivityIndicator } from 'react-native';
 
 
 const EnterDataScreen = () => {
   const [weight, setWeight] = useState('');
-  const { accessToken, refreshAccessToken, logout } = useAuth(); 
+  const { accessToken, refreshAccessToken, logout } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleReportData = async () => {
     if (!weight) {
@@ -15,35 +19,39 @@ const EnterDataScreen = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`, 
-        accessToken, refreshAccessToken, logout, {
-          method: 'POST', 
-          headers: {
-            'Content-Type': 'application/json', 
-          }, 
-          body: JSON.stringify({ weight: parseFloat(weight) }), 
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`,
+        accessToken,
+        refreshAccessToken,
+        logout,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ weight: parseFloat(weight) }),
         }
       );
 
       if (response.ok) {
-        const data = await response.json(); 
+        const data = await response.json();
         console.log('weight input successful:', data);
         alert(`Weight reported: ${weight} lbs`);
-        setWeight(''); 
-
+        setWeight('');
       } else {
         const errorData = await response.json();
         console.error('Weight input error:', errorData);
         alert('Failed to report weight. Please try again.');
       }
-
     } catch (error: any) {
-      console.log('weight input error:', error.response?.data || error.message)
-      alert('Failed to report weight. Please try again.')
+      console.log('weight input error:', error.response?.data || error.message);
+      alert('Failed to report weight. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -60,9 +68,13 @@ const EnterDataScreen = () => {
             value={weight}
             onChangeText={setWeight}
           />
-          <TouchableOpacity style={styles.reportButton} onPress={handleReportData}>
-            <Text style={styles.reportButtonText}>Submit</Text>
-          </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator size="large" color="#7B5CB8" style={{ marginTop: 20 }} />
+          ) : (
+            <TouchableOpacity style={styles.reportButton} onPress={handleReportData}>
+              <Text style={styles.reportButtonText}>Submit</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.footer}>
           <Text style={styles.footerText}>
