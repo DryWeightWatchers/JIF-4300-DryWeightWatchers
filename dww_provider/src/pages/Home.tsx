@@ -142,8 +142,7 @@ const Home = () => {
               patients.map((patient) => (
                 <div key={patient.id} className={styles.patientCard} onClick={() => navigate(`/patients/${patient.id}`)}>
                   <div className={styles.patientInfo}>
-                    <p><strong>{patient.first_name} {patient.last_name}</strong></p>
-                    <p>Contact: {patient.email}</p>
+                    <p><strong>{patient.first_name} {patient.last_name}</strong> ({patient.email})</p>
                   </div>
                   <div className={styles.patientWeight}>
                     {patient.latest_weight ? (
