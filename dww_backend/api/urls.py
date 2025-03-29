@@ -32,6 +32,8 @@ urlpatterns = [
     path('add-reminder/', patient_reminder_views.add_reminder, name='add_reminder'),
     path('save-reminder/', patient_reminder_views.save_reminder, name='save_reminder'),
     path('delete-reminder/<int:id>/', patient_reminder_views.delete_reminder, name='delete_reminder'),
+    path('get-notification-preferences/', patient_reminder_views.get_notification_preferences, name='get_notification_preferences'),
+    path('update-notification-preferences/', patient_reminder_views.update_notification_preferences, name='update_notification_preferences'),
 
     # endpoints used by provider interface 
     path('get-auth-status', provider_views.get_auth_status, name='get_auth_status'), 
