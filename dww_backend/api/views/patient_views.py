@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-
+from api.views.shared_views import send_verification_email
 
 """
 Note: All patient-facing APIs should use rest_framework's JWT authentication
@@ -47,7 +47,8 @@ def register(request):
         data = json.loads(request.body)
         form = RegisterUserForm(data)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            send_verification_email(user)
             return JsonResponse({'message': "User registered successfully"}, status=201)
         else:
             print(form.errors)

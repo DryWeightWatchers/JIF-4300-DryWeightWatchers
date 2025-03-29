@@ -30,7 +30,6 @@ const LoginScreen = () => {
         console.log("LoginScreen: handleLogin: response returned with 200 OK")
         const data = await response.json();
         await login(data.access_token, data.refresh_token);
-
       } else {
         const errorData = await response.json();
         Alert.alert(`Error ${response.status}: ${errorData.message}`);

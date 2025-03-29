@@ -40,6 +40,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None, unique=True) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     username = None
     USERNAME_FIELD = 'email'
@@ -135,3 +137,24 @@ class DeactivatedUsers(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     deactivated_at = models.DateTimeField(auto_now_add=True)
+
+class ProviderNotification(models.Model):
+    provider = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': User.PROVIDER},
+        related_name='notifications'
+    )
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+class NotificationPreference(models.Model):
+    patient = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': User.PATIENT},
+        related_name='notification_preference'
+    )
+    push_notifications = models.BooleanField(default=False)
+    email_notifications = models.BooleanField(default=False)

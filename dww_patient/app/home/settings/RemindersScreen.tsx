@@ -9,6 +9,11 @@ import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
 import { scheduleNotification, cancelAllNotifications, requestNotificationPermissions } from '../../../utils/reminderNotifications';
 
+interface NotificationPreferences {
+  push_notifications: boolean;
+  email_notifications: boolean;
+}
+
 //https://docs.expo.dev/versions/latest/sdk/notifications/
 const RemindersScreen = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'Reminders'>['navigation']>();
@@ -18,6 +23,70 @@ const RemindersScreen = () => {
   const [time, setTime] = useState(new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedReminderID, setSelectedReminderID] = useState(-1);
+  const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>({
+    push_notifications: false,
+    email_notifications: false
+  });
+  const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
+
+  const fetchNotificationPreferences = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-notification-preferences/`,
+        accessToken,
+        refreshAccessToken,
+        logout,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch notification preferences');
+      }
+
+      const data = await response.json();
+      setNotificationPreferences(data);
+    } catch (error: any) {
+      console.log('get notification preferences error:', error.response?.data || error.message);
+      alert('Failed to get your notification preferences. Please try again.');
+    }
+  };
+
+  const updateNotificationPreferences = async (preferences: NotificationPreferences) => {
+    try {
+      console.log('Updating notification preferences with:', preferences);
+      const response = await authFetch(
+        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/update-notification-preferences/`,
+        accessToken,
+        refreshAccessToken,
+        logout,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(preferences),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log('Error response:', errorData);
+        throw new Error(errorData.error || 'Failed to update notification preferences');
+      }
+
+      const data = await response.json();
+      console.log('Successfully updated preferences:', data);
+      setNotificationPreferences(data);
+    } catch (error: any) {
+      console.log('update notification preferences error:', error.response?.data || error.message);
+      alert('Failed to update your notification preferences. Please try again.');
+    }
+  };
 
   const fetchReminders = async () => {
     try {
@@ -59,13 +128,20 @@ const RemindersScreen = () => {
       
       await cancelAllNotifications();
   
-      reminders.forEach(async (reminder) => {
-        await scheduleNotification(reminder);
-      });
+      // Only schedule notifications if push notifications are enabled
+      if (notificationPreferences.push_notifications) {
+        reminders.forEach(async (reminder) => {
+          await scheduleNotification(reminder);
+        });
+      }
     };
     
     resyncNotifications();
-  }, [reminders]);
+  }, [reminders, notificationPreferences.push_notifications]);
+
+  useEffect(() => {
+    fetchNotificationPreferences();
+  }, [accessToken]);
 
   const handleAddReminder = async () => { //add new reminder
     try {
@@ -184,27 +260,33 @@ const RemindersScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.container}>
-      {reminders.map((reminder) => (
-      <ReminderItem
-        key={reminder.id}
-        time={reminder.time}
-        days={reminder.days}
-        onPress={() => handleEditReminder(reminder.id)}
-      />
-      ))}
+        {reminders.map((reminder) => (
+          <ReminderItem
+            key={reminder.id}
+            time={reminder.time}
+            days={reminder.days}
+            onPress={() => handleEditReminder(reminder.id)}
+          />
+        ))}
         {reminders.length === 0 && (
           <Text style={styles.emptyText}>No reminders set</Text>
         )}
-
       </ScrollView>
 
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-        <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
-        <Text style={styles.addButtonText}>Add Reminder</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+          <Ionicons name="add-circle" size={36} color="#7B5CB8"/>
+          <Text style={styles.addButtonText}>Add Reminder</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.addButton} onPress={() => setPreferencesModalVisible(true)}>
+          <Ionicons name="notifications" size={36} color="#7B5CB8"/>
+          <Text style={styles.addButtonText}>Notification Settings</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal animationType='slide' transparent={true} visible={modalVisible} onRequestClose={() => resetStates()}>
-        <Pressable style={styles.modalTop} onPress={() => setModalVisible(false)}/>
+        <Pressable style={styles.modalTop} onPress={() => resetStates()}/>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>
             {selectedReminderID !== -1 ? 'Edit Reminder' : 'Add Reminder'}
@@ -233,6 +315,42 @@ const RemindersScreen = () => {
           </View>
         </View>
       </Modal>
+
+      <Modal animationType='slide' transparent={true} visible={preferencesModalVisible} onRequestClose={() => setPreferencesModalVisible(false)}>
+        <Pressable style={styles.modalTop} onPress={() => setPreferencesModalVisible(false)}/>
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>Notification Preferences</Text>
+          <View style={styles.preferencesContainer}>
+            <View style={styles.preferenceItem}>
+              <Text style={styles.preferenceLabel}>Push Notifications</Text>
+              <Switch
+                value={notificationPreferences.push_notifications}
+                onValueChange={(value) => {
+                  updateNotificationPreferences({
+                    ...notificationPreferences,
+                    push_notifications: value
+                  });
+                }}
+              />
+            </View>
+            <View style={styles.preferenceItem}>
+              <Text style={styles.preferenceLabel}>Email Notifications</Text>
+              <Switch
+                value={notificationPreferences.email_notifications}
+                onValueChange={(value) => {
+                  updateNotificationPreferences({
+                    ...notificationPreferences,
+                    email_notifications: value
+                  });
+                }}
+              />
+            </View>
+          </View>
+          <View style={styles.buttonRow}>
+            <Button title="Close" onPress={() => setPreferencesModalVisible(false)}/>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -253,13 +371,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    marginTop: 30,
+  },
   addButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
     padding: 10,
     borderRadius: 25,
-    marginTop: 30,
   },
   addButtonText: {
     color: '#7B5CB8',
@@ -307,7 +429,24 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }
+  },
+  preferencesContainer: {
+    padding: 20,
+  },
+  preferencesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  preferenceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  preferenceLabel: {
+    fontSize: 16,
+  },
 });
 
 interface Reminder { //for typing... cant import this because of index...

@@ -30,6 +30,7 @@ const SignupScreen = () => {
       const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
 
       console.log('Signup successful:', response.data);
+      alert('A verification email has been sent to ' + email)
       navigation.navigate('Login');
     } catch (error: any) {
       if (error.response?.data?.errors) { 
