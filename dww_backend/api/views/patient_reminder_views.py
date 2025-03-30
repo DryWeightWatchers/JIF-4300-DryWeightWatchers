@@ -95,7 +95,6 @@ def delete_reminder(request, id):
 def get_notification_preferences(request):
     try:
         user = request.user
-        # Get or create notification preferences for the user
         preferences, created = NotificationPreference.objects.get_or_create(
             patient=user,
             defaults={
@@ -103,10 +102,10 @@ def get_notification_preferences(request):
                 'email_notifications': False
             }
         )
-        
         serializer = NotificationPreferenceSerializer(preferences)
         data = serializer.data
         return Response(data, status=200)
+    
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
@@ -117,8 +116,6 @@ def get_notification_preferences(request):
 def update_notification_preferences(request):
     try:
         user = request.user
-        
-        # Get or create notification preferences for the user
         preferences, created = NotificationPreference.objects.get_or_create(
             patient=user,
             defaults={
@@ -126,12 +123,11 @@ def update_notification_preferences(request):
                 'email_notifications': False
             }
         )
-        
         serializer = NotificationPreferenceSerializer(preferences, data=request.data, partial=True)
         if not serializer.is_valid():
-            return Response({'error': serializer.errors}, status=400)
-            
+            return Response({'error': serializer.errors}, status=400)   
         serializer.save()
         return Response(serializer.data, status=200)
+    
     except Exception as e:
         return Response({'error': str(e)}, status=500)
