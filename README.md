@@ -30,7 +30,6 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 
   ### Known Issues
   - Patient log-in does not have an option to unhide password.
-  - Patient details screen on provider interface can theoretically overflow with same-day weight records if too many exist on the same day.
   - Many error messages are mainly coded in console messages, leaving little information feedback to the typical user.
   - Loading screens are only present in a few recent screens rather than universal/standardized.
   - Various typescript errors due to unstrictly typed functions. Does not impede functionality.
