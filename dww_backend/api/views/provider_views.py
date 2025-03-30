@@ -1,4 +1,5 @@
 
+from datetime import timedelta
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
@@ -93,18 +94,49 @@ def dashboard(request):
         provider_id=provider.id 
     ).values_list('patient_id', flat=True)
 
-    # subquery to get the most recent weight record for each patient 
+    # subquery to get the latest weight and timestamp
     latest_weight_subquery = WeightRecord.objects.filter(
         patient_id=OuterRef('id')
-    ).order_by('-timestamp').values_list('weight', 'timestamp')[:1] 
+    ).order_by('-timestamp')
 
-    # main query to get all needed info 
-    patients = User.objects.filter(id__in=patient_ids, role='patient').annotate(
-        latest_weight=Subquery(latest_weight_subquery.values_list('weight', flat=True)),
-        latest_weight_timestamp=Subquery(latest_weight_subquery.values_list('timestamp', flat=True))
-    ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
+    # subquery to get alarm_threshold from related PatientInfo
+    alarm_threshold_subquery = PatientInfo.objects.filter(
+        patient_id=OuterRef('id')
+    ).values('alarm_threshold')[:1]
 
-    return JsonResponse({'patients': list(patients)})
+    patients_qs = User.objects.filter(id__in=patient_ids, role='patient').annotate(
+        latest_weight=Subquery(latest_weight_subquery.values_list('weight', flat=True)[:1]),
+        latest_weight_timestamp=Subquery(latest_weight_subquery.values_list('timestamp', flat=True)[:1]),
+        alarm_threshold=Subquery(alarm_threshold_subquery)
+    ).values(
+        'id', 'first_name', 'last_name', 'email',
+        'latest_weight', 'latest_weight_timestamp',
+        'alarm_threshold'
+    )
+    patients = list(patients_qs)
+
+    # get prev weight/timestamp that is at least one day before the latest 
+    for patient in patients:
+        patient_id = patient['id']
+        latest_timestamp = patient['latest_weight_timestamp']
+
+        if latest_timestamp:
+            prev_record = (
+                WeightRecord.objects.filter(
+                    patient_id=patient_id,
+                    timestamp__date__lt=latest_timestamp.date()
+                )
+                .order_by('-timestamp')
+                .values('weight', 'timestamp')
+                .first()
+            )
+        else:
+            prev_record = None
+
+        patient['prev_weight'] = prev_record['weight'] if prev_record else None
+        patient['prev_weight_timestamp'] = prev_record['timestamp'] if prev_record else None
+
+    return JsonResponse({'patients': patients})
 
 
 @api_view(['GET'])
@@ -136,7 +168,7 @@ def get_patient_data(request):
     # get patient fields 
     patient_info = PatientInfo.objects.filter(
         patient_id=patient_id
-    ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
+    ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated', 'alarm_threshold'
     ).first() or {} 
     default_patient_info = {
         'patient': patient_id, 
@@ -145,7 +177,8 @@ def get_patient_data(request):
         'sex': '',
         'medications': '',
         'other_info': '',
-        'last_updated': None 
+        'last_updated': None, 
+        'alarm_threshold': None
     }
     patient_info = {**default_patient_info, **patient_info}  # merging db data (if exists) into default object 
     
