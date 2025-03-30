@@ -45,13 +45,18 @@ export type Patient = {
     first_name: string;
     last_name: string;
     email: string;
-    latest_weight: number;
-    latest_weight_timestamp: Date;
+    latest_weight: number | null;
+    latest_weight_timestamp: Date | null;
     weight_history?: WeightRecord[];
     notes?: PatientNote[];
     patient_info?: PatientInfo; 
 }; 
 
+export type DashboardPatient = Patient & {
+    prev_weight: number | null;
+    prev_weight_timestamp: Date | null;
+    alarm_threshold: number | null; 
+};
 
 
 //// prop types for child components of PatientDetails 

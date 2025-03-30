@@ -14,8 +14,9 @@ export const formatPhoneNumber = (phone: string | undefined) => {
 
 
 /**
- * Returns the avg change in weight over the last two measurements, if they were within the last week. 
+ * Returns the avg daily change in weight over the last two measurements, if they were within the last week. 
  * Patients are supposed to weigh themselves every day, but they may not. 
+ * Server currently ensures the last two returned measurements are at least 1 day apart. 
  */
 export const avgDailyWeightChange = (lastWeight: WeightRecord | null, prevWeight: WeightRecord | null) => {
     const dayInMs = 24 * 60 * 60 * 1000 

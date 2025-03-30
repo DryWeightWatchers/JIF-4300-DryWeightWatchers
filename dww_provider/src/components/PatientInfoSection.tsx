@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../styles/PatientInfoSection.module.css';
 import { PatientInfo, PatientInfoSectionProps } from '../utils/types'; 
 
@@ -10,10 +10,17 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
 }) => {
   const DEFAULT_ALARM_THRESHOLD = 2.0; 
   const [fields, setFields] = useState<PatientInfo>({
-    alarm_threshold: patientInfo?.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD,
     ...patientInfo,
+    alarm_threshold: patientInfo?.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD,
   });
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setFields({
+      ...patientInfo,
+      alarm_threshold: patientInfo?.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD
+    });
+  }, [patientInfo]);
 
   const handleEditClick = async () => {
     if (isEditing) {
