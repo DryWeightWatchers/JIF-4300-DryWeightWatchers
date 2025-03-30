@@ -60,15 +60,12 @@ def check_and_send_reminder_emails():
     """
     Check for reminders that are due and send emails to users who have email notifications enabled.
     """
-    # Get current time in Eastern Time
     eastern = pytz.timezone('America/New_York')
     current_time = datetime.now(eastern)
     
-    # Get all reminders for the current time
     current_hour = current_time.hour
     current_minute = current_time.minute
     
-    # Get all users with email notifications enabled
     users_with_email = User.objects.filter(
         notification_preference__email_notifications=True,
         patient_reminders__isnull=False
