@@ -10,7 +10,7 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
   
   ### Features
   #### For patients on the mobile interface: 
-  - Patients may indicate a preference to be reminded/alerted by push notification or email notification.
+  - Patients may indicate a preference to be reminded/alerted by push notification and/or email notification.
   #### For providers on the desktop interface: 
   - Providers may edit and remove notes and special field data from patient files to maintain information relevancy and better suit their needs.
   - Providers may indicate a preference to be reminded/alerted by email or text notification.
@@ -26,6 +26,7 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
   - Patient interface 'forgot password' removed.
   - Patient home screen overhauled for visual appeal and user utility.
   - Refresh session token error message removed from patient interface for user experience.
+  - Inconsistent use of pounds and kilograms for patient weight tracking
 
   ### Known Issues
   - Patient log-in does not have an option to unhide password.
