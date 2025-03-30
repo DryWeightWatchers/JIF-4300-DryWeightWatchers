@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
 import { useAuth } from '../components/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
-import { formatPhoneNumber } from '../utils/formatting.ts';
+import { formatPhoneNumber } from '../utils/helpers.ts';
 
 type ProfileData = {
   firstname: string,
