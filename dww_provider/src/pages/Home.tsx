@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from "../styles/Home.module.css";
 import { useNavigate } from 'react-router-dom';
+import { avgDailyWeightChange } from '../utils/helpers';
 
 type ProfileData = {
   firstname: string;
@@ -17,6 +18,9 @@ type Patient = {
   email: string;
   latest_weight: number | null;
   latest_weight_timestamp: string | null;
+  prev_weight: number | null; 
+  prev_weight_timestamp: string | null; 
+  alarm_threshold: number | null; 
 };
 
 type Notification = {
@@ -27,6 +31,7 @@ type Notification = {
 };
 
 const Home = () => {
+  const DEFAULT_ALARM_THRESHOLD = 2.0; 
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -61,6 +66,7 @@ const Home = () => {
         if (res.ok) {
           const data = await res.json();
           setPatients(data.patients);
+          console.log('Patients: ', data.patients); 
         } else {
           console.error('Failed to load patients');
         }
@@ -101,6 +107,25 @@ const Home = () => {
     return data.csrfToken;
   };
 
+  const isOverThreshold = (patient: Patient) => {
+    const latestRecord = patient.latest_weight !== null && patient.latest_weight_timestamp !== null
+      ? {
+          weight: patient.latest_weight,
+          timestamp: new Date(patient.latest_weight_timestamp),
+        }
+      : null;
+    const prevRecord = patient.prev_weight !== null && patient.prev_weight_timestamp !== null
+      ? {
+          weight: patient.prev_weight,
+          timestamp: new Date(patient.prev_weight_timestamp),
+        }
+      : null;
+
+    const dailyChange = avgDailyWeightChange(latestRecord, prevRecord); 
+    const threshold = patient.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD; 
+    return (dailyChange !== null) ? (dailyChange > threshold) : false; 
+  }
+
   const markNotificationAsRead = async (id: number) => {
     const csrfToken = await getCSRFToken();
     try {
@@ -139,7 +164,7 @@ const Home = () => {
           <h3>⚠️ Patients Above Threshold</h3>
           <div className={styles.scrollablePatients}>
             {patients.length > 0 ? (
-              patients.map((patient) => (
+              patients.filter(isOverThreshold).map((patient: Patient) => (
                 <div key={patient.id} className={styles.patientCard} onClick={() => navigate(`/patients/${patient.id}`)}>
                   <div className={styles.patientInfo}>
                     <p><strong>{patient.first_name} {patient.last_name}</strong> ({patient.email})</p>

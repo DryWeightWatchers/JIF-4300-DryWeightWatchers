@@ -1,11 +1,14 @@
 from django.core.management import call_command
 import threading
 import time
-from datetime import datetime
-import pytz
 import os
-import fcntl
+import sys
 import atexit
+
+if sys.platform == "win32":
+    import msvcrt
+else:
+    import fcntl
 
 # Global flag to track if scheduler is running
 _scheduler_running = False
@@ -15,8 +18,14 @@ def cleanup():
     """Cleanup function to release the lock file when the process exits"""
     global _lock_file
     if _lock_file:
-        fcntl.flock(_lock_file, fcntl.LOCK_UN)
-        _lock_file.close()
+        try:
+            if sys.platform == "win32":
+                pass  # unlocking is not needed with msvcrt, just close the file
+            else:
+                fcntl.flock(_lock_file, fcntl.LOCK_UN)
+        finally:
+            _lock_file.close()
+            _lock_file = None
 
 def acquire_lock():
     """Try to acquire a lock file to ensure only one scheduler runs"""
@@ -24,10 +33,13 @@ def acquire_lock():
     lock_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'scheduler.lock')
     _lock_file = open(lock_file_path, 'w')
     try:
-        fcntl.flock(_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if sys.platform == "win32":
+            msvcrt.locking(_lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            fcntl.flock(_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         atexit.register(cleanup)
         return True
-    except IOError:
+    except (IOError, OSError):
         _lock_file.close()
         _lock_file = None
         return False

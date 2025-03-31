@@ -71,9 +71,9 @@
 }
 
 .alert {
-    color: red;
+    color: #cc0000;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .noData {
