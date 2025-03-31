@@ -14,6 +14,7 @@ urlpatterns = [
     path('change-email/', shared_views.change_email, name='change_email'),
     path('change-phone/', shared_views.change_phone, name='change_phone'),
     path('change-password/', shared_views.change_password, name='change_password'),
+    path('change-notification-preferences/', shared_views.change_notification_preferences, name='change_notification_preferences'),
 
     # endpoints used by patient interface 
     ## auth & account 

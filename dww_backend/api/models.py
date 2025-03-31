@@ -150,14 +150,13 @@ class ProviderNotification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
-
 class NotificationPreference(models.Model):
     patient = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': User.PATIENT},
         related_name='notification_preference'
     )
     push_notifications = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=False)
+    text_notifications = models.BooleanField(default=False)
 

@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from api.models import *
 from api.forms import *
 from api.serializers import *
-import json
+import json, os
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
-
+from twilio.rest import Client
 
 @csrf_exempt
 def test(request: HttpRequest): 
@@ -295,7 +295,12 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
 
     message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
-    provider_emails = [provider.email for provider in providers]
+    providers_with_email_enabled = User.objects.filter(
+        role=User.PROVIDER,
+        notification_preference__email_notifications=True
+    )
+    provider_emails = list(providers_with_email_enabled.values_list('email', flat=True))
+
     for provider in providers:
         ProviderNotification.objects.create(
             provider=provider,
@@ -303,7 +308,6 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
         )
 
     from_email = settings.EMAIL_HOST_USER
-
     try:
         send_mail(
             subject,
@@ -315,3 +319,45 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
         )
     except Exception as e:
         raise e
+
+    provider_phones = [provider.phone for provider in providers if provider.phone and provider.notification_preference and provider.notification_preference.text_notifications]
+    providers_with_text_enabled = User.objects.filter(
+        role=User.PROVIDER,
+        notification_preference__text_notifications=True
+    )
+    provider_emails = list(providers_with_text_enabled.values_list('phone', flat=True))
+    try:
+        client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+        for phone in provider_phones:
+            try:
+                message = client.messages.create(
+                    body=message,
+                    from_=settings.TWILIO_PHONE,
+                    to=phone
+                )
+            except Exception as e:
+                continue #pseudo-fail silently, otherwise a failed twilio thing may break an otherwise valid weight record?
+    except Exception as e:
+        raise e
+    
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_notification_preferences(request):
+    user = request.user
+    notification_preference, created = NotificationPreference.objects.get_or_create(patient=user)
+    data = request.data
+    if 'email_notifications' in data:
+        notification_preference.email_notifications = bool(data.get('email_notifications'))
+    if 'text_notifications' in data:
+        notification_preference.text_notifications = bool(data.get('text_notifications'))
+    if 'push_notifications' in data:
+        notification_preference.push_notifications = bool(data.get('push_notifications'))
+
+    notification_preference.save()
+
+    return JsonResponse({
+        'email_notifications': notification_preference.email_notifications,
+        'text_notifications': notification_preference.text_notifications,
+        'push_notifications': notification_preference.push_notifications,
+    })

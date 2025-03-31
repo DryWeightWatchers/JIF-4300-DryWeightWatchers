@@ -11,6 +11,12 @@ type ProfileData = {
   email: string,
   phone: string,
   is_verified: boolean,
+  notification_preference: NotificationPreference
+}
+
+interface NotificationPreference {
+  email_notifications: boolean;
+  text_notifications: boolean;
 }
 
 const Profile = () => {
@@ -25,6 +31,7 @@ const Profile = () => {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [notificationPreferences, setNotificationPreferences] = useState({email: false, text: false,});  
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +51,10 @@ const Profile = () => {
       const data = await res.json();
       console.log(data);
       setProfileData(data);
+      setNotificationPreferences({
+        email: data.notification_preference?.email_notifications || false,
+        text: data.notification_preference?.text_notifications || false,
+      });  
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -180,6 +191,36 @@ const Profile = () => {
     }
   };
 
+  const changePreferences = async ( prefs: { email: boolean; text: boolean } ) => {
+    try {
+      const csrfToken = await getCSRFToken();
+      const response = await fetch(`${serverUrl}/change-notification-preferences/`, {
+        method: 'POST',  
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email_notifications: prefs.email,
+          text_notifications: prefs.text,
+        }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+    } catch (error) {
+      console.error(error);
+    }
+  };  
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    const changedPreferences = { 
+      ...notificationPreferences, 
+      [name]: checked 
+    };  
+    setNotificationPreferences(changedPreferences);
+    changePreferences(changedPreferences);  
+  };  
 
   if (isLoading) {
     return <p>Loading...</p>
@@ -300,11 +341,11 @@ const Profile = () => {
       <div>
         <label>Notification Preferences:</label>
         <label>
-          <input type='checkbox' value='email' />
+          <input type='checkbox' value='email' name='email' checked={notificationPreferences.email} onChange={handleCheckboxChange} />
           Email
         </label>
         <label>
-          <input type='checkbox' value='text' />
+          <input type='checkbox' value='text' name='text' checked={notificationPreferences.text} onChange={handleCheckboxChange} />
           Text
         </label>
       </div>
