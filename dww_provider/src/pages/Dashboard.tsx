@@ -41,8 +41,7 @@ const Dashboard: React.FC = () => {
 
 
   const getPatientCardData = (patient: DashboardPatient) => {
-    const latestRecord =
-    patient.latest_weight !== null && patient.latest_weight_timestamp !== null
+    const latestRecord = patient.latest_weight !== null && patient.latest_weight_timestamp !== null
       ? {
           weight: patient.latest_weight,
           timestamp: new Date(patient.latest_weight_timestamp),

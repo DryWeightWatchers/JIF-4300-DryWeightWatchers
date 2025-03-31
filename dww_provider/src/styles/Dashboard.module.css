@@ -79,7 +79,7 @@
 
 
 .patientCard.aboveThreshold {
-    border: 1.5px solid #cc0000; 
+    border: 2px solid #cc0000; 
     background-color: #ffe9e9; 
 }
 .aboveThreshold .weightValue {
@@ -100,7 +100,7 @@
 
 .patientCard.belowThreshold {
     border: 1px solid #006600;
-    background-color: #e6ffe6; 
+    background-color: #f0fff0; 
 }
 .belowThreshold .weightValue {
     color: #006600; 
