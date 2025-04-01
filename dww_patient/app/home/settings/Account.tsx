@@ -23,6 +23,7 @@ const AccountScreen = () => {
       } else {
         const errorData = await response.json();
         Alert.alert('Error', errorData.message || 'Logout failed');
+        await logout();  // fallback: clear tokens anyway so user doesn't get stuck logged in 
       }
     } catch (error) {
       console.error('Logout error:', error);

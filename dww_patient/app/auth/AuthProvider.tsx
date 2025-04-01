@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import { isTokenExpired } from "../../utils/jwt"; 
 
 
 interface AuthContextType {
@@ -23,13 +24,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     console.log("AuthProvider: useEffect")
+    console.log("API URL:", process.env.EXPO_PUBLIC_DEV_SERVER_URL);
     // note: since loadTokens is async, the component renders before it completes 
     const loadTokens = async () => {
       const storedAccessToken = await SecureStore.getItemAsync("accessToken");
       const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
+
       if (storedAccessToken && storedRefreshToken) {
-        setAccessToken(storedAccessToken);
-        setRefreshToken(storedRefreshToken);
+
+        if (isTokenExpired(storedRefreshToken)) {
+          console.log("Refresh token expired, logging out");
+          await logout(); 
+          setIsLoading(false); 
+          return; 
+        }
+
+        if (isTokenExpired(storedAccessToken)) {
+          console.log("AuthProvider: Access token expired, attempting refresh..."); 
+          await setRefreshToken(storedRefreshToken); 
+          await refreshAccessToken(); 
+
+        } else {
+          setAccessToken(storedAccessToken);
+          setRefreshToken(storedRefreshToken);
+        } 
       }
       setIsLoading(false);
     };
@@ -52,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshAccessToken = async () => {
     if (!refreshToken) return;
+
     console.log("AuthProvider: refreshAccessToken: ", refreshToken); 
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh-jwt/`, {
@@ -66,6 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAccessToken(data.access_token);
       } else {
         logout(); 
+        alert("Session expired, please log in again."); 
       }
 
     } catch (error) {
