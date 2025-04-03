@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import styles from '../styles/Profile.module.css';
-import { useAuth } from '../components/AuthContext.tsx'
+import { useAuth } from '../components/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
-import { formatPhoneNumber } from '../utils/formatting.ts';
+import { formatPhoneNumber } from '../utils/helpers.ts';
 
 type ProfileData = {
   firstname: string,
   lastname: string,
   shareable_id: string,
   email: string,
-  phone: string
+  phone: string,
+  is_verified: boolean,
+  notification_preference: NotificationPreference
+}
+
+interface NotificationPreference {
+  email_notifications: boolean;
+  text_notifications: boolean;
 }
 
 const Profile = () => {
@@ -24,6 +31,7 @@ const Profile = () => {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [notificationPreferences, setNotificationPreferences] = useState({email: false, text: false,});  
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -41,7 +49,12 @@ const Profile = () => {
         return;
       }
       const data = await res.json();
+      console.log(data);
       setProfileData(data);
+      setNotificationPreferences({
+        email: data.notification_preference?.email_notifications || false,
+        text: data.notification_preference?.text_notifications || false,
+      });  
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -59,6 +72,16 @@ const Profile = () => {
     });
     const data = await response.json();
     return data.csrfToken;
+  };
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPhone = (phone: string) => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone);
   };
 
   const handleDeleteAccount = async () => {
@@ -100,9 +123,19 @@ const Profile = () => {
       return;
     }
 
+    if (field === 'email' && !isValidEmail(tempValue)) {
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (field === 'phone' && !isValidPhone(tempValue)) {
+      setMessage("Please enter a valid phone number.");
+      return;
+    }
+
     try {
       const csrfToken = await getCSRFToken();
-      const response = await fetch(`${serverUrl}/update-${field}/`, {
+      const response = await fetch(`${serverUrl}/change-${field}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,6 +191,36 @@ const Profile = () => {
     }
   };
 
+  const changePreferences = async ( prefs: { email: boolean; text: boolean } ) => {
+    try {
+      const csrfToken = await getCSRFToken();
+      const response = await fetch(`${serverUrl}/change-notification-preferences/`, {
+        method: 'POST',  
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email_notifications: prefs.email,
+          text_notifications: prefs.text,
+        }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+    } catch (error) {
+      console.error(error);
+    }
+  };  
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    const changedPreferences = { 
+      ...notificationPreferences, 
+      [name]: checked 
+    };  
+    setNotificationPreferences(changedPreferences);
+    changePreferences(changedPreferences);  
+  };  
 
   if (isLoading) {
     return <p>Loading...</p>
@@ -170,6 +233,7 @@ const Profile = () => {
   return (
     <div className={styles.profileContainer}>
       <h1>Profile / Settings</h1>
+      {message && <p className={styles.errorMessage}>{message}</p>} {/* Display the error or success message */}
       <div>
         <label>Full Name:</label>
         <div>
@@ -186,7 +250,7 @@ const Profile = () => {
 
       <div>
         <label>Email:</label>
-        <div>
+        <div className={styles.emailContainer}>
           {editingField === 'email' ? (
             <>
               <input
@@ -200,6 +264,12 @@ const Profile = () => {
           ) : (
             <>
               <p>{profileData?.email}</p>
+              {!profileData?.is_verified && (
+                <div className={styles.warningTooltip}>
+                  <span className={styles.warningIcon}>⚠️</span>
+                  <span className={styles.tooltipText}>Email not verified.</span>
+                </div>
+              )}
               <a href="#" onClick={() => { setEditingField('email'); setTempValue(profileData?.email || '') }}>Change email</a>
             </>
           )}
@@ -271,11 +341,11 @@ const Profile = () => {
       <div>
         <label>Notification Preferences:</label>
         <label>
-          <input type='checkbox' value='email' />
+          <input type='checkbox' value='email' name='email' checked={notificationPreferences.email} onChange={handleCheckboxChange} />
           Email
         </label>
         <label>
-          <input type='checkbox' value='text' />
+          <input type='checkbox' value='text' name='text' checked={notificationPreferences.text} onChange={handleCheckboxChange} />
           Text
         </label>
       </div>

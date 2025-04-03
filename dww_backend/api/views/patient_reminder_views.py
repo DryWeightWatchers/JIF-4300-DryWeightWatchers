@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +8,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication 
+
 
 
 """
@@ -87,3 +87,47 @@ def delete_reminder(request, id):
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_notification_preferences(request):
+    try:
+        user = request.user
+        preferences, created = NotificationPreference.objects.get_or_create(
+            patient=user,
+            defaults={
+                'push_notifications': False,
+                'email_notifications': False
+            }
+        )
+        serializer = NotificationPreferenceSerializer(preferences)
+        data = serializer.data
+        return Response(data, status=200)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_notification_preferences(request):
+    try:
+        user = request.user
+        preferences, created = NotificationPreference.objects.get_or_create(
+            patient=user,
+            defaults={
+                'push_notifications': False,
+                'email_notifications': False
+            }
+        )
+        serializer = NotificationPreferenceSerializer(preferences, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response({'error': serializer.errors}, status=400)   
+        serializer.save()
+        return Response(serializer.data, status=200)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

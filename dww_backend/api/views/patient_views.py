@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-
+from api.views.shared_views import send_verification_email, check_and_notify_weight_change
 
 """
 Note: All patient-facing APIs should use rest_framework's JWT authentication
@@ -47,7 +47,8 @@ def register(request):
         data = json.loads(request.body)
         form = RegisterUserForm(data)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            send_verification_email(user)
             return JsonResponse({'message': "User registered successfully"}, status=201)
         else:
             print(form.errors)
@@ -163,23 +164,32 @@ def get_weight_record(request):
 @permission_classes([IsAuthenticated])
 def record_weight(request):
     try:
-        print('Authenticated User:', request.user)
-        print('Received Token:', request.headers.get('Authorization'))
-
         user = request.user
         weight = request.data.get('weight')
+
+        previous_weight_record = WeightRecord.objects.filter(patient=user).order_by('-timestamp').first()
+
+        if previous_weight_record:
+            previous_weight = previous_weight_record.weight
+        else:
+            previous_weight = weight
 
         serializer = WeightRecordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response({'error': serializer.errors}, status=400)
 
-        if not weight:
-            return JsonResponse({'error': 'Weight field is required'}, status=400)
         WeightRecord.objects.create(patient=user, weight=serializer.validated_data['weight'])
 
+        treatment_relationships = TreatmentRelationship.objects.filter(patient=user)
+        providers = [relationship.provider for relationship in treatment_relationships]
+
+        response = check_and_notify_weight_change(user, previous_weight, weight, providers)
+
         return JsonResponse({'message': 'Weight recorded successfully'}, status=201)
+    
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
     
 
 @api_view(['GET'])

@@ -1,11 +1,14 @@
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
 from api.models import *
 from api.forms import *
 from api.serializers import *
-import json
+import json, os
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -13,7 +16,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_ratelimit.decorators import ratelimit
-
+from django.conf import settings
+from twilio.rest import Client
 
 @csrf_exempt
 def test(request: HttpRequest): 
@@ -47,6 +51,8 @@ def login_view(request):
         
         # use Django's built-in session-based auth for providers 
         elif user.role == User.PROVIDER: 
+            # if not user.is_verified:
+            #     return JsonResponse({'message': 'Account is not verified. Please check your email and verify your account.'}, status=403)
             print('views.py: login: provider'); 
             django_login(request, user) 
             request.session.save()
@@ -185,3 +191,173 @@ def change_password(request):
 #     user = request.user
 #     user.delete()
 #     return JsonResponse({'message': 'Successfully deleted account'}, status=200)
+
+def send_verification_email(user):
+    token = get_random_string(50)
+    user.verification_token = token
+    user.save()
+
+    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+
+    subject = 'Verify Your Email'
+    
+    # Create HTML content
+    html_message = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Welcome to Dry Weight Watchers!</h1>
+              <p style="color: #555; font-size: 16px;">Please verify your email address to activate your account.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding: 20px;">
+              <a href="{verification_url}" target="_blank" 
+                 style="display: inline-block; padding: 12px 24px; font-size: 16px; color: #ffffff; background-color: #007bff; 
+                        text-decoration: none; border-radius: 4px; font-weight: bold;">
+                Verify Email
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              If you didn't create an account, you can ignore this email.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+
+    try:
+        send_mail(
+            subject,
+            '',
+            from_email,
+            recipient_list,
+            html_message=html_message,
+            fail_silently=False,
+        )
+    except Exception as e:
+        raise e
+    
+@api_view(['GET'])
+def verify_email(request):
+    token = request.GET.get('token')
+    user = get_object_or_404(User, verification_token=token)
+
+    user.is_verified = True
+    user.verification_token = None
+    user.save()
+
+    return JsonResponse({'message': 'Email verified successfully'})
+
+
+def check_and_notify_weight_change(patient, previous_weight, new_weight, providers):
+    weight_change = new_weight - previous_weight
+    if abs(weight_change) > 5:  # Example threshold: 5lbs or more
+        weight_change_data = {
+            "previous_weight": previous_weight,
+            "new_weight": new_weight,
+            "change": weight_change
+        }
+
+        send_weight_change_notification(patient, weight_change_data, providers)
+
+def send_weight_change_notification(patient, weight_change, providers): # need to call this function when the drastic weight changes is detected
+    subject = f"Alert: Drastic Weight Change Detected"
+
+    message_content = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <tr>
+            <td style="text-align: center; padding-bottom: 20px;">
+              <h1 style="color: #333; font-size: 24px;">Weight Change Alert</h1>
+              <p style="color: #555; font-size: 16px;">One of your patients has experienced a significant weight change.</p>
+              <p style="color: #555; font-size: 16px;">Change: {weight_change['change']} lbs</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; padding-top: 20px; font-size: 14px; color: #999;">
+              Please review the patient's data and take appropriate action if needed.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+    """
+
+    message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
+
+    providers_with_email_enabled = User.objects.filter(
+        role=User.PROVIDER,
+        notification_preference__email_notifications=True
+    )
+    provider_emails = list(providers_with_email_enabled.values_list('email', flat=True))
+
+    for provider in providers:
+        ProviderNotification.objects.create(
+            provider=provider,
+            message=message
+        )
+
+    from_email = settings.EMAIL_HOST_USER
+    try:
+        send_mail(
+            subject,
+            '',
+            from_email,
+            provider_emails,
+            html_message=message_content,
+            fail_silently=False,
+        )
+    except Exception as e:
+        raise e
+
+    provider_phones = [provider.phone for provider in providers if provider.phone and provider.notification_preference and provider.notification_preference.text_notifications]
+    providers_with_text_enabled = User.objects.filter(
+        role=User.PROVIDER,
+        notification_preference__text_notifications=True
+    )
+    provider_emails = list(providers_with_text_enabled.values_list('phone', flat=True))
+    try:
+        client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+        for phone in provider_phones:
+            try:
+                message = client.messages.create(
+                    body=message,
+                    from_=settings.TWILIO_PHONE,
+                    to=phone
+                )
+            except Exception as e:
+                continue #pseudo-fail silently, otherwise a failed twilio thing may break an otherwise valid weight record?
+    except Exception as e:
+        raise e
+    
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_notification_preferences(request):
+    user = request.user
+    notification_preference, created = NotificationPreference.objects.get_or_create(patient=user)
+    data = request.data
+    if 'email_notifications' in data:
+        notification_preference.email_notifications = bool(data.get('email_notifications'))
+    if 'text_notifications' in data:
+        notification_preference.text_notifications = bool(data.get('text_notifications'))
+    if 'push_notifications' in data:
+        notification_preference.push_notifications = bool(data.get('push_notifications'))
+
+    notification_preference.save()
+
+    return JsonResponse({
+        'email_notifications': notification_preference.email_notifications,
+        'text_notifications': notification_preference.text_notifications,
+        'push_notifications': notification_preference.push_notifications,
+    })

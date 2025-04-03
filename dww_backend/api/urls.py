@@ -7,12 +7,14 @@ urlpatterns = [
     path('test/', shared_views.test, name='test'), 
     path('login/', shared_views.login_view, name='login'),
     path('logout/', shared_views.logout_view, name='logout'), 
+    path('verify-email/', shared_views.verify_email, name='verify_email'), 
     ## account management 
     path('delete-account/', shared_views.delete_account, name='delete_account'),
     path('delete-relationship/', shared_views.delete_relationship, name='delete_provider'),
     path('change-email/', shared_views.change_email, name='change_email'),
     path('change-phone/', shared_views.change_phone, name='change_phone'),
     path('change-password/', shared_views.change_password, name='change_password'),
+    path('change-notification-preferences/', shared_views.change_notification_preferences, name='change_notification_preferences'),
 
     # endpoints used by patient interface 
     ## auth & account 
@@ -31,6 +33,8 @@ urlpatterns = [
     path('add-reminder/', patient_reminder_views.add_reminder, name='add_reminder'),
     path('save-reminder/', patient_reminder_views.save_reminder, name='save_reminder'),
     path('delete-reminder/<int:id>/', patient_reminder_views.delete_reminder, name='delete_reminder'),
+    path('get-notification-preferences/', patient_reminder_views.get_notification_preferences, name='get_notification_preferences'),
+    path('update-notification-preferences/', patient_reminder_views.update_notification_preferences, name='update_notification_preferences'),
 
     # endpoints used by provider interface 
     path('get-auth-status', provider_views.get_auth_status, name='get_auth_status'), 
@@ -40,5 +44,8 @@ urlpatterns = [
     path('dashboard/', provider_views.dashboard, name='dashboard'), 
     path('get-patient-data/', provider_views.get_patient_data, name='get_patient_data'),
     path('add-patient-note', provider_views.add_patient_note, name='add_patient_note'), 
+    path('delete-patient-note', provider_views.delete_patient_note, name='delete_patient_note'), 
     path('add-patient-info', provider_views.add_patient_info, name='add_patient_info'), 
+    path('get-provider-notifications/', provider_views.get_provider_notifications, name='get_provider_notifications'), 
+    path('mark-notification-as-read/<int:id>/', provider_views.mark_notification_as_read, name='mark_notification_as_read'), 
 ]

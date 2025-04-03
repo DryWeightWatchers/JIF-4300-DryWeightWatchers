@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useAuth } from './AuthProvider';
 import { authFetch } from '../../utils/authFetch'; 
@@ -30,7 +30,6 @@ const LoginScreen = () => {
         console.log("LoginScreen: handleLogin: response returned with 200 OK")
         const data = await response.json();
         await login(data.access_token, data.refresh_token);
-
       } else {
         const errorData = await response.json();
         Alert.alert(`Error ${response.status}: ${errorData.message}`);
@@ -42,60 +41,83 @@ const LoginScreen = () => {
 };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.appTitle}>Dry Weight Watchers</Text>
-      <Text style={styles.title}>Welcome back!</Text>
+    <KeyboardAvoidingView
+      style={styles.mainContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 60}
+    >
+      <ScrollView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <SafeAreaView style={styles.container}>
+            <Text style={styles.appTitle}>Dry Weight Watchers</Text>
+            <View style={styles.logoContainer}>
+              <Image 
+                source={require('../../assets/images/logo.png')}
+                style={styles.logo}
+              />
+            </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#A9A9A9"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#A9A9A9"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+            />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#A9A9A9"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#A9A9A9"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Log In</Text>
+            </TouchableOpacity>
 
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Don’t have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.signupButton}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+            <View style={styles.signupContainer}>
+              <Text style={styles.signupText}>Don’t have an account?</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                <Text style={styles.signupButton}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 32, 
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '600',
-    marginBottom: 32,
-    color: '#333333',
+  logoContainer: {
+    width: '100%',
+    height: '40%', 
+    marginVertical: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    resizeMode: 'contain',
+    width: '100%',
+    height: undefined,
+    aspectRatio: 1.25,
   },
   appTitle: {
-    position: 'absolute',
-    top: 50,
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333333',
@@ -115,7 +137,7 @@ const styles = StyleSheet.create({
   button: {
     width: '95%',
     height: 50,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#7B5CB8',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -135,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signupButton: {
-    color: '#007AFF',
+    color: '#7B5CB8',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, TouchableWithoutFeedback, Keyboard, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../types/navigation';
 import axios from 'axios';
@@ -30,6 +30,7 @@ const SignupScreen = () => {
       const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
 
       console.log('Signup successful:', response.data);
+      alert('A verification email has been sent to ' + email)
       navigation.navigate('Login');
     } catch (error: any) {
       if (error.response?.data?.errors) { 
@@ -46,99 +47,111 @@ const SignupScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+    <KeyboardAvoidingView
+      style={styles.mainContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 60}
+    >
+      <ScrollView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <SafeAreaView style={styles.container}>
+            <Text style={styles.title}>Sign Up</Text>
 
-      <View style={styles.nameContainer}>
-        <TextInput
-          style={styles.nameInput}
-          placeholder="First Name"
-          placeholderTextColor="#A9A9A9"
-          value={firstName}
-          onChangeText={setFirstName}
-          autoCorrect={false}
-        />
-        <TextInput
-          style={styles.nameInput}
-          placeholder="Last Name"
-          placeholderTextColor="#A9A9A9"
-          value={lastName}
-          onChangeText={setLastName}
-          autoCorrect={false}
-        />
-      </View>
+            <View style={styles.nameContainer}>
+              <TextInput
+                style={styles.nameInput}
+                placeholder="First Name"
+                placeholderTextColor="#A9A9A9"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCorrect={false}
+              />
+              <TextInput
+                style={styles.nameInput}
+                placeholder="Last Name"
+                placeholderTextColor="#A9A9A9"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCorrect={false}
+              />
+            </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#A9A9A9"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#A9A9A9"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Phone Number (Optional)"
-        placeholderTextColor="#A9A9A9"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-        maxLength={15}
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone Number (Optional)"
+              placeholderTextColor="#A9A9A9"
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={setPhone}
+              maxLength={15}
+            />
 
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.passwordInput}
-          placeholder="Password"
-          placeholderTextColor="#A9A9A9"
-          secureTextEntry={!passwordVisible}
-          value={password}
-          onChangeText={setPassword}
-          autoCorrect={false}
-        />
-        <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
-          <Text style={styles.eyeIcon}>{passwordVisible ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.passwordInput}
-          placeholder="Confirm Password"
-          placeholderTextColor="#A9A9A9"
-          secureTextEntry={!confirmPasswordVisible}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          autoCorrect={false}
-        />
-        <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
-          <Text style={styles.eyeIcon}>{confirmPasswordVisible ? '🙈' : '👁️'}</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                placeholderTextColor="#A9A9A9"
+                secureTextEntry={!passwordVisible}
+                value={password}
+                onChangeText={setPassword}
+                autoCorrect={false}
+              />
+              <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+                <Text style={styles.eyeIcon}>{passwordVisible ? '🙈' : '👁️'}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Confirm Password"
+                placeholderTextColor="#A9A9A9"
+                secureTextEntry={!confirmPasswordVisible}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                autoCorrect={false}
+              />
+              <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
+                <Text style={styles.eyeIcon}>{confirmPasswordVisible ? '🙈' : '👁️'}</Text>
+              </TouchableOpacity>
+            </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleSignup}>
+              <Text style={styles.buttonText}>Sign Up</Text>
+            </TouchableOpacity>
 
-      <View style={styles.loginContainer}>
-        <Text style={styles.loginText}>Already have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.loginButton}>Log In</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an account?</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginButton}>Log In</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 24,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 32,
@@ -191,7 +204,7 @@ const styles = StyleSheet.create({
   button: {
     width: '95%',
     height: 50,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#7B5CB8',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -211,7 +224,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    color: '#007AFF',
+    color: '#7B5CB8',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,

@@ -38,6 +38,18 @@ SESSION_COOKIE_AGE = 60*60*24*7  # provider sessions expire after 1 week
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587 
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("PROD_EMAIL_HOST_USER", "") # dryweightwatchers email (add it to .env)
+EMAIL_HOST_PASSWORD = os.getenv("PROD_EMAIL_HOST_PASSWORD", "") # the app password (not gmail one, but generated one, also in .env)
+
+TWILIO_SID = os.environ.get('TWILIO_SID')
+TWILIO_TOKEN = os.environ.get('TWILIO_TOKEN')
+TWILIO_PHONE = os.environ.get('TWILIO_PHONE')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -89,7 +101,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',
-    os.getenv("FRONTEND_URL", "http://localhost:5173"), # this line is necessary for the CORS Policy in the two different env
+    FRONTEND_URL, # this line is necessary for the CORS Policy in the two different env
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -98,7 +110,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    FRONTEND_URL,
     'http://localhost:8081',
     'https://dryweightwatchers.com',
     'https://www.dryweightwatchers.com',

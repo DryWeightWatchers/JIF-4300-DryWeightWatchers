@@ -1,18 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../styles/Dashboard.module.css';
+import styles from '../styles/Dashboard.module.css'; 
+import { DashboardPatient } from '../utils/types'; 
+import { avgDailyWeightChange } from '../utils/helpers';
 
-type Patient = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  latest_weight: number | null;
-  latest_weight_timestamp: string | null;
-};
 
 const Dashboard: React.FC = () => {
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const DEFAULT_ALARM_THRESHOLD = 2.0; 
+  const [patients, setPatients] = useState<DashboardPatient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -39,34 +35,77 @@ const Dashboard: React.FC = () => {
     fetchPatients();
   }, []);
 
-  if (loading) {
-    return <div>Loading patient data…</div>;
+  useEffect(() => {
+    console.log('Patients: ', patients); 
+  }, [patients]); 
+
+
+  const getPatientCardData = (patient: DashboardPatient) => {
+    const latestRecord = patient.latest_weight !== null && patient.latest_weight_timestamp !== null
+      ? {
+          weight: patient.latest_weight,
+          timestamp: new Date(patient.latest_weight_timestamp),
+        }
+      : null;
+    const prevRecord = patient.prev_weight !== null && patient.prev_weight_timestamp !== null
+      ? {
+          weight: patient.prev_weight,
+          timestamp: new Date(patient.prev_weight_timestamp),
+        }
+      : null;
+
+    const latestWeight = patient.latest_weight ?? null; 
+    const dailyChange = avgDailyWeightChange(latestRecord, prevRecord); 
+    const threshold = patient.alarm_threshold ?? DEFAULT_ALARM_THRESHOLD; 
+    return { latestWeight, dailyChange, threshold }; 
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+
+  if (loading) { return <div>Loading patient data…</div>; }
+  if (error) { return <div>Error: {error}</div>; }
 
   return (
     <div className={styles.dashboard}>
       <h1 className={styles.title}>Patient Dashboard</h1>
       <div className={styles.cardContainer}>
         {patients.map((patient) => {
-          let weightClass = styles.neutralWeight;
-          if (patient.latest_weight !== null) {
-            if (patient.latest_weight < 50) {
-              weightClass = styles.lowWeight;
-            } else if (patient.latest_weight > 150) {
-              weightClass = styles.atRiskWeight;
-            } else {
-              weightClass = styles.greatWeight;
-            }
+
+          const { latestWeight, dailyChange, threshold } = getPatientCardData(patient);
+          let cardStyle; 
+          if (dailyChange === null) { cardStyle = `${styles.noDailyChange}`; } 
+          else { 
+            cardStyle = (dailyChange > threshold) 
+            ? `${styles.aboveThreshold}` 
+            : `${styles.belowThreshold}`; 
+          }
+          let weightDisplay; 
+
+          if (latestWeight === null) { 
+            weightDisplay = 'No measurements yet.'
+          } else if (dailyChange === null) { 
+            weightDisplay = (
+              <>
+                {latestWeight} lbs &nbsp;
+                <div className={styles.dailyChange}>(recent change unknown)</div>
+              </>
+            );
+          } else {
+            const sign = dailyChange > 0 ? '+' : ''; 
+            weightDisplay = (
+              <>
+                {latestWeight}&nbsp;
+                <span className={styles.dailyChange}>
+                  ({sign}{dailyChange.toFixed(2)})
+                </span>&nbsp;
+                lbs
+              </>
+            );
           }
 
           return (
             <div
               key={patient.id}
-              className={`${styles.patientCard} ${weightClass}`}
+              className={`${styles.patientCard} ${cardStyle}`}
               onClick={() => navigate(`/patients/${patient.id}`)}
             >
               <div className={styles.patientInfo}>
@@ -76,7 +115,7 @@ const Dashboard: React.FC = () => {
               <div className={styles.weightInfo}>
                 <span className={styles.weightLabel}>LATEST WEIGHT</span>
                 <span className={styles.weightValue}>
-                  {patient.latest_weight !== null ? `${patient.latest_weight} lbs` : 'N/A'}
+                  {weightDisplay}
                 </span>
               </div>
               <p className={styles.timestamp}>

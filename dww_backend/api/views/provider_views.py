@@ -1,10 +1,14 @@
 
+from datetime import timedelta
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, logout, login as django_login
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from django.conf import settings
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -12,6 +16,7 @@ import json
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+from api.views.shared_views import send_verification_email
 
 """
 Note: All provider-facing APIs should use Django's built-in (session-based) authentication 
@@ -55,6 +60,7 @@ def register_provider(request):
             user.role = User.PROVIDER 
             user.set_password(form.cleaned_data['password'])
             user.save()
+            send_verification_email(user)
         except Exception as e: 
             return error_response('An unexpected error occurred', status=500) 
         return JsonResponse({}, status=201)
@@ -67,12 +73,20 @@ def register_provider(request):
 @permission_classes([IsAuthenticated])
 def profile_data(request):
     user = request.user
+    notification_pref = getattr(user, 'notification_preference', None)
+    notification_data = {
+        'push_notifications': notification_pref.push_notifications if notification_pref else False,
+        'email_notifications': notification_pref.email_notifications if notification_pref else False,
+        'text_notifications': notification_pref.text_notifications if notification_pref else False,
+    }
     return JsonResponse({
         'firstname': user.first_name,
         'lastname': user.last_name,
         'shareable_id': user.shareable_id,
         'email': user.email,
-        'phone': str(user.phone)
+        'phone': str(user.phone),
+        'is_verified': user.is_verified,
+        'notification_preference': notification_data,
     })
 
 
@@ -87,18 +101,49 @@ def dashboard(request):
         provider_id=provider.id 
     ).values_list('patient_id', flat=True)
 
-    # subquery to get the most recent weight record for each patient 
+    # subquery to get the latest weight and timestamp
     latest_weight_subquery = WeightRecord.objects.filter(
         patient_id=OuterRef('id')
-    ).order_by('-timestamp').values_list('weight', 'timestamp')[:1] 
+    ).order_by('-timestamp')
 
-    # main query to get all needed info 
-    patients = User.objects.filter(id__in=patient_ids, role='patient').annotate(
-        latest_weight=Subquery(latest_weight_subquery.values_list('weight', flat=True)),
-        latest_weight_timestamp=Subquery(latest_weight_subquery.values_list('timestamp', flat=True))
-    ).values('id', 'first_name', 'last_name', 'email', 'latest_weight', 'latest_weight_timestamp')
+    # subquery to get alarm_threshold from related PatientInfo
+    alarm_threshold_subquery = PatientInfo.objects.filter(
+        patient_id=OuterRef('id')
+    ).values('alarm_threshold')[:1]
 
-    return JsonResponse({'patients': list(patients)})
+    patients_qs = User.objects.filter(id__in=patient_ids, role='patient').annotate(
+        latest_weight=Subquery(latest_weight_subquery.values_list('weight', flat=True)[:1]),
+        latest_weight_timestamp=Subquery(latest_weight_subquery.values_list('timestamp', flat=True)[:1]),
+        alarm_threshold=Subquery(alarm_threshold_subquery)
+    ).values(
+        'id', 'first_name', 'last_name', 'email',
+        'latest_weight', 'latest_weight_timestamp',
+        'alarm_threshold'
+    )
+    patients = list(patients_qs)
+
+    # get prev weight/timestamp that is at least one day before the latest 
+    for patient in patients:
+        patient_id = patient['id']
+        latest_timestamp = patient['latest_weight_timestamp']
+
+        if latest_timestamp:
+            prev_record = (
+                WeightRecord.objects.filter(
+                    patient_id=patient_id,
+                    timestamp__date__lt=latest_timestamp.date()
+                )
+                .order_by('-timestamp')
+                .values('weight', 'timestamp')
+                .first()
+            )
+        else:
+            prev_record = None
+
+        patient['prev_weight'] = prev_record['weight'] if prev_record else None
+        patient['prev_weight_timestamp'] = prev_record['timestamp'] if prev_record else None
+
+    return JsonResponse({'patients': patients})
 
 
 @api_view(['GET'])
@@ -130,7 +175,7 @@ def get_patient_data(request):
     # get patient fields 
     patient_info = PatientInfo.objects.filter(
         patient_id=patient_id
-    ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated'
+    ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated', 'alarm_threshold'
     ).first() or {} 
     default_patient_info = {
         'patient': patient_id, 
@@ -139,7 +184,8 @@ def get_patient_data(request):
         'sex': '',
         'medications': '',
         'other_info': '',
-        'last_updated': None 
+        'last_updated': None, 
+        'alarm_threshold': None
     }
     patient_info = {**default_patient_info, **patient_info}  # merging db data (if exists) into default object 
     
@@ -157,6 +203,7 @@ def get_patient_data(request):
 def add_patient_note(request): 
     try: 
         data = request.data
+        note_id = data.get('note_id') 
         patient_id = data.get('patient') 
         timestamp = data.get('timestamp') 
         note = data.get('note') 
@@ -166,15 +213,47 @@ def add_patient_note(request):
         except User.DoesNotExist: 
             return JsonResponse({'error': 'Invalid patient ID'}, status=400)
     
-        PatientNote.objects.create(
-            patient=patient,
-            note=note,
-            timestamp=timestamp
-        )
-        return JsonResponse({}, status=200)
+        if note_id is not None:
+            try:
+                patient_note = PatientNote.objects.get(id=note_id, patient=patient)
+                patient_note.note = note
+                patient_note.timestamp = timestamp
+                patient_note.save()
+                return JsonResponse({'updated': True}, status=200)
+            except PatientNote.DoesNotExist:
+                return JsonResponse({'error': 'Note not found for update'}, status=404)
+        else:
+            PatientNote.objects.create(
+                patient=patient,
+                note=note,
+                timestamp=timestamp
+            )
+            return JsonResponse({'created': True}, status=201)
 
-    except json.JSONDecodeError: 
-        return JsonResponse({'error': 'Invalid JSON'}, status=400) 
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_patient_note(request):
+    try:
+        data = request.data
+        note_id = data.get('note_id')
+        if not note_id:
+            return JsonResponse({'error': 'Missing note_id'}, status=400)
+
+        try:
+            note = PatientNote.objects.get(id=note_id)
+        except PatientNote.DoesNotExist:
+            return JsonResponse({'error': 'Note not found'}, status=404)
+
+        note.delete()
+        return JsonResponse({'message': 'Note deleted successfully'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
 
 @api_view(['POST']) 
@@ -202,3 +281,34 @@ def add_patient_info(request):
     print(f'Serializer errors: {serializer.errors}')
     return JsonResponse({'error': 'Invalid JSON'}, status=400) 
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_provider_notifications(request):
+    user = request.user
+    if user.role != User.PROVIDER:
+        return JsonResponse({'error': 'Only providers can access this'}, status=403)
+
+    notifications = ProviderNotification.objects.filter(provider=user).order_by('-created_at')
+    data = [
+        {
+            'message': n.message,
+            'created_at': n.created_at.isoformat(),
+            'is_read': n.is_read,
+            'id': n.id
+        }
+        for n in notifications
+    ]
+    return JsonResponse({'notifications': data}, status=200)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def mark_notification_as_read(request, id):
+    try:
+        notification = ProviderNotification.objects.get(id=id)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'message': 'Marked as read'}, status=200)
+    except ProviderNotification.DoesNotExist:
+        return JsonResponse({'error': 'Notification not found'}, status=404)

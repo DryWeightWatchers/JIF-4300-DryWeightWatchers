@@ -6,6 +6,36 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 # Release Notes
 
 <details>
+  <summary>Version 0.4.0: Notifications & Alerts </summary>
+  
+  ### Features
+  #### For patients on the mobile interface: 
+  - Patients may indicate a preference to be reminded/alerted by push notification and/or email notification.
+  #### For providers on the desktop interface: 
+  - Providers may edit and remove notes and special field data from patient files to maintain information relevancy and better suit their needs.
+  - Providers may indicate a preference to be reminded/alerted by email or text notification.
+  - Providers will receive a real-time alert when a patient under their care records a weight that cross a designated danger threshold.
+    - Threshold may be dynamically altered/set for individual patients
+    - Patients who cross such a threshold will be visually indicated in the provider's patient dashboard.
+    - Alerts will not contain personal information of patients, but rather alarm the provider to check their dashboard for any in-danger patients.
+
+  ### Bug Fixes
+  - Shareable ID is fixed to be unique within DB
+  - Enter provider ID UI on Account screen in patient interface moved to Provider List screen.
+  - Various screens (including but not limited to: Login, Signup, Profile, Reminders) on patient interface fixed with added KeyboardAvoidingViews, SafeAreaViews, ScrollViews, etc.
+  - Patient interface 'forgot password' removed.
+  - Patient home screen overhauled for visual appeal and user utility.
+  - Refresh session token error message removed from patient interface for user experience.
+  - Inconsistent use of pounds and kilograms for patient weight tracking
+
+  ### Known Issues
+  - Patient log-in does not have an option to unhide password.
+  - Many error messages are mainly coded in console messages, leaving little information feedback to the typical user.
+  - Loading screens are only present in a few recent screens rather than universal/standardized.
+  - Various typescript errors due to unstrictly typed functions. Does not impede functionality.
+</details>
+
+<details>
   <summary>Version 0.3.0: Weight Visualization and Provider Interface </summary>
   
   ### Features

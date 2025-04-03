@@ -21,10 +21,10 @@
 .patientCard {
   background: white;
   border-radius: 10px;
-  padding: 15px;
+  padding: 6px 0 12px;
   width: 220px;
-  height: 130px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 155px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -39,13 +39,13 @@
 
 .patientInfo h3 {
   font-size: 16px;
-  margin: 5px 0;
+  margin: 4px 0px 0px;
   font-weight: bold;
 }
 
 .patientInfo p {
-  font-size: 12px;
-  color: #666;
+  font-size: 12.5px;
+  color: #555;
 }
 
 .weightInfo {
@@ -66,18 +66,46 @@
 }
 
 .timestamp {
-  font-size: 12px;
-  color: #888;
+  font-size: 12.5px;
+  color: #555;
 }
 
-.atRiskWeight .weightValue {
-  color: red;
+
+
+.dailyChange {
+    font-size: 0.8rem; 
+    color: #555;
 }
 
-.greatWeight .weightValue {
-  color: green;
+
+.patientCard.aboveThreshold {
+    border: 2px solid #cc0000; 
+    background-color: #ffe9e9; 
+}
+.aboveThreshold .weightValue {
+    color: #cc0000;
+}
+.aboveThreshold .dailyChange {
+    color: #cc0000; 
 }
 
-.neutralWeight .weightValue {
-  color: black;
+
+.patientCard.noDailyChange {
+    background-color: #ffffeb; 
 }
+.noDailyChange .dailyChange {
+    color: #cc5555;
+}
+
+
+.patientCard.belowThreshold {
+    border: 1px solid #006600;
+    background-color: #f0fff0; 
+}
+.belowThreshold .weightValue {
+    color: #006600; 
+}
+.belowThreshold .dailyChange {
+    color: #006600; 
+}
+
