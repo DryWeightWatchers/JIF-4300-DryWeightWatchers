@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
-import { PatientNote, Patient } from '../utils/types'; 
+import { PatientNote, Patient } from '../utils/types';
 
 import styles from "../styles/PatientDetails.module.css";
 
@@ -13,19 +13,19 @@ import ChartCalendarViz from '../components/ChartCalendarViz';
 
 const PatientDetails: React.FC = () => {
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { getCSRFToken } = useAuth();
-  const [csrfToken, setCsrfToken] = useState<string>(''); 
+  const [csrfToken, setCsrfToken] = useState<string>('');
   const { id } = useParams<{ id: string }>();
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [refresh, setRefresh] = useState<boolean>(false); 
+  const [refresh, setRefresh] = useState<boolean>(false);
 
   const [patient, setPatient] = useState<Patient | null>(null);
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [newNoteText, setNewNoteText] = useState<string>(''); 
+  const [newNoteText, setNewNoteText] = useState<string>('');
 
 
   const handleRemovePatientRelationship = async () => {
@@ -41,15 +41,15 @@ const PatientDetails: React.FC = () => {
           "X-CSRFToken": csrfToken,
         },
         credentials: "include",
-        body: JSON.stringify({id: id})
+        body: JSON.stringify({ id: id })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Error removing relationship: ${errorText}`);
-      } 
+      }
       alert("The patient has been removed.");
-      navigate('/dashboard'); 
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -67,26 +67,26 @@ const PatientDetails: React.FC = () => {
     try {
       const response = await fetch(
         `${process.env.VITE_PUBLIC_DEV_SERVER_URL}/add-patient-note`, {
-          method: "POST", 
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            note_id: noteId, 
-            patient: id, 
-            timestamp: day, 
-            note: noteText, 
-          }),
-        }
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          note_id: noteId,
+          patient: id,
+          timestamp: day,
+          note: noteText,
+        }),
+      }
       );
 
       if (!response.ok) {
         console.error("Failed to add/update note");
         return;
       }
-  
+
       setNewNoteText('');
       setEditingNoteId(null);
       setRefresh(!refresh);
@@ -99,7 +99,7 @@ const PatientDetails: React.FC = () => {
   const handleDeleteNote = async (noteId: string) => {
     try {
       const response = await fetch(
-        `${process.env.VITE_PUBLIC_DEV_SERVER_URL}/delete-patient-note`, 
+        `${process.env.VITE_PUBLIC_DEV_SERVER_URL}/delete-patient-note`,
         {
           method: "POST",
           headers: {
@@ -154,12 +154,49 @@ const PatientDetails: React.FC = () => {
 
         setPatient(data);
         console.log('patient data: ', data);           //         ----------------- temp 
-      } catch (err: any) { setError(err.message);
+      } catch (err: any) {
+        setError(err.message);
       } finally { setLoading(false); }
     };
 
     getPatientData();
   }, [id, refresh]);
+
+  const handleExportCSV = () => {
+    if (!patient) return;
+
+    let csvContent = "";
+    csvContent += "Patient Info\n";
+    csvContent += "First Name,Last Name,Email,Date of Birth,Sex,Height (cm),Medications,Other Information,Latest Weight,Weight Last Updated,Weight Alarm Threshold\n";
+    const { date_of_birth, sex, height, medications, other_info, alarm_threshold } = patient.patient_info!;
+    csvContent += `${patient.first_name},${patient.last_name},${patient.email},${date_of_birth},${sex},${height},${medications},${other_info},${patient.latest_weight},${new Date(patient!.latest_weight_timestamp!).toISOString()},${alarm_threshold}\n\n`;
+
+    csvContent += "Patient Notes\n";
+    csvContent += "Timestamp,Note\n";
+    patient.notes?.forEach((note: PatientNote) => {
+      const timestamp = new Date(note.timestamp).toISOString();
+      const sanitizedNote = note.note.replace(/"/g, '""');
+      csvContent += `${timestamp},"${sanitizedNote}"\n`;
+    });
+    csvContent += "\n";
+
+    csvContent += "Weight History\n";
+    csvContent += "Timestamp,Weight\n";
+    patient.weight_history?.forEach((record: any) => {
+      csvContent += `${new Date(record.timestamp).toISOString()},${record.weight}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `patient_${id}_data.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
 
 
   if (loading) { return <div className={styles.loading}>Loading patient data…</div>; }
@@ -170,16 +207,16 @@ const PatientDetails: React.FC = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>{patient!.first_name} {patient!.last_name}</h1>
-      <PatientInfoSection 
-        patientInfo={patient!.patient_info} 
+      <PatientInfoSection
+        patientInfo={patient!.patient_info}
         csrfToken={csrfToken}
-        email={patient!.email} 
-        latestWeight={patient!.latest_weight} 
-        weightLastUpdated={patient!.latest_weight_timestamp}
+        email={patient!.email}
+        latestWeight={patient!.latest_weight!}
+        weightLastUpdated={patient!.latest_weight_timestamp!}
       />
-      <ChartCalendarViz 
-        weightHistory={weightHistory} 
-        onDataPointSelect={handleDataPointSelect} 
+      <ChartCalendarViz
+        weightHistory={weightHistory}
+        onDataPointSelect={handleDataPointSelect}
       />
       {selectedDay && (
         <PatientNotesSection
@@ -195,8 +232,14 @@ const PatientDetails: React.FC = () => {
         />
       )}
       <div className={styles.button_container}>
-        <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>Remove Patient</button>
+        <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>
+          Remove Patient
+        </button>
+        <button className={styles.export_patient_btn} onClick={handleExportCSV}>
+          Export Data
+        </button>
       </div>
+
     </div>
   );
 };
