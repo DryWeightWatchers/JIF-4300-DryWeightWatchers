@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "dww_patient",
+    "name": "Dry Weight Watchers",
     "slug": "dww_patient",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dryweightwatchers.patient",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -47,6 +51,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "67555a01-7ba6-4484-9838-2d2fd1e46b9f"
+      }
     }
   }
 }
