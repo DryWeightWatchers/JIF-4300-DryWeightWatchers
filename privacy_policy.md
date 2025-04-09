@@ -2,7 +2,7 @@
 
 Effective Date: April 9, 2025
 
-DryWeightWatchers ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, and safeguard your personal information when you use our mobile application ("App") designed to assist healthcare providers in monitoring the weights of patients with congestive heart failure (CHF).
+Dry Weight Watchers ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, and safeguard your personal information when you use our mobile application ("App") designed to assist healthcare providers in monitoring the weights of patients with congestive heart failure (CHF).
 
 ## 1. Information We Collect
 
