@@ -109,8 +109,8 @@
 
 .markAsReadBtn {
     background-color: transparent;
-    color: #007bff;
-    border: 1px solid #007bff;
+    color: #7B5CB8;
+    border: 1px solid #7B5CB8;
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 0.8rem;
@@ -119,6 +119,6 @@
 }
 
 .markAsReadBtn:hover {
-    background-color: #007bff;
+    background-color: #7B5CB8;
     color: white;
 }

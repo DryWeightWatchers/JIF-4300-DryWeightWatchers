@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/auth-forms.module.css';
 import { useAuth } from '../components/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login, getCSRFToken } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
@@ -22,10 +22,6 @@ const Login: React.FC = () => {
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      console.log("Server URL:", serverUrl);
-      console.log("cookie: ", document.cookie); 
-      console.log("csrfToken: ", csrfToken); 
-
       const response = await fetch(`${serverUrl}/login/`, {
         method: 'POST',
         headers: {
@@ -39,25 +35,22 @@ const Login: React.FC = () => {
       if (response.ok) {
         const data = await response.json()
         if (data.role !== 'provider') {
-          alert('Access restricted to providers only');
+          toast("Please use the mobile app if you are not a healthcare provider.");
           return;
         }
         localStorage.setItem('authToken', data.access);
         login();
         navigate('/');
       } else {
-        const errorData = await response.json();
-        console.log(errorData); 
-        alert(errorData.message || 'Invalid credentials');
+        toast("Oops! Something happened while logging in. Please try again.");
       }
     } catch (error) {
-      console.error('Login error:', error);
+      toast("Oops! Something happened while logging in. Please try again.");
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     handleLogin(email, password);
   };
 
@@ -67,6 +60,7 @@ const Login: React.FC = () => {
 
   return (
     <div className={styles.authFormContainer}>
+      <ToastContainer/>
       <h1>Provider Login</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
@@ -89,10 +83,8 @@ const Login: React.FC = () => {
           required
         />
 
-        {error && <p className={styles.errorText}>{error}</p>}
-
-        <button type="submit">Login</button>
-        <button type="button" id={styles.newAccountBtn} onClick={handleRegisterClick}>
+        <button className={styles.authButton} type="submit" >Login</button>
+        <button className={styles.authButton} type="button" id={styles.newAccountBtn} onClick={handleRegisterClick}>
           Register New Account
         </button>
       </form>

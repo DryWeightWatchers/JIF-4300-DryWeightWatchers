@@ -1,9 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import styles from '../styles/PatientInfoSection.module.css';
 import { PatientInfo, PatientInfoSectionProps } from '../utils/types'; 
-
-
 
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ 
   patientInfo, csrfToken, email, latestWeight, weightLastUpdated 
@@ -43,10 +40,10 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
         }));
 
         if (!response.ok) {
-          console.error('Error updating patient field data');
+          //console.error('Error updating patient field data');
         }
       } catch (err) {
-        console.error('Error sending patient field data: ', err);
+        //console.error('Error sending patient field data: ', err);
       }
     }
     setIsEditing(!isEditing);

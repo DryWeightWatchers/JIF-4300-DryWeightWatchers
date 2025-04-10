@@ -3,6 +3,7 @@ import styles from '../styles/Profile.module.css';
 import { useAuth } from '../components/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
 import { formatPhoneNumber } from '../utils/helpers.ts';
+import { ToastContainer, toast } from 'react-toastify';
 
 type ProfileData = {
   firstname: string,
@@ -22,10 +23,8 @@ interface NotificationPreference {
 const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>('');
-  const [message, setMessage] = useState<string | null>(null);
   const [editingPassword, setEditingPassword] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [currentPassword, setCurrentPassword] = useState<string>('');
@@ -45,18 +44,17 @@ const Profile = () => {
         credentials: 'include',
       });
       if (!res.ok) {
-        setError(`HTTP error: ${res.status}`);
+        toast("Oops! Something happened while fetching your profile data. Please try again.");
         return;
       }
       const data = await res.json();
-      console.log(data);
       setProfileData(data);
       setNotificationPreferences({
         email: data.notification_preference?.email_notifications || false,
         text: data.notification_preference?.text_notifications || false,
       });  
     } catch (err: any) {
-      setError(err.message);
+      toast("Oops! Something happened while changing your notifications. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -103,33 +101,30 @@ const Profile = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error deleting account: ${errorText}`);
+        toast("Oops! Something happened while trying to delete your account. Please try again.");
       }
 
-      alert("Your account has been successfully deleted.");
+      toast("Your account has been successfully deleted.");
       logout();
       navigate('/login');
-
     } catch (error) {
-      console.error("Failed to delete account:", error);
-      alert("Failed to delete account. Please try again.");
+      toast("Failed to delete account. Please try again.");
     }
   }
 
   const handleUpdate = async (field: 'email' | 'phone') => {
     if (!tempValue) {
-      setMessage(`Please enter a valid ${field}.`);
+      toast(`Please enter a valid ${field}.`);
       return;
     }
 
     if (field === 'email' && !isValidEmail(tempValue)) {
-      setMessage("Please enter a valid email address.");
+      toast("Please enter a valid email address.");
       return;
     }
 
     if (field === 'phone' && !isValidPhone(tempValue)) {
-      setMessage("Please enter a valid phone number.");
+      toast("Please enter a valid phone number.");
       return;
     }
 
@@ -147,23 +142,23 @@ const Profile = () => {
 
       if (!response.ok) throw new Error(await response.text());
 
-      setMessage(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
+      toast(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
       setProfileData((prev) => (prev ? { ...prev, [field]: tempValue } : null));
       setEditingField(null); // Exit edit mode
     } catch (error) {
-      setMessage(`Failed to update ${field}. Please try again.`);
+      toast(`Failed to update ${field}. Please try again.`);
     }
   };
 
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setMessage('All password fields are required.');
+      toast('All password fields are required.');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setMessage('New passwords do not match.');
+      toast('New passwords do not match.');
       return;
     }
 
@@ -181,13 +176,13 @@ const Profile = () => {
 
       if (!response.ok) throw new Error(await response.text());
 
-      setMessage('Password updated successfully!');
+      toast('Password updated successfully!');
       setEditingPassword(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      setMessage('Failed to update password. Please try again.');
+      toast('Failed to update password. Please try again.');
     }
   };
 
@@ -208,7 +203,7 @@ const Profile = () => {
       });
       if (!response.ok) throw new Error(await response.text());
     } catch (error) {
-      console.error(error);
+      toast("Oops! Something happened while changing your preferences. Please try again.");
     }
   };  
 
@@ -226,14 +221,10 @@ const Profile = () => {
     return <p>Loading...</p>
   }
 
-  if (error) {
-    return <p>Error: {error}</p>
-  }
-
   return (
     <div className={styles.profileContainer}>
+      <ToastContainer/>
       <h1>Profile / Settings</h1>
-      {message && <p className={styles.errorMessage}>{message}</p>} {/* Display the error or success message */}
       <div>
         <label>Full Name:</label>
         <div>

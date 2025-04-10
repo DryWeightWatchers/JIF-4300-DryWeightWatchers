@@ -32,7 +32,7 @@
 }
 
 .profileContainer a {
-  color: #007bff;
+  color: #7B5CB8;
   text-decoration: none;
   font-size: 0.9rem;
   margin-left: 0.5rem;
@@ -44,7 +44,7 @@
 
 .profileContainer input[type="checkbox"] {
   margin-right: 0.5rem;
-  accent-color: #007bff;
+  accent-color: #7B5CB8;
 }
 
 .profileContainer label input {
@@ -62,7 +62,7 @@
 }
 
 button {
-  background-color: #007bff;
+  background-color: #7B5CB8;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -75,11 +75,11 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #6135b8;
 }
 
 button:active {
-  background-color: #003f80;
+  background-color: #4b13bd;
 }
 
 .cancelBtn {
