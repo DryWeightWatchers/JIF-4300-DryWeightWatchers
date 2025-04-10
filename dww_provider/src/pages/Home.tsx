@@ -196,7 +196,7 @@ const Home = () => {
                       <span style={{
                         height: 10,
                         width: 10,
-                        backgroundColor: '#007bff',
+                        backgroundColor: '#7B5CB8',
                         borderRadius: '50%',
                         display: 'inline-block',
                         marginRight: 8
