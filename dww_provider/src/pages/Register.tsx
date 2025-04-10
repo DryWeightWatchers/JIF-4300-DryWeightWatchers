@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FormErrorDisplay, { ErrorObject } from '../components/FormErrorDisplay';
 import styles from '../styles/auth-forms.module.css';
 import { useAuth } from '../components/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -13,11 +13,10 @@ const Register: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
-  const [response, setResponse] = useState<ErrorObject | null>(null);
   const navigate = useNavigate();
   const { getCSRFToken } = useAuth();
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
-  const [showPopup, setShowPopup] = useState(false); // Popup state
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const fetchCsrfToken = async () => {
@@ -46,15 +45,13 @@ const Register: React.FC = () => {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        setResponse(errorData.error);
+        toast("Oops! Somemthing happened while creating your account. Plese try again.");
       } else {
-        setResponse(null);
         setShowPopup(true);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setResponse({ message: error.message });
+        toast("Oops! Something happened while creating your account. Please try again.");
       }
     }
   };
@@ -66,6 +63,7 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles.authFormContainer}>
+      <ToastContainer/>
       <h1>Create Account</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="first_name" className={styles.requiredInput}>First Name:</label>
@@ -128,9 +126,8 @@ const Register: React.FC = () => {
           required
         />
 
-        <button type="submit">Create Account</button>
+        <button className={styles.authButton} type="submit">Create Account</button>
       </form>
-      <FormErrorDisplay error={response} />
 
       {showPopup && (
         <div className={styles.popupOverlay}>

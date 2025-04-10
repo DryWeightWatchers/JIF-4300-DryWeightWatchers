@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from "../styles/Home.module.css";
 import { useNavigate } from 'react-router-dom';
 import { avgDailyWeightChange } from '../utils/helpers';
+import { ToastContainer, toast } from 'react-toastify';
 
 type ProfileData = {
   firstname: string;
@@ -47,10 +48,10 @@ const Home = () => {
           const data = await res.json();
           setUserData(data);
         } else {
-          console.error('Failed to load user data');
+          toast('Oops! Something happened while loading your data. Please try again.');
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        toast('Oops! Something happened while loading your data. Please try again.');
       }
     };
 
@@ -66,12 +67,11 @@ const Home = () => {
         if (res.ok) {
           const data = await res.json();
           setPatients(data.patients);
-          console.log('Patients: ', data.patients); 
         } else {
-          console.error('Failed to load patients');
+          toast("Oops! Something happened while loading your patients' information. Please try again.");
         }
       } catch (error) {
-        console.error('Error fetching patients:', error);
+        toast("Oops! Something happened while loading your patients' information. Please try again.");
       }
     };
 
@@ -87,12 +87,11 @@ const Home = () => {
         if (res.ok) {
           const data = await res.json();
           setNotifications(data.notifications);
-          console.log(data.notifications);
         } else {
-          console.error('Failed to load notifications');
+          toast("Oops! Something happened while loading your notifications. Please try again.");
         }
       } catch (error) {
-        console.error('Error fetching notifications:', error);
+        toast("Oops! Something happened while loading your notifications. Please try again.");
       }
     };
 
@@ -142,15 +141,16 @@ const Home = () => {
           prev.map(n => n.id === id ? { ...n, is_read: true } : n)
         );
       } else {
-        console.error('Failed to mark notification as read');
+        toast("Oops! Something happened when marking your notification as read. Please try again.");
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      toast("Oops! Something happened when marking your notification as read. Please try again.");
     }
   };
 
   return (
     <div className={styles.container}>
+      <ToastContainer/>
       <div className={styles.welcome}>
         <div>
           <h2>Welcome back {userData?.firstname} {userData?.lastname}!</h2>
