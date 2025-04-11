@@ -6,6 +6,9 @@ import { authFetch } from '@/utils/authFetch';
 import { useAuth } from '../auth/AuthProvider';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 type ProfileData = {
   firstname: string,
@@ -32,7 +35,7 @@ const HomeScreen = () => {
 
   const fetchUserData = async () => {
     try {
-      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+      const res = await authFetch(`${apiBaseUrl}/patient-profile/`, accessToken, refreshAccessToken, logout, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
@@ -55,7 +58,7 @@ const HomeScreen = () => {
   const fetchWeightRecords = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-weight-record/`,
+        `${apiBaseUrl}/get-weight-record/`,
         accessToken, refreshAccessToken, logout, {
         method: 'GET',
         headers: {

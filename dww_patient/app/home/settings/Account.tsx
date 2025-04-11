@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 const AccountScreen = () => {
   const { accessToken, refreshAccessToken, logout } = useAuth();
@@ -9,7 +12,7 @@ const AccountScreen = () => {
   const handleLogout = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/logout/`, 
+        `${apiBaseUrl}/logout/`, 
         accessToken, refreshAccessToken, logout, {
           method: 'POST',
           headers: {
@@ -48,7 +51,7 @@ const AccountScreen = () => {
           onPress: async () => {
             try {
               const response = await authFetch(
-                `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-account/`, 
+                `${apiBaseUrl}/delete-account/`, 
                 accessToken, refreshAccessToken, logout, {
                 method: 'DELETE',
                 headers: {

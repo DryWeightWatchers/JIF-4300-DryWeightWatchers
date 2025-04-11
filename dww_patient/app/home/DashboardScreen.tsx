@@ -6,6 +6,9 @@ import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
 import { useAuth } from '../auth/AuthProvider';
 import { authFetch } from '../../utils/authFetch'; 
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 type WeightRecord = {
   timestamp: Date,
@@ -28,7 +31,7 @@ const DashboardScreen = () => {
   const fetchWeightRecord = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-weight-record/`, 
+        `${apiBaseUrl}/get-weight-record/`, 
         accessToken, refreshAccessToken, logout, {
           method: 'GET', 
           headers: {
@@ -58,7 +61,7 @@ const DashboardScreen = () => {
   const fetchPatientNotes = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-patient-notes/`, 
+        `${apiBaseUrl}/get-patient-notes/`, 
         accessToken, refreshAccessToken, logout, {
           method: 'GET', 
           headers: {

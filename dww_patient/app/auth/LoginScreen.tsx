@@ -4,6 +4,9 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useAuth } from './AuthProvider';
 import { authFetch } from '../../utils/authFetch'; 
 import type { RootStackScreenProps } from '../types/navigation';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 
 const LoginScreen = () => {
@@ -17,7 +20,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     console.log('LoginScreen: handleLogin');
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
+      const response = await fetch(`${apiBaseUrl}/login/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

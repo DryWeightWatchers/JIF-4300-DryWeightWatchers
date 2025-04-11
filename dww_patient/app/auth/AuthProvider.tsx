@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { isTokenExpired } from "../../utils/jwt"; 
+import Constants from 'expo-constants';
 
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 interface AuthContextType {
   isLoading: boolean; 
@@ -24,7 +26,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     console.log("AuthProvider: useEffect")
-    console.log("API URL:", process.env.EXPO_PUBLIC_DEV_SERVER_URL);
+    console.log("API URL:", apiBaseUrl);
     // note: since loadTokens is async, the component renders before it completes 
     const loadTokens = async () => {
       const storedAccessToken = await SecureStore.getItemAsync("accessToken");
@@ -73,7 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     console.log("AuthProvider: refreshAccessToken: ", refreshToken); 
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh-jwt/`, {
+      const response = await fetch(`${apiBaseUrl}/refresh-jwt/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh_token: refreshToken }),

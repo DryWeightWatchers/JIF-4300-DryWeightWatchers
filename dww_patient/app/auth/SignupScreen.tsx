@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Touc
 import { useNavigation } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../types/navigation';
 import axios from 'axios';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 const SignupScreen = () => {
   const navigation = useNavigation<RootStackScreenProps<'Signup'>['navigation']>();
@@ -27,7 +30,7 @@ const SignupScreen = () => {
     };
 
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/register/`, data);
+      const response = await axios.post(`${apiBaseUrl}/register/`, data);
 
       console.log('Signup successful:', response.data);
       alert('A verification email has been sent to ' + email)

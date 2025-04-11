@@ -8,6 +8,9 @@ import { SettingsStackScreenProps } from '../../types/navigation';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
 import { scheduleNotification, cancelAllNotifications, requestNotificationPermissions } from '../../../utils/reminderNotifications';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 interface NotificationPreferences {
   push_notifications: boolean;
@@ -32,7 +35,7 @@ const RemindersScreen = () => {
   const fetchNotificationPreferences = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-notification-preferences/`,
+        `${apiBaseUrl}/get-notification-preferences/`,
         accessToken,
         refreshAccessToken,
         logout,
@@ -60,7 +63,7 @@ const RemindersScreen = () => {
     try {
       console.log('Updating notification preferences with:', preferences);
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/update-notification-preferences/`,
+        `${apiBaseUrl}/update-notification-preferences/`,
         accessToken,
         refreshAccessToken,
         logout,
@@ -91,7 +94,7 @@ const RemindersScreen = () => {
   const fetchReminders = async () => {
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-reminders/`, 
+        `${apiBaseUrl}/get-reminders/`, 
         accessToken, refreshAccessToken, logout, {
           method: 'GET', 
           headers: {
@@ -146,7 +149,7 @@ const RemindersScreen = () => {
   const handleAddReminder = async () => { //add new reminder
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
+        `${apiBaseUrl}/add-reminder/`, 
         accessToken, refreshAccessToken, logout, {
           method: 'POST', 
           headers: {
@@ -188,7 +191,7 @@ const RemindersScreen = () => {
   const handleSaveReminder = async () => { //update old reminder with new data
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`,
+        `${apiBaseUrl}/save-reminder/`,
         accessToken, refreshAccessToken, logout, {
           method: 'PUT',
           headers: {
@@ -219,7 +222,7 @@ const RemindersScreen = () => {
   const handleDeleteReminder = async () => { //delete selected reminder
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-reminder/${selectedReminderID}/`,
+        `${apiBaseUrl}/delete-reminder/${selectedReminderID}/`,
         accessToken, refreshAccessToken, logout, {
           method: 'DELETE',
           headers: {

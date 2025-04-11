@@ -4,6 +4,9 @@ import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
 import { SettingsStackScreenProps } from '../../types/navigation';
 import { useNavigation } from 'expo-router';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 const AddProviderScreen = () => {
     const navigation = useNavigation<SettingsStackScreenProps<'AddProvider'>['navigation']>();
@@ -19,7 +22,7 @@ const AddProviderScreen = () => {
     const providerID = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
     try {
         const response = await authFetch(
-            `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-relationship/`,
+            `${apiBaseUrl}/add-relationship/`,
             accessToken, refreshAccessToken, logout, {
                 method: 'POST',
                 headers: {

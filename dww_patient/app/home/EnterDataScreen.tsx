@@ -6,6 +6,9 @@ import {
 import { useAuth } from '../auth/AuthProvider';
 import { authFetch } from '../../utils/authFetch';
 import { ActivityIndicator } from 'react-native';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 
 const EnterDataScreen = () => {
@@ -23,7 +26,7 @@ const EnterDataScreen = () => {
 
     try {
       const response = await authFetch(
-        `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/record_weight/`,
+        `${apiBaseUrl}/record_weight/`,
         accessToken,
         refreshAccessToken,
         logout,

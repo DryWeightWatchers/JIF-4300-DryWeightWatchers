@@ -5,6 +5,9 @@ import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsStackScreenProps } from '@/app/types/navigation';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 const ProviderList = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'ProviderList'>['navigation']>();
@@ -23,7 +26,7 @@ const ProviderList = () => {
             console.log("No access token available, trying to refresh...");
             await refreshAccessToken();
         }
-        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/user/providers/`, accessToken, refreshAccessToken, logout, {
+        const response = await authFetch(`${apiBaseUrl}/user/providers/`, accessToken, refreshAccessToken, logout, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -54,7 +57,7 @@ const ProviderList = () => {
             await refreshAccessToken();
         }
         // const shareableId = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
-        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-relationship/`, 
+        const response = await authFetch(`${apiBaseUrl}/delete-relationship/`, 
           accessToken, refreshAccessToken, logout, {
             method: 'DELETE',
             headers: {

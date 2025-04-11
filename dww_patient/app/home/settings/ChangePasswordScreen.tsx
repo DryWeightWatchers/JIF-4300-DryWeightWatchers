@@ -4,6 +4,9 @@ import { Alert, Button, Text, StyleSheet, View, TextInput, KeyboardAvoidingView,
 import { useAuth } from '../../auth/AuthProvider';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import { authFetch } from '@/utils/authFetch';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 
 const ChangePasswordScreen = () => {
@@ -32,7 +35,7 @@ const ChangePasswordScreen = () => {
         }
     
         try {
-          const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-password/`, 
+          const response = await authFetch(`${apiBaseUrl}/change-password/`, 
             accessToken, refreshAccessToken, logout, {
             method: 'POST',
             headers: {

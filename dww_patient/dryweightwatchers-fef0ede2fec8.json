@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "dryweightwatchers",
+  "private_key_id": "fef0ede2fec8b51a5d03161776516836d447dc19",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCHtUs0FW1HzOSv\nSUUDjR1jHOPX+y/3VRRW7LfMYrlTsB9vdaqtRpLMUPbLZZYrtY1Wt+DqmrmB1bNG\ntjwunHT7oU2yvT3pXftk0wQ0vrFKvlxvf71Y5boROd9uTOVLmWM8QZmeKYy4HbOS\nv+NsQD8W3tAmDp9Dx7fWljItc7Z5I5wHje1dSQUeXzHLl26XXRvMIJa7EI8xS5GA\nHc5l9FIuxslZgagPnR8NDOrEIweCzQQeYqOvrXUAfuHuStIhDy2PT8SIlNOCZCl+\n9zJ+UK3nTZtbDCQ/D1kJHEn7uSTXpmmhjMo/eu+q9UzEQ45vn8A9iM61E58KkEj2\nYCUIICfbAgMBAAECggEAB5hM7Kk45kGXPNdH/CSuJiTMRZWCm1t+q/y5HFLS+tYd\nBo5jgLvILZRn2A/aLy/oLSpVLFLtvwdcydKI+COzCTS2Vf4DL/D5NXYdi8ncCGV7\nrQKoy4fKsGevZdSM4FgKWzu87GcvUd5HGgUQgYCmsGQNfN4NoMdn/0hgedEoGtT6\n148C0aZreKEG2JL9Rd5rI8TuTcxVr9jSQlkvtRBcE7MlaxqRXSq/ZgW0gxD3oozQ\npyY7rcJEXXyqVpwjYJ+sXh+7WMhgZ/bfQBZELyMBFx6OZnxOV7ndp0hi+jzwAwbo\nCebTev6yoHYwWgb8QOoPCxllGpq5M8PT/ZEp4mpQtQKBgQC/evV2OoYJFyxsSGqo\nokEDBTs1rVhSvFmxXCDNdSMOoxs7Ja851yfKsDf3rCb226qiw1JJAJb3yymo+Wep\n1CofAYNr2UZgiBomeTZyuQoBv9ZweLruLkuZrXRiMGogvVhqrC4JqIPCw0Fiqz3P\nYvH6feSe0oC4mXM6MlJqUnJhhQKBgQC1b3IYeZjku4TKIwqLKJOaeKsxfbBqOxuJ\ncOX2OrZzt1t9flnfp2wue+TpJgzWT7onhsjdQ7WJnUxXLzG9V+JcPK1mBmMrrSOf\nnVh5PNcFgWdMHUqJopIa+yJLyhke0UclceWu0ab68wXS+toGHBjZS7Aocl4RRJ2q\nYBVx/aPx3wKBgA/lpHVhXHlqvBxtUrWXavBWQdkuABQ2YPfxnyOPow53Ci657TdP\nHpWcVbkxSLbb++mxb6Zx7xa5fkbyFeIqpCiY1pFgo5AmHI2vKI8Tv7nvdF04GMTn\ngQ1MMkponJcFQU7x5oyUugO0dDw93U7XdyGFzDJHZbptuvxM6zy6hZaFAoGBAJ1j\nftMycGpDLM74lMXgviIq+T6mbKnKennAoQv3JJy++zOirq3wG007lniV1F74rGBr\ncMVYXhtxg27B9uDsYuVmkXjGo7KYsCVfJgeNum0BMy1431cD2sBjB/4844uzOYeH\nBRqgrbxVosDBcO4J45hkKvz7MRTDtA2+6fuHbnd7AoGBAIrc/1wK1dA7A/L/kLJ2\nFcdFTpTOu95Ps/yLU1Y9NHqXoDQRVaNYRukeu2zgqR2YentJujytuwdycA6f01rM\nrgpsii5Zyd+qVJQx78n3L8Mo/yLWS6BfIIfUwV/aSSVx9UVq3PedOpyY4OQTGdzD\nAI4ey4EpshMRzHcnBMTE1e3k\n-----END PRIVATE KEY-----\n",
+  "client_email": "dry-weight-watchers@dryweightwatchers.iam.gserviceaccount.com",
+  "client_id": "115609442295054726425",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dry-weight-watchers%40dryweightwatchers.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

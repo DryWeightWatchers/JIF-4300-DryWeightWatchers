@@ -4,6 +4,9 @@ import { useAuth } from '../../auth/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import { authFetch } from '@/utils/authFetch';
+import Constants from 'expo-constants';
+
+const { apiBaseUrl } = Constants.expoConfig!.extra as { apiBaseUrl: string };
 
 
 type ProfileData = {
@@ -31,7 +34,7 @@ const ProfileScreen = () => {
 
     const fetchProfileData = async () => {
         try {
-            const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+            const res = await authFetch(`${apiBaseUrl}/patient-profile/`, accessToken, refreshAccessToken, logout, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`,
@@ -61,7 +64,7 @@ const ProfileScreen = () => {
         }
     
         try {
-          const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-${field}/`, {
+          const response = await fetch(`${apiBaseUrl}/change-${field}/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -97,7 +100,7 @@ const ProfileScreen = () => {
         }
     
         try {
-          const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/change-password/`, {
+          const response = await fetch(`${apiBaseUrl}/change-password/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

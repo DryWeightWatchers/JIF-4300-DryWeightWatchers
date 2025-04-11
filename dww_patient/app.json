@@ -3,6 +3,9 @@
     "name": "Dry Weight Watchers",
     "slug": "dww_patient",
     "version": "1.0.0",
+    "config": {
+      "appConfig": "./app.config.ts"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "myapp",
@@ -19,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dryweightwatchers.patient"
     },
     "web": {
       "bundler": "metro",
@@ -57,7 +61,8 @@
       },
       "eas": {
         "projectId": "67555a01-7ba6-4484-9838-2d2fd1e46b9f"
-      }
+      },
+      "apiBaseUrl": "https://api.dryweightwatchers.com"
     }
   }
 }
