@@ -4,3 +4,4 @@ __pycache__/
 .env.dev
 .env.prod
 node_modules/
+dww_patient/dryweightwatchers-16c76f693374.json
