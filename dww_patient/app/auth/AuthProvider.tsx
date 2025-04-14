@@ -8,6 +8,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   accessToken: string | null; 
   refreshToken: string | null; 
+  user: any | null;
+  setUser: (user: any | null) => void;
   login: (accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<void> 
@@ -21,6 +23,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [accessToken, setAccessToken] = useState<string | null>(null); 
   const [refreshToken, setRefreshToken] = useState<string | null>(null); 
   const [isLoading, setIsLoading] = useState(true); 
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
     console.log("AuthProvider: useEffect")
@@ -100,6 +103,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated: !!accessToken, 
         accessToken, 
         refreshToken, 
+        user,
+        setUser,
         login, 
         logout, 
         refreshAccessToken 

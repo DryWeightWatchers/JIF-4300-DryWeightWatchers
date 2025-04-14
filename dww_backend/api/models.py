@@ -34,12 +34,19 @@ class User(AbstractUser):
         (PATIENT, 'Patient'),
         (PROVIDER, 'Provider'),
     ]
+    IMPERIAL = 'imperial'
+    METRIC = 'metric'
+    UNIT_CHOICES = [
+        (IMPERIAL, 'Imperial (lbs)'),
+        (METRIC, 'Metric (kg)'),
+    ]
     first_name = models.CharField(max_length=50) 
     last_name = models.CharField(max_length=50) 
     phone = PhoneNumberField(region='US', blank=True, null=True)
     email = models.EmailField(unique=True)
     shareable_id = models.CharField(max_length=9, blank=True, null=True, default=None, unique=True) 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=PATIENT)
+    unit_preference = models.CharField(max_length=10, choices=UNIT_CHOICES, default=IMPERIAL)
     verification_token = models.CharField(max_length=100, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
 

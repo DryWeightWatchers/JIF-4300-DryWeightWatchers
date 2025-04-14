@@ -1,4 +1,3 @@
-
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.shortcuts import get_object_or_404
@@ -259,11 +258,15 @@ def verify_email(request):
 
 
 def check_and_notify_weight_change(patient, previous_weight, new_weight, providers):
-    weight_change = new_weight - previous_weight
+    # Convert both weights to float to ensure consistent type comparison
+    previous_weight_float = float(previous_weight)
+    new_weight_float = float(new_weight)
+    
+    weight_change = new_weight_float - previous_weight_float
     if abs(weight_change) > 5:  # Example threshold: 5lbs or more
         weight_change_data = {
-            "previous_weight": previous_weight,
-            "new_weight": new_weight,
+            "previous_weight": previous_weight_float,
+            "new_weight": new_weight_float,
             "change": weight_change
         }
 
@@ -361,3 +364,23 @@ def change_notification_preferences(request):
         'text_notifications': notification_preference.text_notifications,
         'push_notifications': notification_preference.push_notifications,
     })
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_unit_preference(request):
+    try:
+        unit_preference = request.data.get('unit_preference')
+        if not unit_preference or unit_preference not in [User.IMPERIAL, User.METRIC]:
+            return JsonResponse({'error': 'Invalid unit preference'}, status=400)
+        
+        user = request.user
+        user.unit_preference = unit_preference
+        user.save()
+        
+        return JsonResponse({
+            'message': 'Unit preference updated successfully',
+            'unit_preference': user.unit_preference
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

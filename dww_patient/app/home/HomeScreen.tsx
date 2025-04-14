@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps, SettingsStackScreenProps } from '../types/navigation';
@@ -6,6 +6,7 @@ import { authFetch } from '@/utils/authFetch';
 import { useAuth } from '../auth/AuthProvider';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
+import { convertWeight } from '../../utils/unitUtils';
 
 type ProfileData = {
   firstname: string,
@@ -13,6 +14,7 @@ type ProfileData = {
   email: string,
   phone: string,
   password: string,
+  is_verified: boolean,
 }
 
 type WeightRecord = {
@@ -25,7 +27,7 @@ const HomeScreen = () => {
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
   const navigation = useNavigation<HomeTabScreenProps<'Home'>['navigation']>();
   const navigation_settings = useNavigation<SettingsStackScreenProps<'Settings'>['navigation']>();
-  const { accessToken, refreshAccessToken, logout } = useAuth();
+  const { accessToken, refreshAccessToken, logout, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chart, setChart] = useState('chart');
@@ -79,6 +81,13 @@ const HomeScreen = () => {
       alert('Failed to get your weight data. Please try again.')
     }
   }
+
+  // Add useEffect to refresh weight records when unit preference changes
+  useEffect(() => {
+    if (user?.unit_preference) {
+      fetchWeightRecords();
+    }
+  }, [user?.unit_preference]);
 
   useFocusEffect(
     useCallback(() => {

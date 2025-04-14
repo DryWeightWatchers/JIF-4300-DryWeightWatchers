@@ -50,7 +50,8 @@ class PatientInfoSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'shareable_id']
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone', 'role', 'shareable_id', 'unit_preference']
+        read_only_fields = ['id', 'role', 'shareable_id']
 
 class NotificationPreferenceSerializer(serializers.ModelSerializer):
     class Meta:

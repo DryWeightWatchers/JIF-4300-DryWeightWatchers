@@ -1,11 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, ScrollView, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps } from '../types/navigation';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
 import { useAuth } from '../auth/AuthProvider';
-import { authFetch } from '../../utils/authFetch'; 
+import { authFetch } from '../../utils/authFetch';
+import { convertWeight } from '../../utils/unitUtils';
 
 type WeightRecord = {
   timestamp: Date,
@@ -13,13 +14,14 @@ type WeightRecord = {
 }
 
 type PatientNote = {
+  id: number,
   timestamp: Date,
   note: string,
 }
 
 const DashboardScreen = () => {
   const navigation = useNavigation<HomeTabScreenProps<'Dashboard'>['navigation']>();
-  const { accessToken, refreshAccessToken, logout } = useAuth();
+  const { accessToken, refreshAccessToken, logout, user } = useAuth();
   const [chart, setChart] = useState('chart');
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [weightRecord, setWeightRecord] = useState<WeightRecord[]>([]);
@@ -74,6 +76,7 @@ const DashboardScreen = () => {
       const data = await response.json();
       console.log('got notes: ', data)
       const formattedNotes = data.map((item: any) => ({
+        id: item.id,
         timestamp: new Date(item.timestamp),
         note: item.note,
       }));
@@ -105,6 +108,13 @@ const DashboardScreen = () => {
       fetchPatientNotes();
     }, [accessToken])
   );
+
+  // Add useEffect to refresh weight records when unit preference changes
+  useEffect(() => {
+    if (user?.unit_preference) {
+      fetchWeightRecord();
+    }
+  }, [user?.unit_preference]);
 
   return (
     <View style={styles.mainContainer}>
@@ -153,7 +163,7 @@ const DashboardScreen = () => {
               .map((record, index) => (
                 <View key={index} style={styles.noteItem}>
                   <Text style={styles.noteValue}>
-                    {record.weight} lbs
+                    {convertWeight(record.weight, user?.unit_preference)}
                   </Text>
                   <Text style={styles.noteTime}>
                     {record.timestamp.toLocaleTimeString('en-US', {

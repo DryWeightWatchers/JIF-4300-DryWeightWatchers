@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import Svg, { Text as SvgText, Line, Path, Circle, G } from 'react-native-svg';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
+import { useAuth } from '../../app/auth/AuthProvider';
+import { convertWeight } from '../../utils/unitUtils';
 
 type ChartProps = {
   weightRecord: Array<{
@@ -17,6 +19,7 @@ type WeightRecord = {
 }
 
 const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => { 
+  const { user } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
   const [selectedDay, setSelectedDay] = useState(new Date());
@@ -107,7 +110,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     <View style={{ flex: 1 }}>
 
       <View style={styles.monthHeader}>
-        <TouchableOpacity onPress={handlePrevMonth}>
+        <TouchableOpacity onPress={handlePrevMonth} style={styles.monthButton}>
           <Ionicons name="chevron-back" size={24} color="#7B5CB8" />
         </TouchableOpacity>
         
@@ -115,7 +118,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
           {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </Text>
         
-        <TouchableOpacity onPress={handleNextMonth}>
+        <TouchableOpacity onPress={handleNextMonth} style={styles.monthButton}>
           <Ionicons name="chevron-forward" size={24} color="#7B5CB8" />
         </TouchableOpacity>
       </View>
@@ -140,11 +143,10 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
             strokeWidth="1"
           />
 
-          {generateYAxisGrid().map((gridValue) => {
-            const y = yScale(gridValue);
-            if (isNaN(gridValue)) return null;
+          {generateYAxisGrid().map((weight, index) => {
+            const y = yScale(weight);
             return (
-              <G key={`y-${gridValue}`}>
+              <G key={`y-${index}`}>
                 <Line
                   x1={MARGIN}
                   y1={y}
@@ -155,13 +157,13 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
                   opacity={0.5}
                 />
                 <SvgText
-                  x={MARGIN - 10}
+                  x={MARGIN - 8}
                   y={y + 4}
                   textAnchor="end"
                   fill="#666"
                   fontSize="10"
                 >
-                  {Math.round(gridValue)}
+                  {weight.toFixed(1)} {user?.unit_preference === 'metric' ? 'kg' : 'lbs'}
                 </SvgText>
               </G>
             );
@@ -251,6 +253,9 @@ const styles = StyleSheet.create({
     borderColor: '#7B5CB8',
     borderWidth: 1,
     flex: 1,
+  },
+  monthButton: {
+    padding: 5,
   },
 });
 
