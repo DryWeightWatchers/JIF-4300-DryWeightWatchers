@@ -106,7 +106,7 @@ const Profile = () => {
 
       toast("Your account has been successfully deleted.");
       logout();
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       toast("Failed to delete account. Please try again.");
     }
