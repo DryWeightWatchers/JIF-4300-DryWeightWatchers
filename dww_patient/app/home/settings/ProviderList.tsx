@@ -5,10 +5,11 @@ import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsStackScreenProps } from '@/app/types/navigation';
+import { Provider } from '../../types/types';
 
 const ProviderList = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'ProviderList'>['navigation']>();
-  const [providers, setProviders] = useState([]); 
+  const [providers, setProviders] = useState<Provider[]>([]); 
   const {accessToken, refreshAccessToken, logout} = useAuth();
 
   useFocusEffect(
@@ -47,7 +48,7 @@ const ProviderList = () => {
     }
   }
 
-  const handleDeleteProvider= async (shareable_id) => {
+  const handleDeleteProvider = async (shareable_id: string) => {
     try {
         if (!accessToken) {
             console.log("No access token available, trying to refresh...");
@@ -89,7 +90,7 @@ const ProviderList = () => {
       ) : (
         <FlatList
           data={providers}
-          keyExtractor={(item) => item.shareable_id.toString()}
+          keyExtractor={(item) => item.shareable_id ? item.shareable_id.toString() : item.id.toString()}
           renderItem={({ item }) => (
             <View style={{ marginBottom: 15, padding: 10, backgroundColor: '#f9f9f9' }}>
               <Text style={{ fontSize: 18  }}>{item.last_name}</Text>
