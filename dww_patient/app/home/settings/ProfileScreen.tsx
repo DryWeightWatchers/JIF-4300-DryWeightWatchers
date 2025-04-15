@@ -152,7 +152,7 @@ const ProfileScreen = () => {
                   handleUpdate("email")
               } else {
                   setEditingField("email");
-                  setTempValue(profileData.email);
+                  setTempValue(profileData?.email ?? '');
               }
             }}
           >
@@ -185,7 +185,7 @@ const ProfileScreen = () => {
                   handleUpdate("phone")
               } else {
                   setEditingField("phone");
-                  setTempValue(profileData.phone);
+                  setTempValue(profileData?.phone ?? '');
               }
             }}
           >
