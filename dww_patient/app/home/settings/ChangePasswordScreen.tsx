@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, Button, Text, StyleSheet, View, TextInput, KeyboardAvoidingView, ScrollView, TouchableOpacity } from 'react-native';
+import { Alert, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import { authFetch } from '@/utils/authFetch';
@@ -8,7 +8,6 @@ import { authFetch } from '@/utils/authFetch';
 
 const ChangePasswordScreen = () => {
     const [editingField, setEditingField] = useState<string | null>(null);
-    const [tempValue, setTempValue] = useState<string>('');
     const [message, setMessage] = useState<string | null>(null);
     const [editingPassword, setEditingPassword] = useState<boolean>(false);
     const [currentPassword, setCurrentPassword] = useState('');
@@ -18,9 +17,6 @@ const ChangePasswordScreen = () => {
     const { accessToken, refreshAccessToken, logout } = useAuth();
 
     const handleChangePassword = async () => {
-        console.log("Current password is:", currentPassword);
-        console.log("New password is:", newPassword);
-        console.log("Confirm password is:", confirmPassword);
         if (!currentPassword || !newPassword || !confirmPassword) {
           setMessage('All password fields are required.');
           return;

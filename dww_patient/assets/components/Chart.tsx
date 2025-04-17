@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Text as SvgText, Line, Path, Circle, G } from 'react-native-svg';
 import { useAuth } from '../../app/auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
@@ -89,7 +89,7 @@ const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps)
     setSelectedMonth(nextMonth);
   }
 
-  //point placement
+  // Point placement
   const xScale = (day: Date) => {
     return ((day.getDate()) / (new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate())) * (dimensions.width - MARGIN * 2) + MARGIN;
   };
@@ -98,7 +98,7 @@ const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps)
     return dimensions.height - MARGIN - ((weight - minWeight) / (maxWeight - minWeight)) * (dimensions.height - MARGIN * 2);
   };
 
-  //gridline placement
+  // Gridline placement
   const generateYAxisGrid = () => {
     const range = maxWeight - minWeight;
     return Array.from({ length: 7 }, (_, i) => minWeight + i * (range / 6));
@@ -134,7 +134,6 @@ const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps)
       return {
         timestamp,
         weight: userPreference === 'metric' ? convertToKilograms(weight) / count : weight / count, 
-        // weight: weight / count,
       };
     }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   
@@ -146,7 +145,6 @@ const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps)
   const minWeight = Math.min(...selectedMonthRecord.map(d => d.weight)) - padding;
   const maxWeight = Math.max(...selectedMonthRecord.map(d => d.weight)) + padding;
 
-  //TODO: special behavior for missing days while drawing?
   let path = '';
   selectedMonthRecord.forEach((point, index) => {
     if (index === 0) {
@@ -156,7 +154,6 @@ const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps)
     }
   });
 
-  //draw axes (line x2), gridlines (generated lines and text), line (path), then interactable points (circles)
   return (
     <View style={{ flex: 1 }}>
 

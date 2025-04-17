@@ -17,7 +17,7 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
   const { getCSRFToken } = useAuth();
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
-  const [showPopup, setShowPopup] = useState(false); // Popup state
+  const [showPopup, setShowPopup] = useState(false); 
 
   useEffect(() => {
     const fetchCsrfToken = async () => {

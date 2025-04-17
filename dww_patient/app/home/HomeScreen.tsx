@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps, SettingsStackScreenProps } from '../types/navigation';
@@ -53,7 +53,6 @@ const HomeScreen = () => {
     }
   }
 
-  // Fetch weight records
   const fetchWeightRecords = async () => {
     try {
       const response = await authFetch(

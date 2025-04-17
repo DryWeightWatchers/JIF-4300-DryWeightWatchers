@@ -277,9 +277,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  /*middleSlider: {
-    in case I decide I want more chart types later.
-  },*/
   rightSlider: {
     padding: 12,
     borderTopRightRadius: 20,

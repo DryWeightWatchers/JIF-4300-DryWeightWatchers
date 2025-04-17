@@ -5,10 +5,6 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
-from django.utils.crypto import get_random_string
-from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
-from django.conf import settings
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -22,7 +18,7 @@ from api.views.shared_views import send_verification_email
 Note: All provider-facing APIs should use Django's built-in (session-based) authentication 
 """
 
-# this is a utility function, not a view 
+# Utility function, not a view
 def error_response(message, details=None, status=400):
     response = {"error": {"message": message}}
     if details:
@@ -35,7 +31,6 @@ def error_response(message, details=None, status=400):
 @permission_classes([IsAuthenticated])
 def get_auth_status(request): 
     return JsonResponse({}, status=200) 
-    # whether this returns a 200 or 401/403 is used for the client to determine whether it's authenticated 
 
 
 @api_view(['GET'])
@@ -49,7 +44,7 @@ def get_csrf_token(request):
 @api_view(['POST'])
 def register_provider(request): 
     try:
-        data = json.loads(request.body)  # Parse JSON body
+        data = json.loads(request.body)  
     except json.JSONDecodeError:
         return error_response('invalid request') 
     
@@ -95,18 +90,18 @@ def profile_data(request):
 @permission_classes([IsAuthenticated])
 def dashboard(request): 
 
-    # get all patients associated with this provider 
+    # Get all patients associated with this provider 
     provider = request.user 
     patient_ids = TreatmentRelationship.objects.filter(
         provider_id=provider.id 
     ).values_list('patient_id', flat=True)
 
-    # subquery to get the latest weight and timestamp
+    # Subquery to get the latest weight and timestamp
     latest_weight_subquery = WeightRecord.objects.filter(
         patient_id=OuterRef('id')
     ).order_by('-timestamp')
 
-    # subquery to get alarm_threshold from related PatientInfo
+    # Subquery to get alarm_threshold from related PatientInfo
     alarm_threshold_subquery = PatientInfo.objects.filter(
         patient_id=OuterRef('id')
     ).values('alarm_threshold')[:1]
@@ -122,7 +117,7 @@ def dashboard(request):
     )
     patients = list(patients_qs)
 
-    # get prev weight/timestamp that is at least one day before the latest 
+    # Get prev weight/timestamp that is at least one day before the latest 
     for patient in patients:
         patient_id = patient['id']
         latest_timestamp = patient['latest_weight_timestamp']
@@ -152,12 +147,12 @@ def dashboard(request):
 def get_patient_data(request):
     patient_id = request.GET.get("id")
 
-    # get weight records 
+    # Get weight records 
     weight_history = list(WeightRecord.objects.filter(
         patient_id=patient_id
     ).order_by('timestamp').values('weight', 'timestamp'))
 
-    # get account info and last weight record for convenience 
+    # Get account info and last weight record for convenience 
     patient = User.objects.filter(id=patient_id, role='patient').annotate(
         latest_weight=Subquery(WeightRecord.objects.filter(patient_id=patient_id).order_by('-timestamp')
                 .values('weight')[:1]),
@@ -167,12 +162,12 @@ def get_patient_data(request):
     if not patient.exists(): 
         return JsonResponse({"error": "Patient not found"}, status=404)
 
-    # get all timestamped notes 
+    # Get all timestamped notes 
     patient_notes = list(PatientNote.objects.filter(
         patient_id=patient_id
     ).order_by('-timestamp').values('id', 'timestamp', 'note'))
 
-    # get patient fields 
+    # Get patient fields 
     patient_info = PatientInfo.objects.filter(
         patient_id=patient_id
     ).values('height', 'date_of_birth', 'sex', 'medications', 'other_info', 'last_updated', 'alarm_threshold'
@@ -187,9 +182,9 @@ def get_patient_data(request):
         'last_updated': None, 
         'alarm_threshold': None
     }
-    patient_info = {**default_patient_info, **patient_info}  # merging db data (if exists) into default object 
+    patient_info = {**default_patient_info, **patient_info}  
     
-    # construct and send response 
+    # Construct and send response 
     response_data = dict(patient[0])
     response_data["weight_history"] = weight_history
     response_data["notes"] = patient_notes 
@@ -263,8 +258,6 @@ def add_patient_info(request):
     data = request.data.copy()
     for key, value in data.items():
         if value == "": data[key] = None
-    
-    print(f'add_patient_info: {data}') 
 
     try:
         patient = User.objects.get(id=data['patient'], role=User.PATIENT)

@@ -141,7 +141,7 @@ const PatientDetails: React.FC = () => {
         if (!res.ok) { throw new Error(`HTTP error: ${res.status}`); }
         const data = await res.json();
 
-        // convert timestamps to Date objects
+        // Convert timestamps to Date objects
         data.notes = data.notes.map((note: PatientNote) => ({
           ...note,
           timestamp: new Date(note.timestamp),
@@ -153,7 +153,7 @@ const PatientDetails: React.FC = () => {
         data.patient_info.last_updated = new Date(data.patient_info.last_updated);
 
         setPatient(data);
-        console.log('patient data: ', data);           //         ----------------- temp 
+        console.log('patient data: ', data); 
       } catch (err: any) {
         setError(err.message);
       } finally { setLoading(false); }

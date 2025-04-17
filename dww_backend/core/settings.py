@@ -18,7 +18,7 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# load environment variables from `.env` file 
+# Load environment variables from `.env` file 
 load_dotenv()
 
 # Quick-start development settings - unsuitable for production
@@ -31,8 +31,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
 DJANGO_ENV = os.getenv('DJANGO_ENV', "development")
 DEBUG = DJANGO_ENV == "development"
 
-# the domain that the browser will send the cookie back to. Will also send to subdomains of this domain. 
-# defaults to sending only to the exact domain where the cookie originated from 
+# The domain that the browser will send the cookie back to. Will also send to subdomains of this domain. 
+# Defaults to sending only to the exact domain where the cookie originated from 
 SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_AGE = 60*60*24*7  # provider sessions expire after 1 week
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # better physical/workplace security 
