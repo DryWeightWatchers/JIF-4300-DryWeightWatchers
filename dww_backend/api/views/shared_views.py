@@ -1,4 +1,3 @@
-
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
 from django.shortcuts import get_object_or_404
@@ -259,11 +258,15 @@ def verify_email(request):
 
 
 def check_and_notify_weight_change(patient, previous_weight, new_weight, providers):
-    weight_change = new_weight - previous_weight
+    # Convert both weights to float to ensure consistent type comparison
+    previous_weight_float = float(previous_weight)
+    new_weight_float = float(new_weight)
+    
+    weight_change = new_weight_float - previous_weight_float
     if abs(weight_change) > 5:  # Example threshold: 5lbs or more
         weight_change_data = {
-            "previous_weight": previous_weight,
-            "new_weight": new_weight,
+            "previous_weight": previous_weight_float,
+            "new_weight": new_weight_float,
             "change": weight_change
         }
 

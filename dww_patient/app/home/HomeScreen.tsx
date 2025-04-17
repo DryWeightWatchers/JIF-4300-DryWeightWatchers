@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps, SettingsStackScreenProps } from '../types/navigation';
@@ -13,6 +13,8 @@ type ProfileData = {
   email: string,
   phone: string,
   password: string,
+  is_verified: boolean,
+  unit_preference: string,
 }
 
 type WeightRecord = {
