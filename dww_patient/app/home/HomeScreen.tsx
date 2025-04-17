@@ -6,7 +6,6 @@ import { authFetch } from '@/utils/authFetch';
 import { useAuth } from '../auth/AuthProvider';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
-import { convertWeight } from '../../utils/unitUtils';
 
 type ProfileData = {
   firstname: string,
@@ -15,6 +14,7 @@ type ProfileData = {
   phone: string,
   password: string,
   is_verified: boolean,
+  unit_preference: string,
 }
 
 type WeightRecord = {
@@ -27,7 +27,7 @@ const HomeScreen = () => {
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
   const navigation = useNavigation<HomeTabScreenProps<'Home'>['navigation']>();
   const navigation_settings = useNavigation<SettingsStackScreenProps<'Settings'>['navigation']>();
-  const { accessToken, refreshAccessToken, logout, user } = useAuth();
+  const { accessToken, refreshAccessToken, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [chart, setChart] = useState('chart');
@@ -81,13 +81,6 @@ const HomeScreen = () => {
       alert('Failed to get your weight data. Please try again.')
     }
   }
-
-  // Add useEffect to refresh weight records when unit preference changes
-  useEffect(() => {
-    if (user?.unit_preference) {
-      fetchWeightRecords();
-    }
-  }, [user?.unit_preference]);
 
   useFocusEffect(
     useCallback(() => {

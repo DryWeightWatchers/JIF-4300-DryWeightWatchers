@@ -6,7 +6,6 @@ import {
 import { useAuth } from '../auth/AuthProvider';
 import { authFetch } from '../../utils/authFetch';
 import { ActivityIndicator } from 'react-native';
-import { convertWeight } from '../../utils/unitUtils';
 
 const EnterDataScreen = () => {
   const { accessToken, refreshAccessToken, logout, user, setUser } = useAuth();
@@ -26,16 +25,9 @@ const EnterDataScreen = () => {
       return;
     }
 
-    // Convert weight to pounds before checking the limit
     const weightInPounds = isMetric 
-        ? convertToPounds(weightValue) 
-        : weightValue; // If already in pounds, use as is
-
-    // Check for weight digit limit after conversion
-    if (weightInPounds >= 100000) { // Adjust this limit based on your needs
-      Alert.alert('Error', 'Weight must be less than 100000');
-      return;
-    }
+        ? parseFloat(convertToPounds(weightValue).toFixed(2))
+        : weightValue; 
 
     setLoading(true);
 
@@ -51,6 +43,9 @@ const EnterDataScreen = () => {
           body: JSON.stringify({ weight: weightInPounds }),
         }
       );
+
+      console.log('weight:', weight);
+      console.log('weight in pounds:', weightInPounds);
 
       if (response.ok) {
         const data = await response.json();

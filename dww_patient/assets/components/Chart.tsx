@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Svg, { Text as SvgText, Line, Path, Circle, G } from 'react-native-svg';
-import Ionicons from '@expo/vector-icons/Ionicons'; 
 import { useAuth } from '../../app/auth/AuthProvider';
-import { convertWeight } from '../../utils/unitUtils';
+import { authFetch } from '@/utils/authFetch';
+import Ionicons from '@expo/vector-icons/Ionicons'; 
+
+type ProfileData = {
+  firstname: string,
+  lastname: string,
+  email: string,
+  phone: string,
+  password: string,
+  is_verified: boolean,
+  unit_preference: string,
+}
 
 type ChartProps = {
   weightRecord: Array<{
@@ -11,6 +22,7 @@ type ChartProps = {
     weight: number;
   }>;
   onDataPointSelect: (day: Date) => void;
+  unit_preference: 'metric' | 'imperial';
 };
 
 type WeightRecord = {
@@ -18,13 +30,47 @@ type WeightRecord = {
   weight: number,
 }
 
-const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => { 
-  const { user } = useAuth();
+const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps) => { 
+  const [userData, setUserData] = useState<ProfileData | null>(null);
+  const { accessToken, refreshAccessToken, logout } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userPreference, setUserPreference] = useState<string | null>(null);
   const MARGIN = 16 + 32;
+
+  const fetchUserData = async () => {
+    try {
+      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        setError(`HTTP error: ${res.status}`);
+        return;
+      }
+      const data = await res.json();
+      console.log("data is ", data)
+      console.log(data["unit_preference"])
+      setUserData(data);
+      setUserPreference(data.unit_preference);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [accessToken])
+  );
 
   const onLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -62,6 +108,10 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     return Array.from({ length: new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
   };
 
+  const convertToKilograms = (weightInPounds: number) => {
+    return weightInPounds / 2.20462;
+  };
+
   useEffect(() => {
     let monthlyData = weightRecord.filter((point) => {
       return (
@@ -83,7 +133,8 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
       const { timestamp, weight, count } = aggregatedData[dateKey];
       return {
         timestamp,
-        weight: weight / count,
+        weight: userPreference === 'metric' ? convertToKilograms(weight) / count : weight / count, 
+        // weight: weight / count,
       };
     }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   
@@ -110,7 +161,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     <View style={{ flex: 1 }}>
 
       <View style={styles.monthHeader}>
-        <TouchableOpacity onPress={handlePrevMonth} style={styles.monthButton}>
+        <TouchableOpacity onPress={handlePrevMonth}>
           <Ionicons name="chevron-back" size={24} color="#7B5CB8" />
         </TouchableOpacity>
         
@@ -118,7 +169,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
           {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </Text>
         
-        <TouchableOpacity onPress={handleNextMonth} style={styles.monthButton}>
+        <TouchableOpacity onPress={handleNextMonth}>
           <Ionicons name="chevron-forward" size={24} color="#7B5CB8" />
         </TouchableOpacity>
       </View>
@@ -143,10 +194,11 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
             strokeWidth="1"
           />
 
-          {generateYAxisGrid().map((weight, index) => {
-            const y = yScale(weight);
+          {generateYAxisGrid().map((gridValue) => {
+            const y = yScale(gridValue);
+            if (isNaN(gridValue)) return null;
             return (
-              <G key={`y-${index}`}>
+              <G key={`y-${gridValue}`}>
                 <Line
                   x1={MARGIN}
                   y1={y}
@@ -157,13 +209,13 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
                   opacity={0.5}
                 />
                 <SvgText
-                  x={MARGIN - 8}
+                  x={MARGIN - 10}
                   y={y + 4}
                   textAnchor="end"
                   fill="#666"
                   fontSize="10"
                 >
-                  {weight.toFixed(1)} {user?.unit_preference === 'metric' ? 'kg' : 'lbs'}
+                  {Math.round(gridValue)}
                 </SvgText>
               </G>
             );
@@ -253,9 +305,6 @@ const styles = StyleSheet.create({
     borderColor: '#7B5CB8',
     borderWidth: 1,
     flex: 1,
-  },
-  monthButton: {
-    padding: 5,
   },
 });
 

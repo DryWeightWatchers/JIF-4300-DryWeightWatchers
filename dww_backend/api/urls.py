@@ -15,7 +15,6 @@ urlpatterns = [
     path('change-phone/', shared_views.change_phone, name='change_phone'),
     path('change-password/', shared_views.change_password, name='change_password'),
     path('change-notification-preferences/', shared_views.change_notification_preferences, name='change_notification_preferences'),
-    path('update-unit-preference/', shared_views.update_unit_preference, name='update_unit_preference'),
 
     # endpoints used by patient interface 
     ## auth & account 
@@ -25,6 +24,7 @@ urlpatterns = [
     path('add-relationship/', patient_views.add_relationship, name='add_relationship'),
     path('patient-profile/', patient_views.patient_profile_data, name='patient-profile'),
     path('patient-change-password/', patient_views.patient_change_password, name='patient_change_password'),
+    path('update-unit-preference/', patient_views.update_unit_preference, name='update_unit_preference'),
     ## patient data 
     path('get-weight-record/', patient_views.get_weight_record, name='get weight record'),
     path('record_weight/', patient_views.record_weight, name='record weight'), 

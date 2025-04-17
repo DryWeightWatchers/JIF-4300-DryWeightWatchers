@@ -364,23 +364,3 @@ def change_notification_preferences(request):
         'text_notifications': notification_preference.text_notifications,
         'push_notifications': notification_preference.push_notifications,
     })
-
-@api_view(['POST'])
-@authentication_classes([SessionAuthentication, JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def update_unit_preference(request):
-    try:
-        unit_preference = request.data.get('unit_preference')
-        if not unit_preference or unit_preference not in [User.IMPERIAL, User.METRIC]:
-            return JsonResponse({'error': 'Invalid unit preference'}, status=400)
-        
-        user = request.user
-        user.unit_preference = unit_preference
-        user.save()
-        
-        return JsonResponse({
-            'message': 'Unit preference updated successfully',
-            'unit_preference': user.unit_preference
-        }, status=200)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
