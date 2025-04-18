@@ -298,11 +298,10 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
 
     message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
-    providers_with_email_enabled = User.objects.filter(
-        role=User.PROVIDER,
-        notification_preference__email_notifications=True
-    )
-    provider_emails = list(providers_with_email_enabled.values_list('email', flat=True))
+    provider_emails = [
+    provider.email for provider in providers
+        if provider.notification_preference and provider.notification_preference.email_notifications
+    ]
 
     for provider in providers:
         ProviderNotification.objects.create(
