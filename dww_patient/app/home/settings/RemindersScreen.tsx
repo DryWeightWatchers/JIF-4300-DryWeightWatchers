@@ -51,14 +51,12 @@ const RemindersScreen = () => {
       const data = await response.json();
       setNotificationPreferences(data);
     } catch (error: any) {
-      console.log('get notification preferences error:', error.response?.data || error.message);
       alert('Failed to get your notification preferences. Please try again.');
     }
   };
 
   const updateNotificationPreferences = async (preferences: NotificationPreferences) => {
     try {
-      console.log('Updating notification preferences with:', preferences);
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/update-notification-preferences/`,
         accessToken,
@@ -75,15 +73,12 @@ const RemindersScreen = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log('Error response:', errorData);
         throw new Error(errorData.error || 'Failed to update notification preferences');
       }
 
       const data = await response.json();
-      console.log('Successfully updated preferences:', data);
       setNotificationPreferences(data);
     } catch (error: any) {
-      console.log('update notification preferences error:', error.response?.data || error.message);
       alert('Failed to update your notification preferences. Please try again.');
     }
   };
@@ -105,7 +100,6 @@ const RemindersScreen = () => {
       }
 
       const data = await response.json();
-      console.log('got reminders: ', data)
       const parsedReminders = data.map((reminder: any) => ({
         ...reminder,
         days: reminder.days.split(', '), 
@@ -113,7 +107,6 @@ const RemindersScreen = () => {
       }));
       setReminders(parsedReminders);
     } catch (error: any) {
-      console.log('get reminders error:', error.response?.data || error.message)
       alert('Failed to get your reminders. Please try again.')
     }
   };
@@ -163,12 +156,10 @@ const RemindersScreen = () => {
         throw new Error('Failed to fetch reminders');
       }
       const data = await response.json();
-      console.log('add reminder successful:', data);
 
       resetStates();
       fetchReminders();
     } catch (error: any) {
-      console.log('add reminder error:', error.response?.data || error.message)
       alert('Failed to add reminder. Please try again.')
     }
   }
@@ -181,7 +172,7 @@ const RemindersScreen = () => {
       setSelectedReminderID(id);
       setModalVisible(true);
     } else {
-      console.log(`Reminder with id ${id} not found`);
+      //console.log(`Reminder with id ${id} not found`);
     }
   }
 
@@ -206,12 +197,10 @@ const RemindersScreen = () => {
         throw new Error('Failed to fetch reminders');
       }
       const data = await response.json();
-      console.log('save reminder successful:', data);
 
       resetStates();
       fetchReminders();
     } catch (error: any) {
-      console.log('save reminder error:', error.response?.data || error.message)
       alert('Failed to save reminder. Please try again.')
     }
   }
@@ -232,12 +221,10 @@ const RemindersScreen = () => {
         throw new Error('Failed to fetch reminders');
       }
       const data = await response.json();
-      console.log('delete reminder successful:', data);
 
       resetStates();
       fetchReminders();
     } catch (error: any) {
-      console.log('delete reminder error:', error.response?.data || error.message)
       alert('Failed to delete reminder. Please try again.')
     }
   }

@@ -26,7 +26,6 @@ const AccountScreen = () => {
         await logout();  // fallback: clear tokens anyway so user doesn't get stuck logged in 
       }
     } catch (error) {
-      console.error('Logout error:', error);
       Alert.alert('Error', 'Something went wrong during logout');
     }
   };

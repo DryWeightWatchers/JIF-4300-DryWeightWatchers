@@ -83,9 +83,6 @@ const ProfileScreen = () => {
       };
 
       const handleChangePassword = async () => {
-        console.log("Current password is:", currentPassword);
-        console.log("New password is:", newPassword);
-        console.log("Confirm password is:", confirmPassword);
         if (!currentPassword || !newPassword || !confirmPassword) {
           setMessage('All password fields are required.');
           return;

@@ -42,7 +42,6 @@ const DashboardScreen = () => {
       }
 
       const data = await response.json();
-      console.log('got record: ', data)
       const formattedRecord = data.map((item: any) => ({
         timestamp: new Date(item.timestamp),
         weight: item.weight,
@@ -50,7 +49,6 @@ const DashboardScreen = () => {
       setWeightRecord(formattedRecord);
 
     } catch (error: any) {
-      console.log('get weight record error:', error.response?.data || error.message)
       alert('Failed to get your weight data. Please try again.')
     }
   }
@@ -72,7 +70,6 @@ const DashboardScreen = () => {
       }
 
       const data = await response.json();
-      console.log('got notes: ', data)
       const formattedNotes = data.map((item: any) => ({
         timestamp: new Date(item.timestamp),
         note: item.note,
@@ -80,7 +77,6 @@ const DashboardScreen = () => {
       setPatientNotes(formattedNotes);
 
     } catch (error: any) {
-      console.log('get patient notes error:', error.response?.data || error.message)
       alert('Failed to get your patient notes. Please try again.')
     }
   }

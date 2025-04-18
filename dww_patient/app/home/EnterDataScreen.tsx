@@ -36,16 +36,13 @@ const EnterDataScreen = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('weight input successful:', data);
         alert(`Weight reported: ${weight} lbs`);
         setWeight('');
       } else {
         const errorData = await response.json();
-        console.error('Weight input error:', errorData);
         alert('Failed to report weight. Please try again.');
       }
     } catch (error: any) {
-      console.log('weight input error:', error.response?.data || error.message);
       alert('Failed to report weight. Please try again.');
     } finally {
       setLoading(false);

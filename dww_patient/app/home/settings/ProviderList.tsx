@@ -21,7 +21,6 @@ const ProviderList = () => {
   const handleGetProviders = async () => {
     try {
         if (!accessToken) {
-            console.log("No access token available, trying to refresh...");
             await refreshAccessToken();
         }
         const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/user/providers/`, accessToken, refreshAccessToken, logout, {
@@ -33,7 +32,6 @@ const ProviderList = () => {
         });
         if (!response.ok) {
             if (response.status == 401) {
-                console.warn("401 Unauthorized - Attempting to refresh token...");
                 await refreshAccessToken();
                 return handleGetProviders(); // Retry after refreshing token
             }
@@ -41,17 +39,15 @@ const ProviderList = () => {
             throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
         }
         const data = await response.json()
-        console.log("Fetched Providers: ", data)
         setProviders(data)
     } catch (error) {
-        console.error('Error fetching providers:', error);
+        //console.error('Error fetching providers:', error);
     }
   }
 
   const handleDeleteProvider = async (shareable_id: string) => {
     try {
         if (!accessToken) {
-            console.log("No access token available, trying to refresh...");
             await refreshAccessToken();
         }
         // const shareableId = `${code.slice(0, 4).join('')}-${code.slice(4, 8).join('')}`;
@@ -66,7 +62,6 @@ const ProviderList = () => {
         });
         if (!response.ok) {
             if (response.status == 401) {
-                console.warn("401 Unauthorized - Attempting to refresh token...");
                 await refreshAccessToken();
                 return handleGetProviders(); // Retry after refreshing token
             }
@@ -74,10 +69,9 @@ const ProviderList = () => {
             throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
         }
         const data = await response.json()
-        console.log("Fetched Providers: ", data)
         setProviders(providers.filter(provider => provider.shareable_id !== shareable_id));
     } catch (error) {
-        console.error('Error deleting provider:', error);
+        //console.error('Error deleting provider:', error);
     }
   }
 

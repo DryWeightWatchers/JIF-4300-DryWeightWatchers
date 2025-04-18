@@ -23,8 +23,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
-    console.log("AuthProvider: useEffect")
-    console.log("API URL:", process.env.EXPO_PUBLIC_DEV_SERVER_URL);
     // note: since loadTokens is async, the component renders before it completes 
     const loadTokens = async () => {
       const storedAccessToken = await SecureStore.getItemAsync("accessToken");
@@ -33,14 +31,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (storedAccessToken && storedRefreshToken) {
 
         if (isTokenExpired(storedRefreshToken)) {
-          console.log("Refresh token expired, logging out");
           await logout(); 
           setIsLoading(false); 
           return; 
         }
 
         if (isTokenExpired(storedAccessToken)) {
-          console.log("AuthProvider: Access token expired, attempting refresh..."); 
           await setRefreshToken(storedRefreshToken); 
           await refreshAccessToken(); 
 
@@ -70,8 +66,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshAccessToken = async () => {
     if (!refreshToken) return;
-
-    console.log("AuthProvider: refreshAccessToken: ", refreshToken); 
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/refresh-jwt/`, {
         method: "POST",
@@ -89,7 +83,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
     } catch (error) {
-      console.log("Error refreshing token:", error);
       logout();
     }
   };

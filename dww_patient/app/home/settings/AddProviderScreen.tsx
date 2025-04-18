@@ -31,7 +31,6 @@ const AddProviderScreen = () => {
         );
 
         const data = await response.json();
-        console.log();
         if (response.ok) {
             if (data.message.includes("already exists")) {
                 Alert.alert('Notice', 'This relationship already exists.');
@@ -44,7 +43,6 @@ const AddProviderScreen = () => {
         }
     } catch (error) {
         Alert.alert('Error', 'Something went wrong');
-        console.error(error);
         }
     };
 
