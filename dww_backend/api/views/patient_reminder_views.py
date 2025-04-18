@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, logout, login as django_login
-from django.views.decorators.csrf import csrf_exempt
 from api.models import *
 from api.forms import *
 from api.serializers import *
@@ -9,13 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 
-
-
 """
 Note: All patient-facing APIs should use rest_framework's JWT authentication
 """
-
-
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])

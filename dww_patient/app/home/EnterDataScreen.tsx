@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     alignItems: 'center',
-    paddingHorizontal: 10, // add spacing
+    paddingHorizontal: 10, 
     paddingVertical: 110,
     width: '100%',
   },

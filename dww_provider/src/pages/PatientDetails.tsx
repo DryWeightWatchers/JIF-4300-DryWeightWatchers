@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import { PatientNote, Patient } from '../utils/types';
+
 import styles from "../styles/PatientDetails.module.css";
+
 import PatientInfoSection from '../components/PatientInfoSection';
 import PatientNotesSection from '../components/PatientNotesSection';
 import ChartCalendarViz from '../components/ChartCalendarViz';
-import { ToastContainer, toast } from 'react-toastify';
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
@@ -17,6 +18,7 @@ const PatientDetails: React.FC = () => {
   const [csrfToken, setCsrfToken] = useState<string>('');
   const { id } = useParams<{ id: string }>();
 
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refresh, setRefresh] = useState<boolean>(false);
 
@@ -43,12 +45,13 @@ const PatientDetails: React.FC = () => {
       });
 
       if (!response.ok) {
-        toast("Oops! Something went wrong while removing that patient from your care. Please try again.");
+        const errorText = await response.text();
+        throw new Error(`Error removing relationship: ${errorText}`);
       }
-      toast("The patient has successfully been removed from your list of patients.");
+      alert("The patient has been removed.");
       navigate('/dashboard');
     } catch (err: any) {
-      toast("Oops! Something went wrong while removing that patient from your care. Please try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -58,6 +61,7 @@ const PatientDetails: React.FC = () => {
     if (!patient) return;
     setSelectedDay(day)
   };
+
 
   const handleAddOrUpdateNote = async (noteId: string | null, noteText: string, day: Date) => {
     try {
@@ -79,7 +83,7 @@ const PatientDetails: React.FC = () => {
       );
 
       if (!response.ok) {
-        toast("Oops! Something happened while updating that note. Please try again.");
+        console.error("Failed to add/update note");
         return;
       }
 
@@ -88,7 +92,7 @@ const PatientDetails: React.FC = () => {
       setRefresh(!refresh);
 
     } catch (error) {
-      toast("Oops! Something happened while updating that note. Please try again.");
+      console.error("Error in handleAddOrUpdateNote:", error);
     }
   };
 
@@ -107,13 +111,13 @@ const PatientDetails: React.FC = () => {
         }
       );
       if (!response.ok) {
-        toast("Oops! Something happened while deleting that note. Please try again.");
+        console.error("Failed to delete note:", await response.text());
         return;
       }
 
       setRefresh(!refresh);
     } catch (error) {
-      toast("Oops! Something happened while deleting that note. Please try again.");
+      console.error("Error in handleDeleteNote:", error);
     }
   };
 
@@ -134,11 +138,10 @@ const PatientDetails: React.FC = () => {
           credentials: "include",
         });
 
-        if (!res.ok) { 
-          toast("Oops! Something went wrong while removing that patient from your care. Please try again."); 
-        }
+        if (!res.ok) { throw new Error(`HTTP error: ${res.status}`); }
         const data = await res.json();
 
+        // Convert timestamps to Date objects
         data.notes = data.notes.map((note: PatientNote) => ({
           ...note,
           timestamp: new Date(note.timestamp),
@@ -150,8 +153,9 @@ const PatientDetails: React.FC = () => {
         data.patient_info.last_updated = new Date(data.patient_info.last_updated);
 
         setPatient(data);
+        console.log('patient data: ', data); 
       } catch (err: any) {
-        toast("Oops! Something happened while getting your patient's information. Please try again.");
+        setError(err.message);
       } finally { setLoading(false); }
     };
 
@@ -189,13 +193,16 @@ const PatientDetails: React.FC = () => {
     saveAs(zipBlob, `patient_${id}_data.zip`);
   };
 
+
+
+
   if (loading) { return <div className={styles.loading}>Loading patient data…</div>; }
+  if (error) { return <div className={styles.error}>Error: {error}</div>; }
 
   const weightHistory = patient!.weight_history || [];
 
   return (
     <div className={styles.container}>
-      <ToastContainer/>
       <h1 className={styles.header}>{patient!.first_name} {patient!.last_name}</h1>
       <PatientInfoSection
         patientInfo={patient!.patient_info}
