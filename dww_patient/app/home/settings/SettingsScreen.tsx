@@ -10,7 +10,7 @@ const SettingsScreen = () => {
 
   const SETTINGS_SECTIONS = [
     {
-      title: 'Account Settings', //TODO: Split 'Account.tsx' into profile, shareable id, delete account screens. Add all resultant screens to this section, should be easily modular.
+      title: 'Account Settings', 
       data: [
         {
           title: 'Profile',
