@@ -83,7 +83,7 @@ const ProviderList = () => {
 
   return (
     <SafeAreaView style={{ padding: 20, flex: 1 }}>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Registered Providers</Text>
+      <Text style={{ padding: 12, fontSize: 24, marginBottom: 20, alignSelf: 'center' }}>Registered Providers</Text>
 
       {providers.length === 0 ? (
         <Text>No providers found.</Text>
