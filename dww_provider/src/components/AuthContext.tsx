@@ -13,7 +13,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); 
 
   useEffect(() => {
-    console.log('AuthContext: useEffect running...'); 
+    //console.log('AuthContext: useEffect running...'); 
     const checkAuthStatus = async () => {
       try {
         const res = await fetch(`${process.env.VITE_PUBLIC_DEV_SERVER_URL}/get-auth-status`, {

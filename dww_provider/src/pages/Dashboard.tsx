@@ -4,13 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../styles/Dashboard.module.css'; 
 import { DashboardPatient } from '../utils/types'; 
 import { avgDailyWeightChange } from '../utils/helpers';
-
+import { ToastContainer, toast } from 'react-toastify';
 
 const Dashboard: React.FC = () => {
   const DEFAULT_ALARM_THRESHOLD = 2.0; 
   const [patients, setPatients] = useState<DashboardPatient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,12 +20,12 @@ const Dashboard: React.FC = () => {
           credentials: 'include',
         });
         if (!res.ok) {
-          setError(`HTTP error: ${res.status}`);
+          toast("Oops! Something happened while fetching your patients information. Please try again.");
         }
         const data = await res.json();
         setPatients(data.patients);
       } catch (err: any) {
-        setError(err.message);
+        toast("Oops! Something happened while fetching your patients information. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -34,11 +33,6 @@ const Dashboard: React.FC = () => {
 
     fetchPatients();
   }, []);
-
-  useEffect(() => {
-    console.log('Patients: ', patients); 
-  }, [patients]); 
-
 
   const getPatientCardData = (patient: DashboardPatient) => {
     const latestRecord = patient.latest_weight !== null && patient.latest_weight_timestamp !== null
@@ -62,10 +56,10 @@ const Dashboard: React.FC = () => {
 
 
   if (loading) { return <div>Loading patient data…</div>; }
-  if (error) { return <div>Error: {error}</div>; }
 
   return (
     <div className={styles.dashboard}>
+      <ToastContainer/>
       <h1 className={styles.title}>Patient Dashboard</h1>
       <div className={styles.cardContainer}>
         {patients.map((patient) => {
