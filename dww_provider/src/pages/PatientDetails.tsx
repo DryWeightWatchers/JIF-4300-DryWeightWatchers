@@ -8,8 +8,8 @@ import styles from "../styles/PatientDetails.module.css";
 import PatientInfoSection from '../components/PatientInfoSection';
 import PatientNotesSection from '../components/PatientNotesSection';
 import ChartCalendarViz from '../components/ChartCalendarViz';
-
-
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const PatientDetails: React.FC = () => {
 
@@ -162,38 +162,35 @@ const PatientDetails: React.FC = () => {
     getPatientData();
   }, [id, refresh]);
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
     if (!patient) return;
-
-    let csvContent = "";
-    csvContent += "Patient Info\n";
-    csvContent += "First Name,Last Name,Email,Date of Birth,Sex,Height (cm),Medications,Other Information,Latest Weight,Weight Last Updated,Weight Alarm Threshold\n";
+  
+    const zip = new JSZip();
+  
+    let patientInfoCSV = "First Name,Last Name,Email,Date of Birth,Sex,Height (cm),Medications,Other Information,Latest Weight,Weight Last Updated,Weight Alarm Threshold\n";
     const { date_of_birth, sex, height, medications, other_info, alarm_threshold } = patient.patient_info!;
-    csvContent += `${patient.first_name},${patient.last_name},${patient.email},${date_of_birth},${sex},${height},${medications},${other_info},${patient.latest_weight},${new Date(patient!.latest_weight_timestamp!).toISOString()},${alarm_threshold}\n\n`;
-
-    csvContent += "Patient Notes\n";
-    csvContent += "Timestamp,Note\n";
+    patientInfoCSV += `${patient.first_name},${patient.last_name},${patient.email},${date_of_birth},${sex},${height},${medications},${other_info},${patient.latest_weight},${new Date(patient!.latest_weight_timestamp!).toISOString()},${alarm_threshold}\n`;
+  
+    zip.file("patient_info.csv", patientInfoCSV);
+  
+    let notesCSV = "Timestamp,Note\n";
     patient.notes?.forEach((note: PatientNote) => {
       const timestamp = new Date(note.timestamp).toISOString();
       const sanitizedNote = note.note.replace(/"/g, '""');
-      csvContent += `${timestamp},"${sanitizedNote}"\n`;
+      notesCSV += `${timestamp},"${sanitizedNote}"\n`;
     });
-    csvContent += "\n";
-
-    csvContent += "Weight History\n";
-    csvContent += "Timestamp,Weight\n";
+  
+    zip.file("notes.csv", notesCSV);
+  
+    let weightCSV = "Timestamp,Weight\n";
     patient.weight_history?.forEach((record: any) => {
-      csvContent += `${new Date(record.timestamp).toISOString()},${record.weight}\n`;
+      weightCSV += `${new Date(record.timestamp).toISOString()},${record.weight}\n`;
     });
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `patient_${id}_data.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  
+    zip.file("weight_history.csv", weightCSV);
+    
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    saveAs(zipBlob, `patient_${id}_data.zip`);
   };
 
 
