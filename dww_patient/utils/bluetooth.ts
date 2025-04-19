@@ -16,9 +16,9 @@ const permissionList: Permission[] =
         : []; // iOS handled by Info.plist instead (?) 
 
 // used to identify the relevant BLE service and characteristics 
-const SERVICE_UUID = '00001a10-0000-1000-8000-00805f9b34fb';
-const CHAR_RESULTS_UUID = '00002a10-0000-1000-8000-00805f9b34fb';
-const CHAR_COMMAND_UUID = '00002a11-0000-1000-8000-00805f9b34fb';
+const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+const CHAR_RESULTS_UUID = '0000fff1-0000-1000-8000-00805f9b34fb';
+const CHAR_COMMAND_UUID = '0000fff2-0000-1000-8000-00805f9b34fb';
 
 // binary commands to send to the scale 
 const START_MEASUREMENT = Buffer.from([
@@ -44,23 +44,42 @@ export async function requestBluetoothPermissions(): Promise<boolean> {
     return true;
 }
 
-export async function connectToScale(onWeight: (kg: number) => void) {
+export async function connectToScale(
+    onWeight: (weight: number) => void, 
+    scanTimeoutMs = 60000, 
+): Promise<void> {
     const granted = await requestBluetoothPermissions();
     if (!granted) {
         throw new Error('Bluetooth permissions not granted');
     }
 
     return new Promise<void>((resolve, reject) => {
+
+        // stop scanning after some time to avoid high battery usage 
+        const timeoutId = setTimeout(() => {
+            bleManager.stopDeviceScan();
+            resolve();
+        }, scanTimeoutMs);
+
         bleManager.startDeviceScan(null, null, async (error, device) => {
-            if (error) { reject(error); return; }
-            if (!device?.name?.includes('Scale')) { return; }  // may need to adjust depending on actual name of device
+            if (error) {
+                clearTimeout(timeoutId);
+                reject(error);
+                return;
+            }
+              
+            if (!device?.name?.includes('Scale')) { return; } 
+            if (device?.name?.includes('Scale')) {
+                console.log("Discovered:", device.name, device.id);
+            }
+            clearTimeout(timeoutId);
             bleManager.stopDeviceScan();
 
             try {
                 const connectedDevice = await device.connect();
                 await connectedDevice.discoverAllServicesAndCharacteristics();
-                monitorWeight(connectedDevice, onWeight);
-                await sendMeasurementCommands(connectedDevice);
+                monitorWeight(connectedDevice, onWeight);  // sets up a listener for weight data 
+                await sendMeasurementCommands(connectedDevice); // tells the scale to start sending data 
                 resolve();
             } catch (err) {
                 reject(err);
@@ -81,11 +100,11 @@ function monitorWeight(device: Device, onWeight: (kg: number) => void) {
             const bytes = Uint8Array.from(buffer);
 
             if (bytes[2] !== 0x14) return; // not a weight response
-            const stable = bytes[5] !== 0x00;
-            if (!stable) return;
+            if (bytes[5] === 0x00) return;  // not stable yet
 
             const weightRaw = (bytes[8] << 8) | bytes[9];
             const weightKg = weightRaw / 100.0;
+            console.log(weightKg)
             onWeight(weightKg);
         }
     );
@@ -102,4 +121,8 @@ async function sendMeasurementCommands(device: Device) {
         CHAR_COMMAND_UUID,
         DELETE_HISTORY  // quirk of the scale: needed for it to only send the newly recorded weight
     );
+}
+
+export function stopScanning() {
+    bleManager.stopDeviceScan();
 }
