@@ -16,9 +16,9 @@ const permissionList: Permission[] =
         : []; // iOS handled by Info.plist instead (?) 
 
 // used to identify the relevant BLE service and characteristics 
-const SERVICE_UUID = '00001a10-0000-1000-8000-00805f9b34fb';
-const CHAR_RESULTS_UUID = '00002a10-0000-1000-8000-00805f9b34fb';
-const CHAR_COMMAND_UUID = '00002a11-0000-1000-8000-00805f9b34fb';
+const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+const CHAR_RESULTS_UUID = '0000fff1-0000-1000-8000-00805f9b34fb';
+const CHAR_COMMAND_UUID = '0000fff2-0000-1000-8000-00805f9b34fb';
 
 // binary commands to send to the scale 
 const START_MEASUREMENT = Buffer.from([
@@ -67,7 +67,11 @@ export async function connectToScale(
                 reject(error);
                 return;
             }
-            if (!device?.name?.includes('ES-CS20M')) { return; } 
+              
+            if (!device?.name?.includes('Scale')) { return; } 
+            if (device?.name?.includes('Scale')) {
+                console.log("Discovered:", device.name, device.id);
+            }
             clearTimeout(timeoutId);
             bleManager.stopDeviceScan();
 
@@ -100,6 +104,7 @@ function monitorWeight(device: Device, onWeight: (kg: number) => void) {
 
             const weightRaw = (bytes[8] << 8) | bytes[9];
             const weightKg = weightRaw / 100.0;
+            console.log(weightKg)
             onWeight(weightKg);
         }
     );
