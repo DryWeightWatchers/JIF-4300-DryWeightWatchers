@@ -91,8 +91,9 @@ class PatientInfo(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     alarm_threshold = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True) 
 
-# Other tables/fields with many-to-one relations to a patient profile.
-
+"""
+Other tables/fields with many-to-one relations to a patient profile.
+"""
 class TreatmentRelationship(models.Model):
     patient = models.ForeignKey(
         User, 

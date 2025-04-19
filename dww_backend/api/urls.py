@@ -2,13 +2,13 @@ from django.urls import path
 from .views import shared_views, patient_views, patient_reminder_views, provider_views
 
 urlpatterns = [
-    # endpoints used by both interfaces 
-    ## testing & auth 
+    # Endpoints used by both interfaces 
+    ## Testing and authorization
     path('test/', shared_views.test, name='test'), 
     path('login/', shared_views.login_view, name='login'),
     path('logout/', shared_views.logout_view, name='logout'), 
     path('verify-email/', shared_views.verify_email, name='verify_email'), 
-    ## account management 
+    ## Account management 
     path('delete-account/', shared_views.delete_account, name='delete_account'),
     path('delete-relationship/', shared_views.delete_relationship, name='delete_provider'),
     path('change-email/', shared_views.change_email, name='change_email'),
@@ -16,8 +16,8 @@ urlpatterns = [
     path('change-password/', shared_views.change_password, name='change_password'),
     path('change-notification-preferences/', shared_views.change_notification_preferences, name='change_notification_preferences'),
 
-    # endpoints used by patient interface 
-    ## auth & account 
+    # Endpoints used by patient interface 
+    ## Authorization and Account 
     path('refresh-jwt/', patient_views.refresh_access_token, name='refresh_access_token'), 
     path('register/', patient_views.register, name='register_user'),
     path('user/providers/', patient_views.get_providers, name='get_registered_providers'),
@@ -25,11 +25,11 @@ urlpatterns = [
     path('patient-profile/', patient_views.patient_profile_data, name='patient-profile'),
     path('patient-change-password/', patient_views.patient_change_password, name='patient_change_password'),
     path('update-unit-preference/', patient_views.update_unit_preference, name='update_unit_preference'),
-    ## patient data 
+    ## Patient data 
     path('get-weight-record/', patient_views.get_weight_record, name='get weight record'),
     path('record_weight/', patient_views.record_weight, name='record weight'), 
     path('get-patient-notes/', patient_views.get_patient_notes, name='get patient notes'),
-    ## reminders 
+    ## Reminders 
     path('get-reminders/', patient_reminder_views.get_reminders, name='get_reminders'),
     path('add-reminder/', patient_reminder_views.add_reminder, name='add_reminder'),
     path('save-reminder/', patient_reminder_views.save_reminder, name='save_reminder'),
@@ -37,7 +37,7 @@ urlpatterns = [
     path('get-notification-preferences/', patient_reminder_views.get_notification_preferences, name='get_notification_preferences'),
     path('update-notification-preferences/', patient_reminder_views.update_notification_preferences, name='update_notification_preferences'),
 
-    # endpoints used by provider interface 
+    # Endpoints used by provider interface 
     path('get-auth-status', provider_views.get_auth_status, name='get_auth_status'), 
     path('get-csrf-token/', provider_views.get_csrf_token, name='get_csrf_token'),
     path('register-provider/', provider_views.register_provider, name='register_provider'), 

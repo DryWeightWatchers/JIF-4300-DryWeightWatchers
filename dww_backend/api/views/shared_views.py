@@ -7,9 +7,9 @@ from django.core.mail import send_mail
 from api.models import *
 from api.forms import *
 from api.serializers import *
-import json, os
+import json
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication 
@@ -27,7 +27,7 @@ def test(request: HttpRequest):
 @ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def login_view(request):
     if getattr(request, 'limited', False): 
-        print("rate limit triggered")
+        print("Rate limit triggered")
         return JsonResponse({'message': 'Too many login attempts. Please try again later.'}, status=429)
     try:
         data = json.loads(request.body.decode('utf-8'))
@@ -37,7 +37,7 @@ def login_view(request):
         if user is None: 
             return JsonResponse({'message': 'Invalid credentials'}, status=400) 
         
-        # use JWT for patients 
+        # Use JWT for patient login
         if user.role == User.PATIENT: 
             print('views.py: login: patient')
             refresh = RefreshToken.for_user(user) 
@@ -48,10 +48,8 @@ def login_view(request):
                 'refresh_token': str(refresh)
             }, status=200)
         
-        # use Django's built-in session-based auth for providers 
+        # Use Django's built-in session-based auth for provider login
         elif user.role == User.PROVIDER: 
-            # if not user.is_verified:
-            #     return JsonResponse({'message': 'Account is not verified. Please check your email and verify your account.'}, status=403)
             print('views.py: login: provider'); 
             django_login(request, user) 
             request.session.save()
@@ -174,7 +172,7 @@ def change_password(request):
             return JsonResponse({'error': 'New passwords do not match.'}, status=400)
         user.set_password(new_password)
         user.save()
-        django_login(request, user) # need to redo this after password is changed
+        django_login(request, user) 
         request.session.save()
         return JsonResponse({'message': 'Password updated successfully.'}, status=200)
     except json.JSONDecodeError:
@@ -182,14 +180,6 @@ def change_password(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
-# @api_view(["DELETE"])
-# @authentication_classes([SessionAuthentication, JWTAuthentication])
-# @permission_classes([IsAuthenticated])
-# def delete_account(request):
-#     user = request.user
-#     user.delete()
-#     return JsonResponse({'message': 'Successfully deleted account'}, status=200)
 
 def send_verification_email(user):
     token = get_random_string(50)
@@ -298,11 +288,10 @@ def send_weight_change_notification(patient, weight_change, providers): # need t
 
     message = f"Patient {patient.first_name} {patient.last_name} has experienced a dramatic weight change of {weight_change['change']} lbs. Please review the patient's data and take appropriate action if needed."
 
-    providers_with_email_enabled = User.objects.filter(
-        role=User.PROVIDER,
-        notification_preference__email_notifications=True
-    )
-    provider_emails = list(providers_with_email_enabled.values_list('email', flat=True))
+    provider_emails = [
+    provider.email for provider in providers
+        if provider.notification_preference and provider.notification_preference.email_notifications
+    ]
 
     for provider in providers:
         ProviderNotification.objects.create(

@@ -61,7 +61,7 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  //main calendar construction
+  // Main calendar construction
   const grid = [];
   let dayCounter = 1;
 

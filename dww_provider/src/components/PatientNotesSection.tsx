@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'; 
 import styles from "../styles/PatientNotesSection.module.css";
 import { PatientNotesSectionProps } from '../utils/types'; 
 
