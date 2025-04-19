@@ -40,7 +40,7 @@ const Login: React.FC = () => {
         }
         localStorage.setItem('authToken', data.access);
         login();
-        navigate('/');
+        navigate('/home');
       } else {
         toast("Oops! Something happened while logging in. Please try again.");
       }

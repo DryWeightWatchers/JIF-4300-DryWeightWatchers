@@ -14,10 +14,10 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path='/' element={<MainLayout><Home /></MainLayout>} />
+          <Route path='/' element={<MainLayout><Login /></MainLayout>} />
           <Route path='/dashboard' element={<MainLayout><Dashboard /></MainLayout>} />
           <Route path='/profile' element={<MainLayout><Profile /></MainLayout>} />
-          <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
+          <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
           <Route path="/patients/:id" element={<MainLayout><PatientDetails /></MainLayout>} />
           <Route path="/delete" element={<MainLayout><Profile /></MainLayout>} />

@@ -29,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
         //const data = await response.json();
         //console.log(data.message);
         logout();
-        navigate('/login');
+        navigate('/');
       } else {
         //console.error('Failed to log out');
       }
@@ -51,7 +51,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
         {isAuthenticated ? (
           <>
             <li>
-              <Link to="/" className={styles.navLink}>
+              <Link to="/home" className={styles.navLink}>
                 <FaHome className={styles.icon} />
                 {isOpen && <span>Home</span>}
               </Link>
@@ -77,7 +77,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
           </>
         ) : (
           <li>
-            <Link to="/login" className={styles.navLink}>
+            <Link to="/" className={styles.navLink}>
               <FaSignInAlt className={styles.icon} />
               {isOpen && <span>Sign In / Register</span>}
             </Link>

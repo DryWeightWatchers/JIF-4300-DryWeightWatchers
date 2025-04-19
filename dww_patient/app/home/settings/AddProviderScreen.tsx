@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity, KeyboardAvoidingView, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity, KeyboardAvoidingView, ScrollView, SafeAreaView, Platform, NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
 import { SettingsStackScreenProps } from '../../types/navigation';
@@ -7,8 +7,8 @@ import { useNavigation } from 'expo-router';
 
 const AddProviderScreen = () => {
     const navigation = useNavigation<SettingsStackScreenProps<'AddProvider'>['navigation']>();
-    const inputRefs = useRef([]);
-    const [code, setCode] = useState(new Array(8).fill(''));
+    const inputRefs = useRef<Array<TextInput | null>>([]);
+    const [code, setCode] = useState<string[]>(new Array(8).fill(''));
     const {accessToken, refreshAccessToken, logout} = useAuth();
 
     const handleAddRelationship = async () => {
@@ -31,7 +31,6 @@ const AddProviderScreen = () => {
         );
 
         const data = await response.json();
-        console.log();
         if (response.ok) {
             if (data.message.includes("already exists")) {
                 Alert.alert('Notice', 'This relationship already exists.');
@@ -44,7 +43,6 @@ const AddProviderScreen = () => {
         }
     } catch (error) {
         Alert.alert('Error', 'Something went wrong');
-        console.error(error);
         }
     };
 
@@ -55,7 +53,7 @@ const AddProviderScreen = () => {
           setCode(newCode);
     
           if (index < 7) {
-            inputRefs.current[index + 1].focus();
+            inputRefs.current[index + 1]?.focus();
           }
         } else if (text === '') {
           newCode[index] = '';
@@ -63,12 +61,12 @@ const AddProviderScreen = () => {
         }
     };
 
-    const handleKeyPress = (e, index) => {
+    const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
         if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
           const newCode = [...code];
           newCode[index - 1] = '';
           setCode(newCode);
-          inputRefs.current[index - 1].focus();
+          inputRefs.current[index - 1]?.focus();
         }
     };
 
