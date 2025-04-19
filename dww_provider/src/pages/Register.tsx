@@ -58,7 +58,7 @@ const Register: React.FC = () => {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    navigate('/login');
+    navigate('/');
   };
 
   return (

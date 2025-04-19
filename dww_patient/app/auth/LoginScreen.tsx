@@ -14,7 +14,6 @@ const LoginScreen = () => {
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    console.log('LoginScreen: handleLogin');
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/login/`, {
         method: 'POST',
@@ -28,7 +27,6 @@ const LoginScreen = () => {
       });
 
       if (response.ok) {
-        console.log("LoginScreen: handleLogin: response returned with 200 OK")
         const data = await response.json();
         await login(data.access_token, data.refresh_token);
       } else {
@@ -37,7 +35,6 @@ const LoginScreen = () => {
       }
   } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again later.');
-      console.log("Login error:", error)
   }
 };
 

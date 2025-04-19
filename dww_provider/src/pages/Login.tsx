@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login, getCSRFToken } = useAuth();
+  const { login, getCSRFToken, isAuthenticated } = useAuth();
   const serverUrl = import.meta.env.VITE_PUBLIC_DEV_SERVER_URL;
   const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
 
@@ -40,7 +40,7 @@ const Login: React.FC = () => {
         }
         localStorage.setItem('authToken', data.access);
         login();
-        navigate('/');
+        navigate('/home');
       } else {
         toast("Oops! Something happened while logging in. Please try again.");
       }
@@ -57,6 +57,10 @@ const Login: React.FC = () => {
   const handleRegisterClick = () => {
     navigate('/register');
   };
+
+  if (isAuthenticated) {
+    navigate('/home');
+  }
 
   return (
     <div className={styles.authFormContainer}>

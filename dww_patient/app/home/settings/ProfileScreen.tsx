@@ -83,9 +83,6 @@ const ProfileScreen = () => {
       };
 
       const handleChangePassword = async () => {
-        console.log("Current password is:", currentPassword);
-        console.log("New password is:", newPassword);
-        console.log("Confirm password is:", confirmPassword);
         if (!currentPassword || !newPassword || !confirmPassword) {
           setMessage('All password fields are required.');
           return;
@@ -152,7 +149,7 @@ const ProfileScreen = () => {
                   handleUpdate("email")
               } else {
                   setEditingField("email");
-                  setTempValue(profileData.email);
+                  setTempValue(profileData?.email ?? '');
               }
             }}
           >
@@ -185,7 +182,7 @@ const ProfileScreen = () => {
                   handleUpdate("phone")
               } else {
                   setEditingField("phone");
-                  setTempValue(profileData.phone);
+                  setTempValue(profileData?.phone ?? '');
               }
             }}
           >
@@ -283,7 +280,7 @@ const styles = StyleSheet.create({
         flex: 1.5,
       },
       editButton: {
-        backgroundColor: "#007AFF",
+        backgroundColor: "#7B5CB8",
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 5,
