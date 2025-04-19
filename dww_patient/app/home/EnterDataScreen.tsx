@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text, StyleSheet, View, TextInput, Keyboard,
   TouchableWithoutFeedback, TouchableOpacity, Alert, Switch
@@ -6,12 +6,35 @@ import {
 import { useAuth } from '../auth/AuthProvider';
 import { authFetch } from '../../utils/authFetch';
 import { ActivityIndicator } from 'react-native';
+import { connectToScale, stopScanning } from '../../utils/bluetooth';
 
 const EnterDataScreen = () => {
   const { accessToken, refreshAccessToken, logout, user, setUser } = useAuth();
   const [weight, setWeight] = useState('');
   const [loading, setLoading] = useState(false);
   const [isMetric, setIsMetric] = useState(user?.unit_preference === 'metric');
+  const [scanning, setScanning] = useState(false); 
+
+  // app scans BLE for some time upon opening this screen
+  useEffect(() => {
+    let mounted = true;
+    setScanning(true); 
+    connectToScale(
+      (weight) => {
+        if (!mounted) return; 
+        const val = isMetric ? weight : weight * 2.20462;
+        setWeight(val.toFixed(2));
+      },
+      60000  // scan for 60s before quitting to save battery 
+    )
+    .catch(err => { console.error('BLE scan error:', err.message); })
+    .finally(() => { if (mounted) setScanning(false); });
+
+    return () => {
+      mounted = false; // this cleanup should avoid error if screen is unmounted before connectToScale finishes 
+      stopScanning();
+    };
+  }, [isMetric]);
 
   const handleReportData = async () => {
     if (!weight) {
@@ -120,6 +143,17 @@ const EnterDataScreen = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Daily Dry Weight Tracker</Text>
           <Text style={styles.subtitle}>Track your weight to monitor your health effectively.</Text>
+        </View>
+        
+        {scanning && (
+          <View style={styles.scanningContainer}>
+            <View style={styles.scanningRow}>
+              <ActivityIndicator size="small" color="#7B5CB8" />
+              <Text style={styles.scanningText}>Scanning for Renpho ES-CS20M scale...</Text>
+            </View>
+            <Text style={styles.scanningText}>(or enter manually)</Text>
+          </View>
+        )}
         
         <View style={styles.inputContainer}>
           <Text style={styles.label}>
@@ -139,7 +173,6 @@ const EnterDataScreen = () => {
               <Text style={styles.reportButtonText}>Record Weight</Text>
             </TouchableOpacity>
           )}
-        </View>
         </View>
         <View style={styles.unitToggleContainer}>
           <Text style={styles.unitLabel}>
@@ -185,6 +218,21 @@ const styles = StyleSheet.create({
     color: '#5A5A5A',
     textAlign: 'center',
     lineHeight: 22,
+  },
+  scanningContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  scanningRow: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+  }, 
+  scanningText: {
+    marginLeft: 8,
+    fontStyle: 'italic',
+    color: '#555',
   },
   unitToggleContainer: {
     flexDirection: 'row',
