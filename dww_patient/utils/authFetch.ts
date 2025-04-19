@@ -21,7 +21,7 @@ export const authFetch = async (
 
     const fetchWithToken = async () => {
 
-        // if no access token, logout
+        // If no access token, logout
         if (!accessToken) {
             await logout(); 
         }

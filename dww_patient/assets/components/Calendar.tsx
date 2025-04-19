@@ -53,7 +53,7 @@ const Calendar = ({ weightRecord, onDataPointSelect }: CalendarProps) => {
     setSelectedMonthRecord(filteredData);
   }, [selectedMonth, weightRecord]);
 
-  //main calendar construction
+  //m Min calendar construction
   const grid = [];
   let dayCounter = 1;
 

@@ -13,6 +13,8 @@ type ProfileData = {
   email: string,
   phone: string,
   password: string,
+  is_verified: boolean,
+  unit_preference: string,
 }
 
 type WeightRecord = {
@@ -51,7 +53,6 @@ const HomeScreen = () => {
     }
   }
 
-  // Fetch weight records
   const fetchWeightRecords = async () => {
     try {
       const response = await authFetch(

@@ -1,7 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, LayoutChangeEvent, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Text as SvgText, Line, Path, Circle, G } from 'react-native-svg';
+import { useAuth } from '../../app/auth/AuthProvider';
+import { authFetch } from '@/utils/authFetch';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
+
+type ProfileData = {
+  firstname: string,
+  lastname: string,
+  email: string,
+  phone: string,
+  password: string,
+  is_verified: boolean,
+  unit_preference: string,
+}
 
 type ChartProps = {
   weightRecord: Array<{
@@ -9,6 +22,7 @@ type ChartProps = {
     weight: number;
   }>;
   onDataPointSelect: (day: Date) => void;
+  unit_preference: 'metric' | 'imperial';
 };
 
 type WeightRecord = {
@@ -16,12 +30,47 @@ type WeightRecord = {
   weight: number,
 }
 
-const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => { 
+const Chart = ({ weightRecord, onDataPointSelect, unit_preference }: ChartProps) => { 
+  const [userData, setUserData] = useState<ProfileData | null>(null);
+  const { accessToken, refreshAccessToken, logout } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedMonthRecord, setSelectedMonthRecord] = useState<WeightRecord[]>([]);
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userPreference, setUserPreference] = useState<string | null>(null);
   const MARGIN = 16 + 32;
+
+  const fetchUserData = async () => {
+    try {
+      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        setError(`HTTP error: ${res.status}`);
+        return;
+      }
+      const data = await res.json();
+      console.log("data is ", data)
+      console.log(data["unit_preference"])
+      setUserData(data);
+      setUserPreference(data.unit_preference);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [accessToken])
+  );
 
   const onLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -40,7 +89,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     setSelectedMonth(nextMonth);
   }
 
-  //point placement
+  // Point placement
   const xScale = (day: Date) => {
     return ((day.getDate()) / (new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate())) * (dimensions.width - MARGIN * 2) + MARGIN;
   };
@@ -49,7 +98,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     return dimensions.height - MARGIN - ((weight - minWeight) / (maxWeight - minWeight)) * (dimensions.height - MARGIN * 2);
   };
 
-  //gridline placement
+  // Gridline placement
   const generateYAxisGrid = () => {
     const range = maxWeight - minWeight;
     return Array.from({ length: 7 }, (_, i) => minWeight + i * (range / 6));
@@ -57,6 +106,10 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
   
   const generateXAxisGrid = (month: Date) => {
     return Array.from({ length: new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
+  };
+
+  const convertToKilograms = (weightInPounds: number) => {
+    return weightInPounds / 2.20462;
   };
 
   useEffect(() => {
@@ -80,7 +133,7 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
       const { timestamp, weight, count } = aggregatedData[dateKey];
       return {
         timestamp,
-        weight: weight / count,
+        weight: userPreference === 'metric' ? convertToKilograms(weight) / count : weight / count, 
       };
     }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   
@@ -92,7 +145,6 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
   const minWeight = Math.min(...selectedMonthRecord.map(d => d.weight)) - padding;
   const maxWeight = Math.max(...selectedMonthRecord.map(d => d.weight)) + padding;
 
-  //TODO: special behavior for missing days while drawing?
   let path = '';
   selectedMonthRecord.forEach((point, index) => {
     if (index === 0) {
@@ -102,7 +154,6 @@ const Chart = ({ weightRecord, onDataPointSelect }: ChartProps) => {
     }
   });
 
-  //draw axes (line x2), gridlines (generated lines and text), line (path), then interactable points (circles)
   return (
     <View style={{ flex: 1 }}>
 

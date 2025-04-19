@@ -115,7 +115,7 @@ const RemindersScreen = () => {
     fetchReminders();
   }, [accessToken]);
 
-  useEffect(() => { //im scared of messing up database to local notification synchronization so im wiping all notifications and rescheduling whatever is retrieved
+  useEffect(() => { 
     const resyncNotifications = async () => {
       await requestNotificationPermissions();
       
@@ -136,7 +136,8 @@ const RemindersScreen = () => {
     fetchNotificationPreferences();
   }, [accessToken]);
 
-  const handleAddReminder = async () => { //add new reminder
+  // Add new reminder
+  const handleAddReminder = async () => { 
     try {
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/add-reminder/`, 
@@ -164,7 +165,8 @@ const RemindersScreen = () => {
     }
   }
 
-  const handleEditReminder = (id: number) => { //target old reminder
+  // Target old reminder
+  const handleEditReminder = (id: number) => { 
     const reminder = reminders.find(r => r.id === id);
     if (reminder) {
       setTime(reminderTimeToDate(reminder.time));
@@ -176,7 +178,8 @@ const RemindersScreen = () => {
     }
   }
 
-  const handleSaveReminder = async () => { //update old reminder with new data
+  // Update old reminder with new data
+  const handleSaveReminder = async () => { 
     try {
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/save-reminder/`,
@@ -205,7 +208,8 @@ const RemindersScreen = () => {
     }
   }
 
-  const handleDeleteReminder = async () => { //delete selected reminder
+  // Delete selected reminder
+  const handleDeleteReminder = async () => { 
     try {
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/delete-reminder/${selectedReminderID}/`,

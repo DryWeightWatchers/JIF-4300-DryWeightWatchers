@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react';
-import { Alert, Text, StyleSheet, View, TextInput, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { Alert, Text, StyleSheet, View, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
 
@@ -23,7 +22,7 @@ const AccountScreen = () => {
       } else {
         const errorData = await response.json();
         Alert.alert('Error', errorData.message || 'Logout failed');
-        await logout();  // fallback: clear tokens anyway so user doesn't get stuck logged in 
+        await logout();  
       }
     } catch (error) {
       Alert.alert('Error', 'Something went wrong during logout');

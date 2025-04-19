@@ -1,29 +1,44 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, ScrollView, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps } from '../types/navigation';
 import Chart from '../../assets/components/Chart';
 import Calendar from '../../assets/components/Calendar';
 import { useAuth } from '../auth/AuthProvider';
-import { authFetch } from '../../utils/authFetch'; 
+import { authFetch } from '../../utils/authFetch';
 
 type WeightRecord = {
   timestamp: Date,
   weight: number,
 }
 
+type ProfileData = {
+  firstname: string,
+  lastname: string,
+  email: string,
+  phone: string,
+  password: string,
+  is_verified: boolean,
+  unit_preference: string,
+}
+
 type PatientNote = {
+  id: number,
   timestamp: Date,
   note: string,
 }
 
 const DashboardScreen = () => {
   const navigation = useNavigation<HomeTabScreenProps<'Dashboard'>['navigation']>();
-  const { accessToken, refreshAccessToken, logout } = useAuth();
+  const { accessToken, refreshAccessToken, logout, user } = useAuth();
   const [chart, setChart] = useState('chart');
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [weightRecord, setWeightRecord] = useState<WeightRecord[]>([]);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userData, setUserData] = useState<ProfileData | null>(null);
+  const [userPreference, setUserPreference] = useState<string | null>(null);
 
   const fetchWeightRecord = async () => {
     try {
@@ -53,6 +68,28 @@ const DashboardScreen = () => {
     }
   }
 
+  const fetchUserData = async () => {
+    try {
+      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        setError(`HTTP error: ${res.status}`);
+        return;
+      }
+      const data = await res.json();
+      setUserData(data);
+      setUserPreference(data.unit_preference);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   const fetchPatientNotes = async () => {
     try {
       const response = await authFetch(
@@ -71,6 +108,7 @@ const DashboardScreen = () => {
 
       const data = await response.json();
       const formattedNotes = data.map((item: any) => ({
+        id: item.id,
         timestamp: new Date(item.timestamp),
         note: item.note,
       }));
@@ -84,23 +122,28 @@ const DashboardScreen = () => {
   const handleDataPointSelect = (day: Date) => {
     setSelectedDay(day);
   };
-/*
-  const handleDataPointSelect = (selectedData: { day: Date }) => {
-    setSelectedDay({
-      day: selectedData.day,
-      weight: weightRecord.find(record => record.timestamp.toDateString() === selectedData.day.toDateString())?.weight,
-      notes: patientNotes
-        .filter(note => note.timestamp.toDateString() === selectedData.day.toDateString())
-        .map(note => note.note).join('\n') || 'No notes for this day',
-    });
+
+  const convertWeight = (weight: Number, unit_preference) => {
+    if (userPreference === 'metric') {
+      return (weight / 2.20462).toFixed(2) + ' kg'; // Convert pounds to kilograms
+    }
+    return weight + ' lbs';
   };
-*/
+
   useFocusEffect(
     useCallback(() => {
       fetchWeightRecord();
+      fetchUserData();
       fetchPatientNotes();
     }, [accessToken])
   );
+
+  // Add useEffect to refresh weight records when unit preference changes
+  useEffect(() => {
+    if (user?.unit_preference) {
+      fetchWeightRecord();
+    }
+  }, [user?.unit_preference]);
 
   return (
     <View style={styles.mainContainer}>
@@ -149,7 +192,7 @@ const DashboardScreen = () => {
               .map((record, index) => (
                 <View key={index} style={styles.noteItem}>
                   <Text style={styles.noteValue}>
-                    {record.weight} lbs
+                    {convertWeight(record.weight, userPreference)}
                   </Text>
                   <Text style={styles.noteTime}>
                     {record.timestamp.toLocaleTimeString('en-US', {
@@ -230,9 +273,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  /*middleSlider: {
-    in case I decide I want more chart types later.
-  },*/
   rightSlider: {
     padding: 12,
     borderTopRightRadius: 20,
