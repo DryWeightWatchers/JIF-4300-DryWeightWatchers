@@ -1,3 +1,52 @@
+# Overview: 
+
+This document is intended to give the client, or any future development team, all the information they need to know to manage the relevant accounts and setup the software for future development if needed. Sensitive credentials will not be included here but will be transferred separately. 
+
+The software consists of several parts: 
+- The **MySQL database**, hosted on **Amazon AWS**. 
+- The **Django server**, also hosted on **Amazon AWS**. 
+- The **web interface** for healthcare providers, hosted on https://dryweightwatchers.com via **Amazon AWS**. 
+- The **mobile interface** for patients, which is deployed to the Android and iOS app stores. 
+
+All of the code is open-source and located at https://github.com/DryWeightWatchers/JIF-4300-DryWeightWatchers. 
+
+# Handoff checklist: 
+
+- [ ] **Transfer the AWS root account** 
+	- [ ] Change account login and personal info (email, address, name, etc.) 
+	- [ ] Change billing information 
+	- [ ] Remove 2FA and set it up for client 
+- [ ] **Transfer the DryWeightWatchers email account** 
+	- [ ] Share credentials 
+	- [ ] Change recovery phone 
+	- [ ] Remove 2FA and set it up for client 
+- [ ] **Transfer the Twilio account** (used for the app's text notification feature) 
+- [ ] **Transfer the Expo development account** 
+- [ ] **Transfer the Google Play store account** 
+- [ ] **Transfer the Apple Store account** (?) 
+- [ ] **Share the AWS database credentials** 
+
+# AWS guide: 
+
+This section will give an overview of how to navigate AWS and the services used by our application. 
+
+To sign in, go to https://aws.amazon.com/ and click "Sign into the Console". Note that there are two types of accounts: a **root account** which has admin privileges, and **IAM users**, which have limited privileges that can be managed by the root account. The login form prompts for IAM credentials by default - you must click "Sign in using root user email" to use the root account. All IAMs users must use a single **Account ID** to sign in, in addition to their individual credentials. Howeer, here we assume we are using the root account. 
+
+Upon logging in you should see a dashboard with a list of AWS services and some cost/usage information, among other things. The services used by our software are the following: 
+- **Aurora and RDS** - for hosting the MySQL database. 
+- **Elastic Beanstalk and EC2** - for hosting the Django server. 
+- **CloudFront** - for hosting the web interface at https://dryweightwatchers.com. 
+- **Virtual Private Cloud (VPC)** - infrastructure needed to deploy on the above services. 
+- **Identity and Access Management (IAM)** - for managing multiple user accounts. 
+- **Billing and Cost Management** - self explanatory. 
+
+The exact cost of these services is hard to determine in advance because of AWS's complicated billing scheme. However, rough estimates are as follows: 
+- $12/month for the RDS service (database hosting), although it is free until November 2025. 
+- $10/month for the EC2 service (server hosting), although it is free until around February 2026. 
+- $12/month for the VPC service (networking infrastructure). 
+In the future, if the number of users scales up significantly, you may need to deploy more resources on the existing services, which will increase costs. 
+
+
 # Developer Setup 
 
 ### Prerequisites: 
@@ -22,11 +71,13 @@ Always follow these practices whenever you are installing/uninstalling Python de
 - Make sure the venv is activated. 
 - Then run `pip-compile --output-file=requirements.txt requirements.in` to generate a new `requirements.txt` dependency file which others can use to install the dependencies. 
 
+### Setting up environment variables: 
+
+Each subrepository (`dww_backend`, `dww_patient`, and `dww_provider`) has a file called `.env_template`. You must input the necessary credentials into each of those files, then rename each of them to `.env`. See each file for more specific instructions. 
+
 ### Accessing the database: 
 
 Open MySQL Workbench, which was included in MySQL Server. In the top menu bar, select *Database > Connect to Database*. Enter the appropriate credentials and click OK. In the new tab, go to the Navigator pane on the left and double-click the *dry_weight_watchers* database to select it (it will turn bold). In the Query pane in the center, you can run SQL commands on the database. Try using `select * from <TableName>` to see some data. 
-
-When you first run the development server, you'll need to enter your database credentials into an `.env` file to ensure Django can access the database without exposing sensitive info to the repo. Follow the instructions in the `.env_template` file. 
 
 ### Running the application: 
 
