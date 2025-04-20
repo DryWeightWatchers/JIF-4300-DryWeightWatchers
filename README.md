@@ -51,4 +51,4 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
 </details>
 
 # Installation Guide
-Please review the installation guide located [here](https://github.com/DryWeightWatchers/JIF-4300-DryWeightWatchers/blob/release/docs/Installation%20Guide.md). 
+Please review the installation guide located [here](https://github.com/DryWeightWatchers/JIF-4300-DryWeightWatchers/blob/dev/docs/Installation%20Guide.md). 
