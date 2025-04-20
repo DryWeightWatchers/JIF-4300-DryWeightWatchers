@@ -100,5 +100,25 @@ To run the backend server, navigate to `dww/backend` and run `python manage.py r
         - `eb logs` to check the logs of the environment
 
 #### Deploying providers web app
-- To deploy the provider web app there is a bash file called `deploy.sh` in the `dww_provider`. That will take care of the deployment for you. 
- 
+- To deploy the provider web app there is a bash file called `deploy.sh` in the `dww_provider`. That will take care of the deployment for you.
+
+#### Deploying patient mobile app
+- To deploy the patient mobile app you need several things (inside `dww_patient` directory):
+	- Set up the App signing for google play:
+		- Run: `eas credentials`
+		- Select Android > Production > Keystore > Setup New:
+		- Press enter for default name
+		- Say yes to set as default credentials
+  		- Say no to create a new one
+    		- Download the key provided privately and write the path to the key when prompted
+  	- Run: `eas build --platform android` for android or `eas build --platform ios` for ios.
+  		- If not logged in run: `eas login`
+  			- Login to the eas account using the credentials provided privately
+  	 - If you're deploying for android, download the resulting .aab file.
+  	   	- Log into [Play Console](https://play.google.com/console/u/1/developers/4892570457761942405/app/4974335936513925280/app-dashboard?timespan=thirtyDays) and choose Production or Testing, and upload your aab file and publish the changes.
+	- If you're deploying for ios, run `eas submit --platform ios`
+ 		- If not logged in it will ask you to log into the apple developer account, use the credentials shared privately.
+		- Once this is done, log into the [App Store Connect](https://appstoreconnect.apple.com/apps/6744403523/distribution) and next to IOS App press the +
+  			- Name the version
+			- Specify the changes
+   			- Select the build and publish the changes
