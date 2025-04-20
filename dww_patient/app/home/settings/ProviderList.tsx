@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity, SafeAreaView} from 'react-native';
+import { Button, StyleSheet, Text, FlatList, View, TouchableOpacity, SafeAreaView, 
+  ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '@/utils/authFetch';
@@ -11,6 +12,7 @@ const ProviderList = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'ProviderList'>['navigation']>();
   const [providers, setProviders] = useState<Provider[]>([]); 
   const {accessToken, refreshAccessToken, logout} = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(true); 
 
   useFocusEffect(
     useCallback(() => {
@@ -23,7 +25,8 @@ const ProviderList = () => {
         if (!accessToken) {
             await refreshAccessToken();
         }
-        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/user/providers/`, accessToken, refreshAccessToken, logout, {
+        const response = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/user/providers/`, 
+          accessToken, refreshAccessToken, logout, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -42,6 +45,8 @@ const ProviderList = () => {
         setProviders(data)
     } catch (error) {
         //console.error('Error fetching providers:', error);
+    } finally {
+      setIsLoading(false); 
     }
   }
 
@@ -73,6 +78,15 @@ const ProviderList = () => {
     } catch (error) {
         //console.error('Error deleting provider:', error);
     }
+  }
+
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#7B5CB8" />
+      </View>
+    );
   }
 
   return (
@@ -109,6 +123,12 @@ const ProviderList = () => {
 };
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F9FF',
+    },
     addButton: {
       alignItems: 'center',
       justifyContent: 'center',
