@@ -24,7 +24,7 @@ All of the code is open-source and located at https://github.com/DryWeightWatche
 - [ ] **Transfer the Twilio account** (used for the app's text notification feature) 
 - [ ] **Transfer the Expo development account** 
 - [ ] **Transfer the Google Play store account** 
-- [ ] **Transfer the Apple Store account** (?) 
+- [ ] **Create separate Apple developer account for iOS deployment** 
 - [ ] **Share the AWS database credentials** 
 
 # AWS guide: 
