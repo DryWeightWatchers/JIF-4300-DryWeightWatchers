@@ -13,6 +13,7 @@ All of the code is open-source and located at https://github.com/DryWeightWatche
 # Handoff checklist: 
 
 - [ ] **Transfer the AWS root account** 
+    - [ ] Remove the inbound security rules that allow traffic to the RDS instance from any origin 
 	- [ ] Change account login and personal info (email, address, name, etc.) 
 	- [ ] Change billing information 
 	- [ ] Remove 2FA and set it up for client 
@@ -58,6 +59,8 @@ You'll need to install MySQL Server from [here](https://dev.mysql.com/downloads/
 For testing, you'll need an Android or iOS emulator, such as one available in Android Studio. Testing on iOS requires macOS and the XCode IDE. 
 
 To deploy the application to AWS you will need to install the AWS CLI from [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). (You'll also need aws credentials which will be shared privately.)
+
+In order to connect to the database locally, you'll need to adjust a security setting in the AWS Console. Go to the *Aurora and RDS* service, click on the database, then in the *Connectivity & Security* tab, click on the *VPC security group*, then click it's ID again. You should see a rule showing the the database only receives inbound traffic from a particular other *security group* - the one associated with the deployed Django server. If you want to connect to the database from a local development server, you'll have to add additional inbound rules to allow traffic from your IP. For security reasons, we recommend not leaving the database exposed to all IPs, as that means anyone who knows the endpoint could execute commands directly on the database. 
 
 ### Installing project dependencies: 
 
