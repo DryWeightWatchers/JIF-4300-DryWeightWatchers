@@ -6,7 +6,7 @@ You'll need Node.js and Python installed. You can verify if you have them by ope
 
 You'll need to install MySQL Server from [here](https://dev.mysql.com/downloads/installer/) to access the database. (You'll also need credentials which will be shared privately.) 
 
-You'll also need to install the Expo Go app on your phone to run the development build of the mobile front-end. 
+For testing, you'll need an Android or iOS emulator, such as one available in Android Studio. Testing on iOS requires macOS and the XCode IDE. 
 
 To deploy the application to AWS you will need to install the AWS CLI from [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). (You'll also need aws credentials which will be shared privately.)
 
@@ -30,11 +30,11 @@ When you first run the development server, you'll need to enter your database cr
 
 ### Running the application: 
 
-To run the mobile front-end, navigate to `dww_patient` and run `npx expo start`. It will start a local development server and output a QR code. Scan the code with your phone to open the app in Expo Go, or go to `http://localhost:8081` to open the app in a browser. Your phone must be connected to the same wifi network as your development machine for Expo Go to work. 
+To run the mobile front-end, navigate to `dww_patient` and run `npx expo run:android` or `npx expo run:ios`. It will start the app in an emulator if you have one. 
 
 To run the web front-end, navigate to `dww_provider` and run `npm run dev`. It will start a local Vite development server which you can access via `http://localhost:5173`. 
 
-To run the backend server, navigate to `dww/backend` and run `python manage.py runserver`. For local testing, we found more success specifically running `python manage.py runserver 0.0.0.0:8000`.
+To run the backend server, navigate to `dww/backend` and run `python manage.py runserver 0.0.0.0:8000`.
 
 ### Deploying the application to AWS: 
 #### Deploying django server

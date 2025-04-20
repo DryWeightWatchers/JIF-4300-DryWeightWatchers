@@ -46,7 +46,6 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
   - (N/A)
 
   ### Known Issues
-  - Loading screens are only present in a few recent screens rather than universal/standardized.
   - Deleted accounts are not 'recreated' or removed from deleted users table upon creation of a new account reusing that email.
   - 2-factor authentication option is present in provider interface, but was not in the scope of the first release.
 </details>
