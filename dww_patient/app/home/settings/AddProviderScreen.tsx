@@ -80,6 +80,7 @@ const AddProviderScreen = () => {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <SafeAreaView>
                         <View style={styles.container}>
+                        <Text style={styles.topText}>Enter your healthcare provider's ID to connect them to your account. This information should be given by your provider.</Text>
                             <View style={styles.inputContainer}>
                                 <View style={styles.inputGroup}>
                                 {code.map((char, index) => (
@@ -129,6 +130,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF9FF',
         paddingHorizontal: 20,
         paddingVertical: 30,
+    },
+    topText: {
+      marginTop: 40, 
+      marginBottom: 80,  
+      fontSize: 15, 
+      textAlign: 'center', 
+      color: '#333',
     },
     inputContainer: {
         alignItems: 'center',

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Text, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps, SettingsStackScreenProps } from '../types/navigation';
 import { authFetch } from '@/utils/authFetch';
@@ -29,7 +29,7 @@ const HomeScreen = () => {
   const navigation_settings = useNavigation<SettingsStackScreenProps<'Settings'>['navigation']>();
   const { accessToken, refreshAccessToken, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userDataIsLoading, setUserDataIsLoading] = useState<boolean>(true);
   const [chart, setChart] = useState('chart');
 
   const fetchUserData = async () => {
@@ -49,7 +49,7 @@ const HomeScreen = () => {
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setIsLoading(false);
+      setUserDataIsLoading(false);
     }
   }
 
@@ -58,11 +58,11 @@ const HomeScreen = () => {
       const response = await authFetch(
         `${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/get-weight-record/`,
         accessToken, refreshAccessToken, logout, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!response.ok) {
@@ -95,10 +95,18 @@ const HomeScreen = () => {
     );
   };
 
-
   const handleDataPointSelect = (day: Date) => {
     navigation.navigate('Dashboard');
   };
+
+
+  if (userDataIsLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#7B5CB8" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -157,6 +165,12 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F9FF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F5F9FF',

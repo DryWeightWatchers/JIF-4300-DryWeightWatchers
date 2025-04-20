@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, ScrollView, } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HomeTabScreenProps } from '../types/navigation';
 import Chart from '../../assets/components/Chart';
@@ -33,12 +33,16 @@ const DashboardScreen = () => {
   const { accessToken, refreshAccessToken, logout, user } = useAuth();
   const [chart, setChart] = useState('chart');
   const [selectedDay, setSelectedDay] = useState(new Date());
+  const [userData, setUserData] = useState<ProfileData | null>(null);
   const [weightRecord, setWeightRecord] = useState<WeightRecord[]>([]);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [userData, setUserData] = useState<ProfileData | null>(null);
   const [userPreference, setUserPreference] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
+  const [userDataIsLoading, setUserDataIsLoading] = useState<boolean>(true);
+  const [weightRecordsAreLoading, setWeightRecordsAreLoading] = useState<boolean>(true);
+  const [notesAreLoading, setNotesAreLoading] = useState<boolean>(true);
+
 
   const fetchWeightRecord = async () => {
     try {
@@ -65,12 +69,15 @@ const DashboardScreen = () => {
 
     } catch (error: any) {
       alert('Failed to get your weight data. Please try again.')
+    } finally {
+      setWeightRecordsAreLoading(false); 
     }
   }
 
   const fetchUserData = async () => {
     try {
-      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, accessToken, refreshAccessToken, logout, {
+      const res = await authFetch(`${process.env.EXPO_PUBLIC_DEV_SERVER_URL}/patient-profile/`, 
+        accessToken, refreshAccessToken, logout, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
@@ -86,7 +93,7 @@ const DashboardScreen = () => {
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setIsLoading(false);
+      setUserDataIsLoading(false);
     }
   }
 
@@ -116,6 +123,8 @@ const DashboardScreen = () => {
 
     } catch (error: any) {
       alert('Failed to get your patient notes. Please try again.')
+    } finally {
+      setNotesAreLoading(false); 
     }
   }
 
@@ -144,6 +153,15 @@ const DashboardScreen = () => {
       fetchWeightRecord();
     }
   }, [user?.unit_preference]);
+
+
+  if (userDataIsLoading || weightRecordsAreLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#7B5CB8" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.mainContainer}>
@@ -213,29 +231,41 @@ const DashboardScreen = () => {
 
           <View style={styles.noteSection}>
             <Text style={styles.noteLabel}>Notes:</Text>
-            {patientNotes
-              .filter(note => 
-                note.timestamp.toDateString() === selectedDay.toDateString()
-              )
-              .map((note, index) => (
-                <View key={index} style={styles.noteItem}>
-                  <Text style={styles.noteText}>{note.note}</Text>
-                  <Text style={styles.noteTime}>
-                    {note.timestamp.toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </Text>
-                </View>
-              ))}
-            
-            {!patientNotes.some(note => 
-              note.timestamp.toDateString() === selectedDay.toDateString()
-            ) && (
-              <Text style={styles.noText}>No notes for this day</Text>
+
+            {notesAreLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#7B5CB8" />
+              </View>
+
+            ) : (
+              <>
+                {patientNotes
+                  .filter(note => 
+                    note.timestamp.toDateString() === selectedDay.toDateString()
+                  )
+                  .map((note, index) => (
+                    <View key={index} style={styles.noteItem}>
+                      <Text style={styles.noteText}>{note.note}</Text>
+                      <Text style={styles.noteTime}>
+                        {note.timestamp.toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Text>
+                    </View>
+                  ))}
+                
+                {!patientNotes.some(note => 
+                  note.timestamp.toDateString() === selectedDay.toDateString()
+                ) && (
+                  <Text style={styles.noText}>No notes for this day</Text>
+                )}
+              </>
+
             )}
           </View>
         </View>
+
       ) : (
         <View style={styles.placeholderContainer}>
           <Text style={styles.placeholderText}>
@@ -249,6 +279,12 @@ const DashboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F9FF',
+  },
   mainContainer: {
     flex: 1,
     backgroundColor: 'white',

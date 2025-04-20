@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Text, StyleSheet, View, TextInput, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { Alert, Button, Text, StyleSheet, View, TextInput, TouchableOpacity, 
+  SafeAreaView, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform, 
+  Keyboard, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
@@ -115,6 +117,15 @@ const ProfileScreen = () => {
           setMessage('Failed to update password. Please try again.');
         }
       };
+    
+
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#7B5CB8" />
+        </View>
+      );
+    }
 
     return (
       <KeyboardAvoidingView
@@ -210,6 +221,12 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F9FF',
+    },
     mainContainer: {
       flex: 1,
       backgroundColor: '#F5F9FF',

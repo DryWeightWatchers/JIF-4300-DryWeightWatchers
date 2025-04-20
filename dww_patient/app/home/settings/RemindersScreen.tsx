@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, Button, Switch, Pressable } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Modal, Button, Switch, 
+  Pressable, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import ReminderItem from '../../../assets/components/ReminderItem'
@@ -7,7 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { SettingsStackScreenProps } from '../../types/navigation';
 import { useAuth } from '../../auth/AuthProvider';
 import { authFetch } from '../../../utils/authFetch'; 
-import { scheduleNotification, cancelAllNotifications, requestNotificationPermissions } from '../../../utils/reminderNotifications';
+import { scheduleNotification, cancelAllNotifications, 
+  requestNotificationPermissions } from '../../../utils/reminderNotifications';
 
 interface NotificationPreferences {
   push_notifications: boolean;
@@ -28,6 +30,8 @@ const RemindersScreen = () => {
     email_notifications: false
   });
   const [preferencesModalVisible, setPreferencesModalVisible] = useState(false);
+  const [preferencesAreLoading, setPreferencesAreLoading] = useState<boolean>(true); 
+  const [remindersAreLoading, setRemindersAreLoading] = useState<boolean>(true); 
 
   const fetchNotificationPreferences = async () => {
     try {
@@ -52,6 +56,8 @@ const RemindersScreen = () => {
       setNotificationPreferences(data);
     } catch (error: any) {
       alert('Failed to get your notification preferences. Please try again.');
+    } finally {
+      setPreferencesAreLoading(false); 
     }
   };
 
@@ -108,6 +114,8 @@ const RemindersScreen = () => {
       setReminders(parsedReminders);
     } catch (error: any) {
       alert('Failed to get your reminders. Please try again.')
+    } finally {
+      setRemindersAreLoading(false); 
     }
   };
   
@@ -248,6 +256,14 @@ const RemindersScreen = () => {
     setSelectedReminderID(-1);
   }
 
+  if (preferencesAreLoading || remindersAreLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#7B5CB8" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -347,6 +363,12 @@ const RemindersScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F9FF',
+  },
   container: {
     paddingVertical: 16,
     flex: 1,
