@@ -49,3 +49,6 @@ Dry Weight Watchers is a cross-platform application to help healthcare providers
   - Deleted accounts are not 'recreated' or removed from deleted users table upon creation of a new account reusing that email.
   - 2-factor authentication option is present in provider interface, but was not in the scope of the first release.
 </details>
+
+# Installation Guide
+Please review the installation guide located [here](https://github.com/DryWeightWatchers/JIF-4300-DryWeightWatchers/blob/release/docs/Installation%20Guide.md). 
