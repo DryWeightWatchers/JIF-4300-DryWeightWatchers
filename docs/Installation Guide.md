@@ -111,6 +111,7 @@ To run the backend server, navigate to `dww/backend` and run `python manage.py r
 		- Say yes to set as default credentials
   		- Say no to create a new one
     		- Download the key provided privately and write the path to the key when prompted
+		- It will ask for the key credentials, also shared privately. 
   	- Run: `eas build --platform android` for android or `eas build --platform ios` for ios.
   		- If not logged in run: `eas login`
   			- Login to the eas account using the credentials provided privately
