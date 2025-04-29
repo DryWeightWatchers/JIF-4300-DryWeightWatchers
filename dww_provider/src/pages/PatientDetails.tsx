@@ -230,7 +230,7 @@ const PatientDetails: React.FC = () => {
       )}
       <div className={styles.button_container}>
         <button className={styles.remove_patient_btn} onClick={handleRemovePatientRelationship}>
-          Remove Patient
+          Patient No Longer Under My Care
         </button>
         <button className={styles.export_patient_btn} onClick={handleExportCSV}>
           Export Data
