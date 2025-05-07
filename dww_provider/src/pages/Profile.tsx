@@ -322,14 +322,6 @@ const Profile = () => {
       </div>
 
       <div>
-        <label>Two-Factor Authentication (2FA):</label>
-        <div>
-          <p>Not set up</p>
-          <a href='#'>Set up 2FA</a>
-        </div>
-      </div>
-
-      <div>
         <label>Notification Preferences:</label>
         <label>
           <input type='checkbox' value='email' name='email' checked={notificationPreferences.email} onChange={handleCheckboxChange} />
